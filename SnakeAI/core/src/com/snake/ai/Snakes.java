@@ -9,7 +9,7 @@ import static com.snake.ai.main.bestSnakesArray;
 
 public class Snakes {
 
-    protected static Array<Layer> layerArray;
+    protected Array<Layer> layerArray;
     protected int score;
     protected double fitness;
     protected Snakes parent1Snake, parent2Snake;
@@ -17,8 +17,6 @@ public class Snakes {
     public Snakes() {
         if (Snake.population > 0) {
             selectParents();
-            System.out.println("parent1Snake: " + parent1Snake);
-            System.out.println("parent2Snake: " + parent2Snake);
         }
         layerArray = new Array<>();
 
@@ -30,8 +28,6 @@ public class Snakes {
                 layer = new Layer(i, false, parent1Snake, parent2Snake);
             layerArray.add(layer);
         }
-
-        System.out.println("layerArray: " + layerArray);
     }
 
     public void selectParents() {
@@ -50,7 +46,7 @@ public class Snakes {
                 fitnesschecked++;
                 if (choosenNumber == fitnesschecked) {
                     choosenId = j;
-                    parent1Snake = choosenId;
+                    parent1Snake = bestSnakesArray.get(choosenId);
                 }
             }
             j++;
@@ -71,7 +67,7 @@ public class Snakes {
                 fitnesschecked++;
                 if (choosenNumber == fitnesschecked) {
                     choosenId = j;
-                    parent2Snake = choosenId;
+                    parent2Snake = bestSnakesArray.get(choosenId);
                 }
             }
             j++;

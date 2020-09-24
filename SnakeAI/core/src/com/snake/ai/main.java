@@ -35,6 +35,7 @@ public class main extends ApplicationAdapter {
     public static int SnakeHeadX, SnakeHeadY;
     Array<Integer> felderarray;
     public static boolean freeze;
+    //TODO für jede generation ein Array (Generation Best)
     public static Array<Snakes> bestSnakesArray;
     public static Snakes currentSnake;
     public static Array<Integer> layerNodeValueArray;
@@ -44,9 +45,9 @@ public class main extends ApplicationAdapter {
     public static final double biasOutput = -0.2d;
 
     //Evolutions Eigenschaften
-    public static int POPULATIONSIZE = 100;
-    public static final double mutationMin = -0.01;
-    public static final double mutationMax = 0.01;
+    public static int POPULATIONSIZE = 1000;
+    public static final double mutationMin = -0.05;
+    public static final double mutationMax = 0.05;
     public static final int bestSnakesArraySize = 5;
 
     //Neuronales Netzwerk Aussehen
@@ -76,8 +77,8 @@ public class main extends ApplicationAdapter {
         layerNodeValueArray.add(Layer3Nodes);
         layerNodeValueArray.add(Layer4Nodes);
         layerNodeValueArray.add(outputLayerNodes);
-        for(int i = 0;i < layerNodeValueArray.size;i++)
-            if(layerNodeValueArray.get(i) == 0)
+        for (int i = 0; i < layerNodeValueArray.size; i++)
+            if (layerNodeValueArray.get(i) == 0)
                 layerNodeValueArray.removeIndex(i);
         bestSnakesArray = new Array<>();
         snake.main2();
@@ -201,7 +202,7 @@ public class main extends ApplicationAdapter {
         //return Math.tanh(x);
 
         //Relu
-        return Math.max(0,x);
+        return Math.max(0, x);
 
         //Relu 2.0 (Best)
         //if (x > 0) {

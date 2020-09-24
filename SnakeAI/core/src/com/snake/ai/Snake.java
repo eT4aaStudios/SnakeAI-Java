@@ -127,7 +127,6 @@ public class Snake extends JPanel implements Runnable {
         initGrid();
         treats = new LinkedList<>();
 
-        dir = Dir.left;
         energy = 2000;
 
         if (score > hiScore) {
@@ -151,8 +150,32 @@ public class Snake extends JPanel implements Runnable {
         snakeNr++;
 
         snake = new ArrayList<>();
-        for (int x = 0; x < startlength; x++)
-            snake.add(new Point(nCols / 2 + x, nRows / 2));
+
+        Random r = new Random();
+        switch (r.nextInt(4)) {
+            case 0:
+                dir = Dir.left;
+                for (int x = 0; x < startlength; x++)
+                    snake.add(new Point(nCols / 2 + x, nRows / 2));
+                break;
+            case 1:
+                dir = Dir.right;
+                for (int x = startlength; x > 0; x--)
+                    snake.add(new Point(nCols / 2 + x, nRows / 2));
+                break;
+            case 2:
+                dir = Dir.up;
+                for (int x = 0; x < startlength; x++)
+                    snake.add(new Point(nCols / 2, nRows / 2 + x));
+                break;
+            case 3:
+                dir = Dir.down;
+                for (int x = startlength; x > 0; x--)
+                    snake.add(new Point(nCols / 2, nRows / 2 + x));
+                break;
+        }
+
+
 
         do
             addTreat();
@@ -304,9 +327,9 @@ public class Snake extends JPanel implements Runnable {
     }
 
     void gameOver() {
-        System.out.println("\n_____________________");
-        System.out.println(" Game Over new Snake   ");
-        System.out.println("_____________________\n");
+        //System.out.println("\n_____________________");
+        //System.out.println(" Game Over new Snake   ");
+        //System.out.println("_____________________\n");
         currentSnake.score = score;
         gameOver = true;
         stop();
@@ -315,7 +338,7 @@ public class Snake extends JPanel implements Runnable {
 
         if (bestSnakesArray.size < bestSnakesArraySize)
             bestSnakesArray.add(currentSnake);
-        else if (currentSnake.fitness > bestSnakesArray.first().fitness) {
+        else if (currentSnake.fitness > bestSnakesArray.get(bestSnakesArray.size - 1).fitness) {
             bestSnakesArray.removeIndex(0);
             bestSnakesArray.add(currentSnake);
         }
@@ -419,7 +442,7 @@ public class Snake extends JPanel implements Runnable {
         String s2 = format("snakeNr %d    population %d", snakeNr, population);
         g.drawString(s2, 30, h - 410);
 
-        String s3 = format("currentFitness %d   bestFitness %d", (int) currentSnake.fitness, (int) bestSnakesArray.first().fitness);
+        String s3 = format("currentFitness %d   bestFitness %d", (int) currentSnake.fitness, (int) bestSnakesArray.get(bestSnakesArray.size - 1).fitness);
         g.drawString(s3, 30, h - 380);
 
         g.drawString(format("energy %d", energy), getWidth() - 150, h - 30);

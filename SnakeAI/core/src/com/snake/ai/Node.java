@@ -16,7 +16,7 @@ public class Node {
             WeigthArray = new Array<>();
             for (int WeigthNumber = 0; WeigthNumber < layerNodeValueArray.get(LayerNumber + 1); WeigthNumber++) {
                 if (populationGreaterZero)
-                    WeigthArray.add(evo.mutation1(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2));
+                    WeigthArray.add(evo.mutation2(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2));
                 else
                     WeigthArray.add(-1d + Math.random() * (1d - -1d));
             }
