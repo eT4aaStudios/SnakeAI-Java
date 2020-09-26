@@ -2,9 +2,9 @@ package com.snake.ai;
 
 import com.badlogic.gdx.utils.Array;
 
+import static com.snake.ai.Snake.population;
 import static com.snake.ai.main.LayerMenge;
-import static com.snake.ai.main.bestSnakesArray;
-import static com.snake.ai.main.bestSnakesArray;
+import static com.snake.ai.main.bestArrays;
 
 
 public class Snakes {
@@ -15,14 +15,14 @@ public class Snakes {
     protected Snakes parent1Snake, parent2Snake;
 
     public Snakes() {
-        if (Snake.population > 0) {
+        if (population > 0) {
             selectParents();
         }
         layerArray = new Array<>();
 
         for (int i = 0; i < LayerMenge; i++) {
             Layer layer;
-            if (Snake.population > 0) {
+            if (population > 0) {
                 layer = new Layer(i, true, parent1Snake, parent2Snake);
             } else
                 layer = new Layer(i, false, parent1Snake, parent2Snake);
@@ -31,7 +31,7 @@ public class Snakes {
     }
 
     public void selectParents() {
-        Array<Snakes> tempArray = new Array<>(bestSnakesArray);
+        Array<Snakes> tempArray = new Array<>(bestArrays.get(population - 1).bestSnakesArray);
         double max = 1;
         for (int i = 0; i < tempArray.size; i++) {
             max += tempArray.get(i).fitness;
@@ -46,7 +46,7 @@ public class Snakes {
                 fitnesschecked++;
                 if (choosenNumber == fitnesschecked) {
                     choosenId = j;
-                    parent1Snake = bestSnakesArray.get(choosenId);
+                    parent1Snake = bestArrays.get(population - 1).bestSnakesArray.get(choosenId);
                 }
             }
             j++;
@@ -67,7 +67,7 @@ public class Snakes {
                 fitnesschecked++;
                 if (choosenNumber == fitnesschecked) {
                     choosenId = j;
-                    parent2Snake = bestSnakesArray.get(choosenId);
+                    parent2Snake = bestArrays.get(population - 1).bestSnakesArray.get(choosenId);
                 }
             }
             j++;

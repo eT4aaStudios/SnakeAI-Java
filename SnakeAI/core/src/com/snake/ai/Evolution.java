@@ -8,10 +8,8 @@ public class Evolution {
         return steps + (Math.pow(2, score) + Math.pow(score, 2.1d) * 500) - (Math.pow(score, 1.2d) * Math.pow((0.25d * steps), 1.3d));
     }
 
-    //Nothing
-    public double mutation(int connectedTolayerNumber, int NodeNumber, int WeigthNumber, Snakes parent1, Snakes parent2) {
-        double weigth1 = parent1.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
-        return weigth1;
+    public double FitnessFuntction2(int steps, int score) {
+        return steps;
     }
 
     //Crossover
@@ -33,6 +31,19 @@ public class Evolution {
 
         double mutationAmount = mutationMin + Math.random() * (mutationMax - mutationMin);
         if (Math.random() * (1) == 0) {
+            return weigth1 + mutationAmount;
+        } else {
+            return weigth2 + mutationAmount;
+        }
+    }
+
+    //Crossover with mutation
+    public double mutation2_2(int connectedTolayerNumber, int NodeNumber, int WeigthNumber, Snakes parent1, Snakes parent2,int menge) {
+        double weigth1 = parent1.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
+        double weigth2 = parent2.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
+
+        double mutationAmount = mutationMin + Math.random() * (mutationMax - mutationMin);
+        if (menge > 0) {
             return weigth1 + mutationAmount;
         } else {
             return weigth2 + mutationAmount;

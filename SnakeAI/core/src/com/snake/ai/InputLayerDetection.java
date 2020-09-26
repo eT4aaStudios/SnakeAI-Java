@@ -38,6 +38,7 @@ public class InputLayerDetection {
     }
 
     public void wandDetectionGerade() {
+        //TODO bearbeiten
         currentSnake.layerArray.get(0).NodeArray.get(12).value = -0.015873 * SnakeHeadX + 1.01587301;
         if (currentSnake.layerArray.get(0).NodeArray.get(12).value > 0.8d && enableSehrNahLogging)
             System.out.println("Sehr nah an der linken Wand: " + currentSnake.layerArray.get(0).NodeArray.get(12).value);
@@ -146,22 +147,38 @@ public class InputLayerDetection {
     }
 
     public void schwanzDetectionGerade() {
+        double nearest1 = 99999;
+        double nearest2 = 99999;
+        double nearest3 = -99999;
+        double nearest4 = -99999;
         for (int i = 0; i < snake.size(); i++) {
             if (snake.get(i).x < SnakeHeadX && SnakeHeadY == snake.get(i).y) {
                 //System.out.println("Schwanz im Weg (Links)");
-                currentSnake.layerArray.get(0).NodeArray.get(8).value = -0.01639934 * (SnakeHeadX - snake.get(i).x) + 1.01639344;
+                if(nearest1 > SnakeHeadX - snake.get(i).x) {
+                    currentSnake.layerArray.get(0).NodeArray.get(8).value = -0.01666666 * (SnakeHeadX - snake.get(i).x) + 1.01666666;
+                    nearest1 = currentSnake.layerArray.get(0).NodeArray.get(8).value;
+                }
             }
             if (snake.get(i).x > SnakeHeadX && SnakeHeadY == snake.get(i).y) {
                 //System.out.println("Schwanz im Weg (Rechts)");
-                currentSnake.layerArray.get(0).NodeArray.get(9).value = 0.01587301 * (snake.get(i).x - SnakeHeadX) - 0.015873;
+                if(nearest2 > snake.get(i).x - SnakeHeadX) {
+                    currentSnake.layerArray.get(0).NodeArray.get(9).value = -0.01666666 * (snake.get(i).x - SnakeHeadX) + 1.01666666;
+                    nearest2 = currentSnake.layerArray.get(0).NodeArray.get(9).value;
+                }
             }
             if (snake.get(i).y < SnakeHeadY && SnakeHeadX == snake.get(i).x) {
                 //System.out.println("Schwanz im Weg (Oben)");
-                currentSnake.layerArray.get(0).NodeArray.get(10).value = -0.0243902 * (snake.get(i).y - SnakeHeadY) + 1.02439024;
+                if(nearest3 < snake.get(i).y - SnakeHeadY) {
+                    currentSnake.layerArray.get(0).NodeArray.get(10).value = 0.025 * (snake.get(i).y - SnakeHeadY) + 1.025;
+                    nearest3 = currentSnake.layerArray.get(0).NodeArray.get(10).value;
+                }
             }
             if (snake.get(i).y > SnakeHeadY && SnakeHeadX == snake.get(i).x) {
                 //System.out.println("Schwanz im Weg (Unten)");
-                currentSnake.layerArray.get(0).NodeArray.get(11).value = -0.0243902 * (SnakeHeadY - snake.get(i).y) + 1.02439024;
+                if(nearest4 < SnakeHeadY - snake.get(i).y) {
+                    currentSnake.layerArray.get(0).NodeArray.get(11).value = 0.025 * (SnakeHeadY - snake.get(i).y) + 1.025;
+                    nearest4 = currentSnake.layerArray.get(0).NodeArray.get(11).value;
+                }
             }
         }
     }

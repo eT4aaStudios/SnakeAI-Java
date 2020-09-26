@@ -36,7 +36,7 @@ public class main extends ApplicationAdapter {
     Array<Integer> felderarray;
     public static boolean freeze;
     //TODO für jede generation ein Array (Generation Best)
-    public static Array<Snakes> bestSnakesArray;
+    public static Array<bestSnakes> bestArrays;
     public static Snakes currentSnake;
     public static Array<Integer> layerNodeValueArray;
 
@@ -45,9 +45,9 @@ public class main extends ApplicationAdapter {
     public static final double biasOutput = -0.2d;
 
     //Evolutions Eigenschaften
-    public static int POPULATIONSIZE = 1000;
-    public static final double mutationMin = -0.05;
-    public static final double mutationMax = 0.05;
+    public static int POPULATIONSIZE = 2000;
+    public static final double mutationMin = -0.025;
+    public static final double mutationMax = 0.025;
     public static final int bestSnakesArraySize = 5;
 
     //Neuronales Netzwerk Aussehen
@@ -61,7 +61,7 @@ public class main extends ApplicationAdapter {
     //Debugging Eigenschaften
     public static final boolean enableNodeLogging = false;
     public static final boolean enableSehrNahLogging = false;
-    public static final boolean enableOutputLayerLogging = false;
+    public static final boolean enableOutputLayerLogging = true;
     public static final boolean enableInputLayerLogging = false;
 
     public static final int reihen = nCols;
@@ -80,7 +80,7 @@ public class main extends ApplicationAdapter {
         for (int i = 0; i < layerNodeValueArray.size; i++)
             if (layerNodeValueArray.get(i) == 0)
                 layerNodeValueArray.removeIndex(i);
-        bestSnakesArray = new Array<>();
+        bestArrays = new Array<>();
         snake.main2();
         w = Gdx.graphics.getWidth();
         h = Gdx.graphics.getHeight();
@@ -136,7 +136,9 @@ public class main extends ApplicationAdapter {
         //    bestSnakesArray.add(snakes);
         //}
         currentSnake = new Snakes();
-        bestSnakesArray.add(currentSnake);
+        bestSnakes best = new bestSnakes();
+        bestArrays.add(best);
+        best.bestSnakesArray.add(currentSnake);
     }
 
     @Override
@@ -216,7 +218,7 @@ public class main extends ApplicationAdapter {
         x += biasOutput;
 
         //Sigmoid
-        return 1 / (1 + Math.exp(-x * 3));
+        return 1 / (1 + Math.exp(-x));
 
         //Tanh (Best)
         //return Math.tanh(x);

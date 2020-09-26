@@ -23,7 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import static com.snake.ai.main.POPULATIONSIZE;
-import static com.snake.ai.main.bestSnakesArray;
+import static com.snake.ai.main.bestArrays;
 import static com.snake.ai.main.bestSnakesArraySize;
 import static com.snake.ai.main.currentSnake;
 import static com.snake.ai.main.enableOutputLayerLogging;
@@ -62,13 +62,14 @@ public class Snake extends JPanel implements Runnable {
 
 
     final int treastmenge = 2;
-    static int Sleep_Time = 130;
+    static int Sleep_Time = 85;
     static final int startlength = 15;
     public static int population;
     public static int snakeNr;
     public static int batch;
     public static int steps;
     int Sleep_Time2;
+    public static JFrame f;
 
     public Snake() {
         setPreferredSize(new Dimension(640, 440));
@@ -140,9 +141,12 @@ public class Snake extends JPanel implements Runnable {
             System.out.println("\n_____________________");
             System.out.println("    NEW POPULATION!   ");
             System.out.println("_____________________\n");
-            for(int i = 0;i < bestSnakesArray.size;i++)
-                System.out.println("Nr.:"+i+" Snake Fitness: " + bestSnakesArray.get(i).fitness);
-            Sleep_Time2 = 2000;
+            bestSnakes best = new bestSnakes();
+            bestArrays.add(best);
+            for (int i = 0; i < bestArrays.get(population - 1).bestSnakesArray.size; i++)
+                System.out.println("Nr.:" + i + " Snake Fitness: " + bestArrays.get(population - 1).bestSnakesArray.get(i).fitness);
+            if (isFocused())
+                Sleep_Time2 = 2000;
             snakeNr = 0;
         }
         currentSnake = new Snakes();
@@ -174,7 +178,6 @@ public class Snake extends JPanel implements Runnable {
                     snake.add(new Point(nCols / 2, nRows / 2 + x));
                 break;
         }
-
 
 
         do
@@ -269,26 +272,40 @@ public class Snake extends JPanel implements Runnable {
             System.out.println("\n");
         }
 
-        //TODO Wie oft ist ein Ouput mehr wie 1
-        if (currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(0).value >= 0.9d)
-            if (dir != Dir.down) {
-                dir = Dir.up;
-                steps++;
+        double highest = 0;
+        int id = 0;
+        for (int i = 0; i < currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.size; i++) {
+            if (currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(i).value > highest) {
+                highest = currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(i).value;
+                id = i;
             }
-        if (currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(1).value >= 0.9d)
-            if (dir != Dir.up) {
-                dir = Dir.down;
-                steps++;
-            }
-        if (currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(2).value >= 0.9d)
-            if (dir != Dir.right) {
-                dir = Dir.left;
-                steps++;
-            }
-        if (currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(3).value >= 0.9d)
-            if (dir != Dir.left) {
-                dir = Dir.right;
-                steps++;
+        }
+        if (highest >= 1)
+            switch (id) {
+                case 0:
+                    if (dir != Dir.down && dir != Dir.up) {
+                        dir = Dir.up;
+                        steps++;
+                    }
+                    break;
+                case 1:
+                    if (dir != Dir.up && dir != Dir.down) {
+                        dir = Dir.down;
+                        steps++;
+                    }
+                    break;
+                case 2:
+                    if (dir != Dir.right && dir != Dir.left) {
+                        dir = Dir.left;
+                        steps++;
+                    }
+                    break;
+                case 3:
+                    if (dir != Dir.left && dir != Dir.right) {
+                        dir = Dir.right;
+                        steps++;
+                    }
+                    break;
             }
     }
 
@@ -336,13 +353,13 @@ public class Snake extends JPanel implements Runnable {
         Evolution startFitness = new Evolution();
         currentSnake.fitness = startFitness.FitnessFuntction(steps, score);
 
-        if (bestSnakesArray.size < bestSnakesArraySize)
-            bestSnakesArray.add(currentSnake);
-        else if (currentSnake.fitness > bestSnakesArray.get(bestSnakesArray.size - 1).fitness) {
-            bestSnakesArray.removeIndex(0);
-            bestSnakesArray.add(currentSnake);
+        if (bestArrays.get(population).bestSnakesArray.size < bestSnakesArraySize)
+            bestArrays.get(population).bestSnakesArray.add(currentSnake);
+        else if (currentSnake.fitness > bestArrays.get(population).bestSnakesArray.get(bestArrays.get(population).bestSnakesArray.size - 1).fitness) {
+            bestArrays.get(population).bestSnakesArray.removeIndex(0);
+            bestArrays.get(population).bestSnakesArray.add(currentSnake);
         }
-        bestSnakesArray.sort(new FitnessComparator());
+        bestArrays.get(population).bestSnakesArray.sort(new FitnessComparator());
         // Muss unten sein
         startNewGame();
         repaint();
@@ -413,8 +430,10 @@ public class Snake extends JPanel implements Runnable {
             g.fillRect(p.x * 10, p.y * 10, 10, 10);
 
         g.setColor(energy < 500 ? Color.red : Color.magenta);
-        Point head = snake.get(0);
-        g.fillRect(head.x * 10, head.y * 10, 10, 10);
+        if (snake.size() > 0) {
+            Point head = snake.get(0);
+            g.fillRect(head.x * 10, head.y * 10, 10, 10);
+        }
     }
 
     void drawTreats(Graphics2D g) {
@@ -442,7 +461,11 @@ public class Snake extends JPanel implements Runnable {
         String s2 = format("snakeNr %d    population %d", snakeNr, population);
         g.drawString(s2, 30, h - 410);
 
-        String s3 = format("currentFitness %d   bestFitness %d", (int) currentSnake.fitness, (int) bestSnakesArray.get(bestSnakesArray.size - 1).fitness);
+        String s3;
+        if (bestArrays.get(population).bestSnakesArray.size != 0)
+            s3 = format("currentFitness %d   bestFitness %d", (int) currentSnake.fitness, (int) bestArrays.get(population).bestSnakesArray.get(bestArrays.get(population).bestSnakesArray.size - 1).fitness);
+        else
+            s3 = format("currentFitness %d", (int) currentSnake.fitness);
         g.drawString(s3, 30, h - 380);
 
         g.drawString(format("energy %d", energy), getWidth() - 150, h - 30);
@@ -470,10 +493,10 @@ public class Snake extends JPanel implements Runnable {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                JFrame f = new JFrame();
+                f = new JFrame();
                 f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 f.setTitle("Snake");
-                f.setResizable(false);
+                f.setResizable(true);
                 f.add(new Snake(), BorderLayout.CENTER);
                 f.pack();
                 f.setLocationRelativeTo(null);
@@ -481,6 +504,13 @@ public class Snake extends JPanel implements Runnable {
                 f.setLocation(1600, 500);
             }
         });
+    }
+
+    public boolean isFocused() {
+        if (f.isFocused())
+            return true;
+        else
+            return false;
     }
 }
 
