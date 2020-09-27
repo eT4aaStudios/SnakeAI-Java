@@ -18,27 +18,27 @@ public class Node {
             WeigthArray = new Array<>();
             /*for (int WeigthNumber = 0; WeigthNumber < layerNodeValueArray.get(LayerNumber + 1); WeigthNumber++) {
                 if (populationGreaterZero)
-                    WeigthArray.add(evo.mutation2(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2));
+                    WeigthArray.add(evo.mutation2_2(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2));
                 else
                     WeigthArray.add(-1d + Math.random() * (1d - -1d));
             }*/
 
-            for (int WeigthNumber = 0; WeigthNumber < layerNodeValueArray.get(LayerNumber + 1); WeigthNumber++) {
-                Random r = new Random();
-                int i = r.nextInt(layerNodeValueArray.get(LayerNumber + 1));
-                for(int j = i;j >= 0;j--) {
-                    if (populationGreaterZero)
-                        WeigthArray.add(evo.mutation2_2(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2,j));
-                    else
-                        WeigthArray.add(-1d + Math.random() * (1d - -1d));
-                }
-                for (int k = i; k < layerNodeValueArray.get(LayerNumber + 1); k++) {
-                    if (populationGreaterZero)
-                        WeigthArray.add(evo.mutation2_2(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2,0));
-                    else
-                        WeigthArray.add(-1d + Math.random() * (1d - -1d));
-                }
-                WeigthNumber = layerNodeValueArray.get(LayerNumber + 1);
+            int WeigthNumber = 0;
+            Random r = new Random();
+            int i = r.nextInt(layerNodeValueArray.get(LayerNumber + 1));
+            for (int j = 0; j < i; j++) {
+                if (populationGreaterZero)
+                    WeigthArray.add(evo.mutation2_2(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2, j));
+                else
+                    WeigthArray.add(-1d + Math.random() * (1d - -1d));
+                WeigthNumber++;
+            }
+            for (int k = WeigthNumber; k < layerNodeValueArray.get(LayerNumber + 1); k++) {
+                if (populationGreaterZero)
+                    WeigthArray.add(evo.mutation2_2(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2, 0));
+                else
+                    WeigthArray.add(-1d + Math.random() * (1d - -1d));
+                WeigthNumber++;
             }
         }
     }

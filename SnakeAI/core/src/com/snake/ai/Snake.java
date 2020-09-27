@@ -23,6 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import static com.snake.ai.main.POPULATIONSIZE;
+import static com.snake.ai.main.allSnakesArrays;
 import static com.snake.ai.main.bestArrays;
 import static com.snake.ai.main.bestSnakesArraySize;
 import static com.snake.ai.main.currentSnake;
@@ -49,8 +50,8 @@ public class Snake extends JPanel implements Runnable {
 
     Thread gameThread;
     int score, hiScore;
-    static int nRows = 44;
-    static int nCols = 64;
+    static final int startlength = 3;
+    static int nRows = 14;
     static Dir dir;
     static int energy;
     static int timealaive;
@@ -59,11 +60,9 @@ public class Snake extends JPanel implements Runnable {
     static List<Point> snake;
     List<Point> treats;
     Font smallFont;
-
-
-    final int treastmenge = 2;
+    static int nCols = 14;
     static int Sleep_Time = 85;
-    static final int startlength = 15;
+    final int treastmenge = 1;
     public static int population;
     public static int snakeNr;
     public static int batch;
@@ -129,6 +128,7 @@ public class Snake extends JPanel implements Runnable {
         treats = new LinkedList<>();
 
         energy = 2000;
+        energy = 999999999;
 
         if (score > hiScore) {
             hiScore = score;
@@ -141,8 +141,15 @@ public class Snake extends JPanel implements Runnable {
             System.out.println("\n_____________________");
             System.out.println("    NEW POPULATION!   ");
             System.out.println("_____________________\n");
+            int maxFitness = 0;
+            for (int i = 0; i < allSnakesArrays.get(population - 1).allSnakesArray.size; i++) {
+                maxFitness += allSnakesArrays.get(population - 1).allSnakesArray.get(i).fitness;
+            }
+            System.out.println("average Fitness: " + maxFitness / POPULATIONSIZE);
             bestSnakes best = new bestSnakes();
             bestArrays.add(best);
+            allSnakes allSnakes = new allSnakes();
+            allSnakesArrays.add(allSnakes);
             for (int i = 0; i < bestArrays.get(population - 1).bestSnakesArray.size; i++)
                 System.out.println("Nr.:" + i + " Snake Fitness: " + bestArrays.get(population - 1).bestSnakesArray.get(i).fitness);
             if (isFocused())
@@ -230,6 +237,7 @@ public class Snake extends JPanel implements Runnable {
                     if (eatsTreat()) {
                         score++;
                         energy = 1000;
+                        energy = 99999999;
                         growSnake();
                     }
                     moveSnake();
@@ -280,33 +288,31 @@ public class Snake extends JPanel implements Runnable {
                 id = i;
             }
         }
-        if (highest >= 1)
+        if (highest >= 1) {
             switch (id) {
                 case 0:
                     if (dir != Dir.down && dir != Dir.up) {
                         dir = Dir.up;
-                        steps++;
                     }
                     break;
                 case 1:
                     if (dir != Dir.up && dir != Dir.down) {
                         dir = Dir.down;
-                        steps++;
                     }
                     break;
                 case 2:
                     if (dir != Dir.right && dir != Dir.left) {
                         dir = Dir.left;
-                        steps++;
                     }
                     break;
                 case 3:
                     if (dir != Dir.left && dir != Dir.right) {
                         dir = Dir.right;
-                        steps++;
                     }
                     break;
             }
+        }
+        steps++;
     }
 
     boolean energyUsed() {
@@ -344,9 +350,7 @@ public class Snake extends JPanel implements Runnable {
     }
 
     void gameOver() {
-        //System.out.println("\n_____________________");
-        //System.out.println(" Game Over new Snake   ");
-        //System.out.println("_____________________\n");
+        allSnakesArrays.get(population).allSnakesArray.add(currentSnake);
         currentSnake.score = score;
         gameOver = true;
         stop();
@@ -438,8 +442,10 @@ public class Snake extends JPanel implements Runnable {
 
     void drawTreats(Graphics2D g) {
         g.setColor(Color.red);
-        for (Point p : treats)
-            g.fillRect(p.x * 10, p.y * 10, 10, 10);
+        if (treats.size() > 0) {
+            for (Point p : treats)
+                g.fillRect(p.x * 10, p.y * 10, 10, 10);
+        }
     }
 
     void drawStartScreen(Graphics2D g) {
@@ -455,20 +461,20 @@ public class Snake extends JPanel implements Runnable {
         int h = getHeight();
         g.setFont(smallFont);
         g.setColor(Color.white);
-        String s = format("hiscore %d    score %d   ", hiScore, score);
+        String s = format("Highscore %d    score %d   ", hiScore, score);
         g.drawString(s, 30, h - 30);
 
-        String s2 = format("snakeNr %d    population %d", snakeNr, population);
+        String s2 = format("Snake Nr. %d    population %d", snakeNr, population);
         g.drawString(s2, 30, h - 410);
 
         String s3;
         if (bestArrays.get(population).bestSnakesArray.size != 0)
-            s3 = format("currentFitness %d   bestFitness %d", (int) currentSnake.fitness, (int) bestArrays.get(population).bestSnakesArray.get(bestArrays.get(population).bestSnakesArray.size - 1).fitness);
+            s3 = format("BestFitness %d   CurrentFitness %d", bestArrays.get(population).bestSnakesArray.get(bestArrays.get(population).bestSnakesArray.size - 1).fitness, currentSnake.fitness);
         else
-            s3 = format("currentFitness %d", (int) currentSnake.fitness);
+            s3 = format("CurrentFitness %d", currentSnake.fitness);
         g.drawString(s3, 30, h - 380);
 
-        g.drawString(format("energy %d", energy), getWidth() - 150, h - 30);
+        g.drawString(format("Energy %d", energy), getWidth() - 150, h - 30);
     }
 
     @Override
@@ -507,10 +513,7 @@ public class Snake extends JPanel implements Runnable {
     }
 
     public boolean isFocused() {
-        if (f.isFocused())
-            return true;
-        else
-            return false;
+        return f.isFocused();
     }
 }
 

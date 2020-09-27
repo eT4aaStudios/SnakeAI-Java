@@ -18,7 +18,7 @@ public class main extends ApplicationAdapter {
     //Best :
 
     //bias 0.4
-    //biasOutput 0
+    //biasOutput -0.4
 
     //inputLayerNodes = 16;
     //Layer2Nodes = 16;
@@ -35,25 +35,23 @@ public class main extends ApplicationAdapter {
     public static int SnakeHeadX, SnakeHeadY;
     Array<Integer> felderarray;
     public static boolean freeze;
-    //TODO für jede generation ein Array (Generation Best)
     public static Array<bestSnakes> bestArrays;
+    public static final double biasOutput = -0.4d;
     public static Snakes currentSnake;
     public static Array<Integer> layerNodeValueArray;
 
     //Neuronales Netzwerk Eigenschaften
     public static final double bias = 0.4d;
-    public static final double biasOutput = -0.2d;
-
-    //Evolutions Eigenschaften
-    public static int POPULATIONSIZE = 2000;
-    public static final double mutationMin = -0.025;
-    public static final double mutationMax = 0.025;
-    public static final int bestSnakesArraySize = 5;
-
+    public static final double mutationPropability = 5;//%
+    public static final double mutationMin = -1;
+    public static final double mutationMax = 1;
+    public static final int bestSnakesArraySize = 3;
+    public static final boolean enableOutputLayerLogging = false;
     //Neuronales Netzwerk Aussehen
-    final static int inputLayerNodes = 16;
-    final static int Layer2Nodes = 22;
-    final static int Layer3Nodes = 16;
+    final static int inputLayerNodes = 32;
+    final static int Layer2Nodes = 20;
+    final static int Layer3Nodes = 12;
+    public static Array<allSnakes> allSnakesArrays;
     final static int Layer4Nodes = 0;
     final static int outputLayerNodes = 4;
     static final int LayerMenge = 4;
@@ -61,7 +59,8 @@ public class main extends ApplicationAdapter {
     //Debugging Eigenschaften
     public static final boolean enableNodeLogging = false;
     public static final boolean enableSehrNahLogging = false;
-    public static final boolean enableOutputLayerLogging = true;
+    //Evolutions Eigenschaften
+    public static int POPULATIONSIZE = 500;
     public static final boolean enableInputLayerLogging = false;
 
     public static final int reihen = nCols;
@@ -81,7 +80,8 @@ public class main extends ApplicationAdapter {
             if (layerNodeValueArray.get(i) == 0)
                 layerNodeValueArray.removeIndex(i);
         bestArrays = new Array<>();
-        snake.main2();
+        allSnakesArrays = new Array<>();
+        Snake.main2();
         w = Gdx.graphics.getWidth();
         h = Gdx.graphics.getHeight();
         felderarray = new Array<>();
@@ -131,14 +131,14 @@ public class main extends ApplicationAdapter {
         stage.addActor(buttonmax);
         stage.addActor(buttonfreeze);
 
-        //for(int i = 0;i < batchSize;i++) {
-        //    Snakes snakes = new Snakes();
-        //    bestSnakesArray.add(snakes);
-        //}
         currentSnake = new Snakes();
         bestSnakes best = new bestSnakes();
         bestArrays.add(best);
         best.bestSnakesArray.add(currentSnake);
+
+        allSnakes allSnakes = new allSnakes();
+        allSnakesArrays.add(allSnakes);
+        allSnakes.allSnakesArray.add(currentSnake);
     }
 
     @Override

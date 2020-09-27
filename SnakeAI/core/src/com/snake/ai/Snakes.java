@@ -2,8 +2,11 @@ package com.snake.ai;
 
 import com.badlogic.gdx.utils.Array;
 
+import java.util.Random;
+
 import static com.snake.ai.Snake.population;
 import static com.snake.ai.main.LayerMenge;
+import static com.snake.ai.main.allSnakesArrays;
 import static com.snake.ai.main.bestArrays;
 
 
@@ -11,12 +14,12 @@ public class Snakes {
 
     protected Array<Layer> layerArray;
     protected int score;
-    protected double fitness;
+    protected int fitness;
     protected Snakes parent1Snake, parent2Snake;
 
     public Snakes() {
         if (population > 0) {
-            selectParents();
+            selectParents2();
         }
         layerArray = new Array<>();
 
@@ -30,6 +33,7 @@ public class Snakes {
         }
     }
 
+    //Out of the Best
     public void selectParents() {
         Array<Snakes> tempArray = new Array<>(bestArrays.get(population - 1).bestSnakesArray);
         double max = 1;
@@ -71,6 +75,52 @@ public class Snakes {
                 }
             }
             j++;
+        }
+    }
+
+    //Roulette
+    public void selectParents2() {
+        //Parent 1
+        int maxFitness = 0;
+        for (int i = 0; i < allSnakesArrays.get(population - 1).allSnakesArray.size; i++) {
+            maxFitness += allSnakesArrays.get(population - 1).allSnakesArray.get(i).fitness;
+        }
+
+        maxFitness = 0;
+        for (int i = 0; i < allSnakesArrays.get(population - 1).allSnakesArray.size; i++) {
+            maxFitness += allSnakesArrays.get(population - 1).allSnakesArray.get(i).fitness;
+        }
+
+        Random r = new Random();
+        int choosenId = r.nextInt(maxFitness);
+
+        int zahlZumChecken = 0;
+        for (int i = 0; i < allSnakesArrays.get(population - 1).allSnakesArray.size; i++) {
+            if (choosenId >= zahlZumChecken && choosenId <= zahlZumChecken + allSnakesArrays.get(population - 1).allSnakesArray.get(i).fitness) {
+                parent1Snake = allSnakesArrays.get(population - 1).allSnakesArray.get(i);
+                i = allSnakesArrays.get(population - 1).allSnakesArray.size;
+            } else {
+                zahlZumChecken += allSnakesArrays.get(population - 1).allSnakesArray.get(i).fitness;
+            }
+        }
+
+        //Parent 2
+        maxFitness = 0;
+        for (int i = 0; i < allSnakesArrays.get(population - 1).allSnakesArray.size; i++) {
+            maxFitness += allSnakesArrays.get(population - 1).allSnakesArray.get(i).fitness;
+        }
+
+        r = new Random();
+        choosenId = r.nextInt(maxFitness);
+
+        zahlZumChecken = 0;
+        for (int i = 0; i < allSnakesArrays.get(population - 1).allSnakesArray.size; i++) {
+            if (choosenId >= zahlZumChecken && choosenId <= zahlZumChecken + allSnakesArrays.get(population - 1).allSnakesArray.get(i).fitness) {
+                parent2Snake = allSnakesArrays.get(population - 1).allSnakesArray.get(i);
+                i = allSnakesArrays.get(population - 1).allSnakesArray.size;
+            } else {
+                zahlZumChecken += allSnakesArrays.get(population - 1).allSnakesArray.get(i).fitness;
+            }
         }
     }
 }
