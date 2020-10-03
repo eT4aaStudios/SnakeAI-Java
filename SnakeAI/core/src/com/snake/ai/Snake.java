@@ -51,7 +51,7 @@ public class Snake extends JPanel implements Runnable {
     Thread gameThread;
     int score, hiScore;
     static final int startlength = 3;
-    static int nRows = 14;
+    static int nRows = 12;
     static Dir dir;
     static int energy;
     static int timealaive;
@@ -60,7 +60,7 @@ public class Snake extends JPanel implements Runnable {
     static List<Point> snake;
     List<Point> treats;
     Font smallFont;
-    static int nCols = 14;
+    static int nCols = 12;
     static int Sleep_Time = 85;
     final int treastmenge = 1;
     public static int population;
@@ -128,7 +128,6 @@ public class Snake extends JPanel implements Runnable {
         treats = new LinkedList<>();
 
         energy = 2000;
-        energy = 999999999;
 
         if (score > hiScore) {
             hiScore = score;
@@ -236,8 +235,7 @@ public class Snake extends JPanel implements Runnable {
                 } else {
                     if (eatsTreat()) {
                         score++;
-                        energy = 1000;
-                        energy = 99999999;
+                        energy = 2000;
                         growSnake();
                     }
                     moveSnake();
@@ -430,8 +428,10 @@ public class Snake extends JPanel implements Runnable {
 
     void drawSnake(Graphics2D g) {
         g.setColor(Color.green);
-        for (Point p : snake)
-            g.fillRect(p.x * 10, p.y * 10, 10, 10);
+        if (snake.size() > 0) {
+            for (Point p : snake)
+                g.fillRect(p.x * 10, p.y * 10, 10, 10);
+        }
 
         g.setColor(energy < 500 ? Color.red : Color.magenta);
         if (snake.size() > 0) {

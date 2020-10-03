@@ -46,7 +46,7 @@ public class main extends ApplicationAdapter {
     public static final double mutationMin = -1;
     public static final double mutationMax = 1;
     public static final int bestSnakesArraySize = 3;
-    public static final boolean enableOutputLayerLogging = false;
+
     //Neuronales Netzwerk Aussehen
     final static int inputLayerNodes = 32;
     final static int Layer2Nodes = 20;
@@ -59,9 +59,12 @@ public class main extends ApplicationAdapter {
     //Debugging Eigenschaften
     public static final boolean enableNodeLogging = false;
     public static final boolean enableSehrNahLogging = false;
+    public static final boolean enableOutputLayerLogging = false;
+    public static final boolean enableInputLayerLogging = false;
+    public static final int kernMenge = 4;
+
     //Evolutions Eigenschaften
     public static int POPULATIONSIZE = 500;
-    public static final boolean enableInputLayerLogging = false;
 
     public static final int reihen = nCols;
     public static final int spalten = nRows;
@@ -163,27 +166,16 @@ public class main extends ApplicationAdapter {
     }
 
     public void berechneLayer(int Layernumber) {
-        for (int NodeLayer2 = 0; NodeLayer2 < currentSnake.layerArray.get(Layernumber + 1).NodeArray.size; NodeLayer2++) {
+        int nodesPerCore = currentSnake.layerArray.get(Layernumber + 1).NodeArray.size / 4;
+        int nodesPerCoreRest = currentSnake.layerArray.get(Layernumber + 1).NodeArray.size % 4;
 
-            double sum = 0;
-
-
-            for (int NodeLayer1 = 0; NodeLayer1 < currentSnake.layerArray.get(Layernumber).NodeArray.size; NodeLayer1++) {
-                //weigth
-                double weigth = currentSnake.layerArray.get(Layernumber).NodeArray.get(NodeLayer1).WeigthArray.get(NodeLayer2);
-                //value
-                double value = currentSnake.layerArray.get(Layernumber).NodeArray.get(NodeLayer1).value;
-                sum += weigth * value;
-            }
-            //Node Deren Vlaue geschrieben werden soll
-
-            if (Layernumber == LayerMenge - 1) {
-                currentSnake.layerArray.get(Layernumber + 1).NodeArray.get(NodeLayer2).value = outputActivationFunction(sum);
-                System.out.println(currentSnake.layerArray.get(Layernumber + 1).NodeArray.get(NodeLayer2).value);
-            } else
-                currentSnake.layerArray.get(Layernumber + 1).NodeArray.get(NodeLayer2).value = activationFunction(sum);
+        for (int i = 1; i < kernMenge + 1; i++) {
+            newThread(nodesPerCore * i, Layernumber);
+            newThread(nodesPerCore * i, Layernumber);
+            newThread(nodesPerCore * i, Layernumber);
+            newThread(nodesPerCore * i, Layernumber);
         }
-
+        newThread(nodesPerCoreRest, Layernumber);
 
         //Logging
         for (int k = 0; k < currentSnake.layerArray.get(Layernumber + 1).NodeArray.size; k++) {
@@ -192,6 +184,31 @@ public class main extends ApplicationAdapter {
         }
         if (enableNodeLogging)
             System.out.println("\n");
+    }
+
+    public void newThread(final int nodesPerCore, final int Layernumber) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int NodeLayer2 = 0; NodeLayer2 < nodesPerCore; NodeLayer2++) {
+                    double sum = 0;
+                    for (int NodeLayer1 = 0; NodeLayer1 < currentSnake.layerArray.get(Layernumber).NodeArray.size; NodeLayer1++) {
+                        //weigth
+                        double weigth = currentSnake.layerArray.get(Layernumber).NodeArray.get(NodeLayer1).WeigthArray.get(NodeLayer2);
+                        //value
+                        double value = currentSnake.layerArray.get(Layernumber).NodeArray.get(NodeLayer1).value;
+                        sum += weigth * value;
+                    }
+                    //Node Deren Value geschrieben werden soll
+
+                    if (Layernumber == LayerMenge - 1) {
+                        currentSnake.layerArray.get(Layernumber + 1).NodeArray.get(NodeLayer2).value = outputActivationFunction(sum);
+                        System.out.println(currentSnake.layerArray.get(Layernumber + 1).NodeArray.get(NodeLayer2).value);
+                    } else
+                        currentSnake.layerArray.get(Layernumber + 1).NodeArray.get(NodeLayer2).value = activationFunction(sum);
+                }
+            }
+        }).start();
     }
 
     public double activationFunction(double x) {
