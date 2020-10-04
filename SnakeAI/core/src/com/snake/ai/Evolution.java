@@ -33,14 +33,15 @@ public class Evolution {
     }
 
     //Crossover
-    public double mutation1_2(int connectedTolayerNumber, int NodeNumber, int WeigthNumber, Snakes parent1, Snakes parent2, int menge) {
+    public double mutation1_2(int connectedTolayerNumber, int NodeNumber, int WeigthNumber, Snakes parent1, Snakes parent2, int weigthNr) {
         double weigth1 = parent1.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
         double weigth2 = parent2.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
 
-        if (menge > 0) {
-            return weigth1;
+        double mutationAmount = mutationMin + Math.random() * (mutationMax - mutationMin);
+        if (weigthNr == 1) {
+            return weigth1 + mutationAmount;
         } else {
-            return weigth2;
+            return weigth2 + mutationAmount;
         }
     }
 
@@ -58,7 +59,7 @@ public class Evolution {
     }
 
     //Crossover with mutation
-    public double mutation2_2(int connectedTolayerNumber, int NodeNumber, int WeigthNumber, Snakes parent1, Snakes parent2, int menge) {
+    public double mutation2_2(int connectedTolayerNumber, int NodeNumber, int WeigthNumber, Snakes parent1, Snakes parent2, int weigthNr) {
         double weigth1 = parent1.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
         double weigth2 = parent2.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
 
@@ -66,13 +67,15 @@ public class Evolution {
         Random r = new Random();
 
         if (r.nextInt(100) < mutationPropability) {
-            if (menge > 0) {
+            //With Mutation
+            if (weigthNr == 1) {
                 return weigth1 + mutationAmount;
             } else {
                 return weigth2 + mutationAmount;
             }
         } else {
-            if (menge > 0) {
+            //Without Mutation
+            if (weigthNr == 1) {
                 return weigth1;
             } else {
                 return weigth2;

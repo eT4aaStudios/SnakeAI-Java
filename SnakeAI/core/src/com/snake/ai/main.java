@@ -1,6 +1,6 @@
 package com.snake.ai;
 
-import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -14,7 +14,7 @@ import com.badlogic.gdx.utils.Array;
 import static com.snake.ai.Snake.nCols;
 import static com.snake.ai.Snake.nRows;
 
-public class main extends ApplicationAdapter {
+public class main extends Game {
     //Best :
 
     //bias 0.4
@@ -26,19 +26,20 @@ public class main extends ApplicationAdapter {
     //Layer4Nodes = 0;
     //outputLayerNodes = 4;
 
-    SpriteBatch batch;
+    static SpriteBatch batch;
     Stage stage;
-    TextButton buttonstart, buttonstop, buttonmax, buttonfreeze;
+    TextButton buttonstart, buttonstop, buttonmax, buttonfreeze, buttonshownodes, toogleThreads;
     Skin skin;
-    float w, h;
+    static float w;
+    static float h;
     public static int foodpositionX, foodpositionY;
     public static int SnakeHeadX, SnakeHeadY;
     Array<Integer> felderarray;
     public static boolean freeze;
     public static Array<bestSnakes> bestArrays;
-    public static final double biasOutput = -0.4d;
     public static Snakes currentSnake;
     public static Array<Integer> layerNodeValueArray;
+    public static boolean currentScreen;
 
     //Neuronales Netzwerk Eigenschaften
     public static final double bias = 0.4d;
@@ -64,7 +65,7 @@ public class main extends ApplicationAdapter {
     public static final int kernMenge = 4;
 
     //Evolutions Eigenschaften
-    public static int POPULATIONSIZE = 500;
+    public static int POPULATIONSIZE = 750;
 
     public static final int reihen = nCols;
     public static final int spalten = nRows;
@@ -129,6 +130,50 @@ public class main extends ApplicationAdapter {
                 freeze = !freeze;
             }
         });
+        buttonshownodes = new TextButton("Show Nodes", skin);
+        buttonshownodes.setSize(w / 8, h / 8);
+        buttonshownodes.setPosition(w / 2 - buttonshownodes.getWidth() / 2, h / 20f);
+        buttonshownodes.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                main.this.setScreen(new NodeVis());
+                if (currentScreen) {
+                    stage.clear();
+                    stage.addActor(buttonshownodes);
+                    stage.addActor(buttonstart);
+                    stage.addActor(buttonstop);
+                    stage.addActor(buttonmax);
+                    stage.addActor(buttonfreeze);
+                } else {
+                    stage.clear();
+                    stage.addActor(buttonshownodes);
+                }
+                currentScreen = !currentScreen;
+            }
+        });
+        toogleThreads = new TextButton("Toggle Multi/Single Threading", skin);
+        toogleThreads.setSize(w / 8, h / 8);
+        toogleThreads.setPosition(w / 2 - buttonshownodes.getWidth() / 2, h / 20f);
+        toogleThreads.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                main.this.setScreen(new NodeVis());
+                if (currentScreen) {
+                    stage.clear();
+                    stage.addActor(buttonshownodes);
+                    stage.addActor(buttonstart);
+                    stage.addActor(buttonstop);
+                    stage.addActor(buttonmax);
+                    stage.addActor(buttonfreeze);
+                } else {
+                    stage.clear();
+                    stage.addActor(buttonshownodes);
+                }
+                currentScreen = !currentScreen;
+            }
+        });
+
+        stage.addActor(buttonshownodes);
         stage.addActor(buttonstart);
         stage.addActor(buttonstop);
         stage.addActor(buttonmax);
@@ -148,6 +193,8 @@ public class main extends ApplicationAdapter {
     public void render() {
         Gdx.gl.glClearColor(0.7f, 1, 0.8f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        super.render();
+
 
         stage.draw();
     }
@@ -199,8 +246,8 @@ public class main extends ApplicationAdapter {
                         double value = currentSnake.layerArray.get(Layernumber).NodeArray.get(NodeLayer1).value;
                         sum += weigth * value;
                     }
-                    //Node Deren Value geschrieben werden soll
 
+                    //Node Deren Value geschrieben werden soll
                     if (Layernumber == LayerMenge - 1) {
                         currentSnake.layerArray.get(Layernumber + 1).NodeArray.get(NodeLayer2).value = outputActivationFunction(sum);
                         System.out.println(currentSnake.layerArray.get(Layernumber + 1).NodeArray.get(NodeLayer2).value);

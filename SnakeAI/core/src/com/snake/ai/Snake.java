@@ -51,7 +51,6 @@ public class Snake extends JPanel implements Runnable {
     Thread gameThread;
     int score, hiScore;
     static final int startlength = 3;
-    static int nRows = 12;
     static Dir dir;
     static int energy;
     static int timealaive;
@@ -60,12 +59,14 @@ public class Snake extends JPanel implements Runnable {
     static List<Point> snake;
     List<Point> treats;
     Font smallFont;
+
     static int nCols = 12;
+    static int nRows = 12;
     static int Sleep_Time = 85;
     final int treastmenge = 1;
+
     public static int population;
     public static int snakeNr;
-    public static int batch;
     public static int steps;
     int Sleep_Time2;
     public static JFrame f;
@@ -427,13 +428,15 @@ public class Snake extends JPanel implements Runnable {
     }
 
     void drawSnake(Graphics2D g) {
-        g.setColor(Color.green);
+        g.setColor(new Color(0.56f,0.56f,0.56f,0.57f));
         if (snake.size() > 0) {
-            for (Point p : snake)
+            for(int i = 0;i < snake.size();i++) {
+                Point p = snake.get(i);
                 g.fillRect(p.x * 10, p.y * 10, 10, 10);
+            }
         }
 
-        g.setColor(energy < 500 ? Color.red : Color.magenta);
+        g.setColor(energy < 500 ? Color.red : new Color(0,0.7f,0.8f,0.9f));
         if (snake.size() > 0) {
             Point head = snake.get(0);
             g.fillRect(head.x * 10, head.y * 10, 10, 10);
@@ -507,7 +510,7 @@ public class Snake extends JPanel implements Runnable {
                 f.pack();
                 f.setLocationRelativeTo(null);
                 f.setVisible(true);
-                f.setLocation(1600, 500);
+                f.setLocation(1700, 500);
             }
         });
     }
@@ -520,11 +523,6 @@ public class Snake extends JPanel implements Runnable {
 class FitnessComparator implements Comparator<Snakes> {
     @Override
     public int compare(Snakes snakes, Snakes t1) {
-        if (snakes.fitness > t1.fitness) {
-            return 1; // First bigger
-        } else if (snakes.fitness < t1.fitness) {
-            return -1; // Second bigger
-        } else
-            return 0; // They are the same
+        return Integer.compare(snakes.fitness, t1.fitness);
     }
 }

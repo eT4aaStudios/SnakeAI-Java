@@ -6,7 +6,10 @@ import com.snake.ai.main;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
-		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		new LwjglApplication(new main(), config);
+		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
+		cfg.title = "SnakeAi";
+		cfg.height = 750;
+		cfg.width = 800;
+		new LwjglApplication(new main(), cfg);
 	}
 }
