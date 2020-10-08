@@ -26,9 +26,9 @@ public class main extends Game {
     //Layer4Nodes = 0;
     //outputLayerNodes = 4;
 
-    static SpriteBatch batch;
+    public static SpriteBatch batch;
     Stage stage;
-    TextButton buttonstart, buttonstop, buttonmax, buttonfreeze, buttonshownodes, toogleThreads;
+    TextButton buttonstart, buttonstop, buttonmax, buttonfreeze, buttonshownodes;
     Skin skin;
     static float w;
     static float h;
@@ -40,19 +40,22 @@ public class main extends Game {
     public static Snakes currentSnake;
     public static Array<Integer> layerNodeValueArray;
     public static boolean currentScreen;
+    public static Array<allSnakes> allSnakesArrays;
 
     //Neuronales Netzwerk Eigenschaften
-    public static final double bias = 0.4d;
+    public static final double bias = 0d;
+    public static final double biasOutput = -0.4d;
+
+
     public static final double mutationPropability = 5;//%
-    public static final double mutationMin = -1;
-    public static final double mutationMax = 1;
-    public static final int bestSnakesArraySize = 3;
+    public static final double mutationMin = -0.5f;
+    public static final double mutationMax = 0.5f;
+    public static final int bestSnakesArraySize = 4;
 
     //Neuronales Netzwerk Aussehen
-    final static int inputLayerNodes = 32;
+    final static int inputLayerNodes = 24;
     final static int Layer2Nodes = 20;
     final static int Layer3Nodes = 12;
-    public static Array<allSnakes> allSnakesArrays;
     final static int Layer4Nodes = 0;
     final static int outputLayerNodes = 4;
     static final int LayerMenge = 4;
@@ -62,10 +65,10 @@ public class main extends Game {
     public static final boolean enableSehrNahLogging = false;
     public static final boolean enableOutputLayerLogging = false;
     public static final boolean enableInputLayerLogging = false;
-    public static final int kernMenge = 4;
 
     //Evolutions Eigenschaften
-    public static int POPULATIONSIZE = 750;
+    public static int POPULATIONSIZE = 500;
+    public static int FIRSTPOPULATIONSIZE = 500;
 
     public static final int reihen = nCols;
     public static final int spalten = nRows;
@@ -99,7 +102,7 @@ public class main extends Game {
         buttonstart.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Snake.Sleep_Time += 20;
+                Snake.Sleep_Time += 40;
             }
         });
         buttonstop = new TextButton("Schneller", skin);
@@ -131,30 +134,9 @@ public class main extends Game {
             }
         });
         buttonshownodes = new TextButton("Show Nodes", skin);
-        buttonshownodes.setSize(w / 8, h / 8);
-        buttonshownodes.setPosition(w / 2 - buttonshownodes.getWidth() / 2, h / 20f);
+        buttonshownodes.setSize(w / 4, h / 8);
+        buttonshownodes.setPosition(w - buttonstop.getWidth() * 2, h / 20f);
         buttonshownodes.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                main.this.setScreen(new NodeVis());
-                if (currentScreen) {
-                    stage.clear();
-                    stage.addActor(buttonshownodes);
-                    stage.addActor(buttonstart);
-                    stage.addActor(buttonstop);
-                    stage.addActor(buttonmax);
-                    stage.addActor(buttonfreeze);
-                } else {
-                    stage.clear();
-                    stage.addActor(buttonshownodes);
-                }
-                currentScreen = !currentScreen;
-            }
-        });
-        toogleThreads = new TextButton("Toggle Multi/Single Threading", skin);
-        toogleThreads.setSize(w / 8, h / 8);
-        toogleThreads.setPosition(w / 2 - buttonshownodes.getWidth() / 2, h / 20f);
-        toogleThreads.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 main.this.setScreen(new NodeVis());
@@ -205,70 +187,64 @@ public class main extends Game {
         batch.dispose();
     }
 
+    public void ResetLayers() {
+        for (int i = 0; i < currentSnake.layerArray.size; i++) {
+            for (int j = 0; j < currentSnake.layerArray.get(i).NodeArray.size; j++) {
+                currentSnake.layerArray.get(i).NodeArray.get(j).value = 0;
+            }
+        }
+    }
 
     public void berechneLayer() {
+        ResetLayers();
         InputLayerDetection newDetection = new InputLayerDetection();
-        for (int i = 0; i < LayerMenge - 1; i++)
+        for (int i = 0; i < LayerMenge - 1; i++) {
             berechneLayer(i);
+        }
+
+        for (int Layernumber = 0; Layernumber < LayerMenge; Layernumber++) {
+            //Logging
+            for (int k = 0; k < currentSnake.layerArray.get(Layernumber).NodeArray.size; k++) {
+                if (enableNodeLogging) {
+                    System.out.println("Layer NR.: " + Layernumber + " Node NR.: "+k+" ERGEBNIS: " + currentSnake.layerArray.get(Layernumber).NodeArray.get(k).value);
+                }
+            }
+            if (enableNodeLogging) {
+                System.out.println("\n");
+            }
+        }
     }
 
     public void berechneLayer(int Layernumber) {
-        int nodesPerCore = currentSnake.layerArray.get(Layernumber + 1).NodeArray.size / 4;
-        int nodesPerCoreRest = currentSnake.layerArray.get(Layernumber + 1).NodeArray.size % 4;
-
-        for (int i = 1; i < kernMenge + 1; i++) {
-            newThread(nodesPerCore * i, Layernumber);
-            newThread(nodesPerCore * i, Layernumber);
-            newThread(nodesPerCore * i, Layernumber);
-            newThread(nodesPerCore * i, Layernumber);
-        }
-        newThread(nodesPerCoreRest, Layernumber);
-
-        //Logging
-        for (int k = 0; k < currentSnake.layerArray.get(Layernumber + 1).NodeArray.size; k++) {
-            if (enableNodeLogging)
-                System.out.println("Layer NR.: " + Layernumber + " ERGEBNIS: " + currentSnake.layerArray.get(Layernumber + 1).NodeArray.get(k).value);
-        }
-        if (enableNodeLogging)
-            System.out.println("\n");
-    }
-
-    public void newThread(final int nodesPerCore, final int Layernumber) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (int NodeLayer2 = 0; NodeLayer2 < nodesPerCore; NodeLayer2++) {
-                    double sum = 0;
-                    for (int NodeLayer1 = 0; NodeLayer1 < currentSnake.layerArray.get(Layernumber).NodeArray.size; NodeLayer1++) {
-                        //weigth
-                        double weigth = currentSnake.layerArray.get(Layernumber).NodeArray.get(NodeLayer1).WeigthArray.get(NodeLayer2);
-                        //value
-                        double value = currentSnake.layerArray.get(Layernumber).NodeArray.get(NodeLayer1).value;
-                        sum += weigth * value;
-                    }
-
-                    //Node Deren Value geschrieben werden soll
-                    if (Layernumber == LayerMenge - 1) {
-                        currentSnake.layerArray.get(Layernumber + 1).NodeArray.get(NodeLayer2).value = outputActivationFunction(sum);
-                        System.out.println(currentSnake.layerArray.get(Layernumber + 1).NodeArray.get(NodeLayer2).value);
-                    } else
-                        currentSnake.layerArray.get(Layernumber + 1).NodeArray.get(NodeLayer2).value = activationFunction(sum);
-                }
+        for (int NodeLayer2 = 0; NodeLayer2 < currentSnake.layerArray.get(Layernumber + 1).NodeArray.size; NodeLayer2++) {
+            double sum = 0;
+            for (int NodeLayer1 = 0; NodeLayer1 < currentSnake.layerArray.get(Layernumber).NodeArray.size; NodeLayer1++) {
+                //weigth
+                double weigth = currentSnake.layerArray.get(Layernumber).NodeArray.get(NodeLayer1).WeigthArray.get(NodeLayer2);
+                //value
+                double value = currentSnake.layerArray.get(Layernumber).NodeArray.get(NodeLayer1).value;
+                sum += weigth * value;
             }
-        }).start();
+
+            //Node Deren Value geschrieben werden soll
+            if (Layernumber == LayerMenge - 2) {
+                currentSnake.layerArray.get(Layernumber + 1).NodeArray.get(NodeLayer2).value = outputActivationFunction(sum);
+            } else
+                currentSnake.layerArray.get(Layernumber + 1).NodeArray.get(NodeLayer2).value = activationFunction(sum);
+        }
     }
 
     public double activationFunction(double x) {
         x += bias;
 
         //Sigmoid
-        //return 1 / (1 + Math.exp(-x));
+        return 1 / (1 + Math.exp(-x));
 
         //Tanh
         //return Math.tanh(x);
 
         //Relu
-        return Math.max(0, x);
+        //return Math.max(0, x);
 
         //Relu 2.0 (Best)
         //if (x > 0) {
@@ -282,13 +258,13 @@ public class main extends Game {
         x += biasOutput;
 
         //Sigmoid
-        return 1 / (1 + Math.exp(-x));
+        //return 1 / (1 + Math.exp(-x));
 
         //Tanh (Best)
         //return Math.tanh(x);
 
         //Relu
-        //return Math.max(0,x);
+        return Math.max(0, x);
 
         //Relu 2.0
         //if (x > 0) {

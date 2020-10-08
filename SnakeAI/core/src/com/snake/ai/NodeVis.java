@@ -58,12 +58,12 @@ public class NodeVis implements Screen {
                                 id = i;
                             }
                         }
-                        if((currentSnake.layerArray.get(Layer).NodeArray.get(Node).value >= 1 && Layer == 0) || Node == id) {
+                        if((currentSnake.layerArray.get(Layer).NodeArray.get(Node).value >= 0.9f && Layer == 0) || Node == id) {
                             shapeRenderer.setColor(Color.GREEN);
                         }else
                             shapeRenderer.setColor(Color.WHITE);
                     }else {
-                        if(currentSnake.layerArray.get(Layer).NodeArray.get(Node).value > 0)
+                        if(currentSnake.layerArray.get(Layer).NodeArray.get(Node).value >= 0.7f)
                             shapeRenderer.setColor(0,0.7f,0.8f,0.9f);
                         else
                             shapeRenderer.setColor(Color.GRAY);

@@ -24,14 +24,16 @@ public class InputLayerDetection {
             System.out.println("\n");
         }
 
-        schwanzDetectionGerade();       //(4) 4
-        schwanzDetectionSchraeg();      //(4) 8
-        foodDetectionGerade();          //(4) 12
-        foodDetectionSchraeg();         //(4) 16
-        wandDetectionGerade();          //(4) 20
-        wandDetectionSchreag();         //(4) 24
-        directionGoingHead();           //(4) 28
-        directionGoingTail();           //(4) 32
+        schwanzDetectionGerade();       //(4) 4  Vision
+        schwanzDetectionSchraeg();      //(4) 8  Vision
+        foodDetectionGerade();          //(4) 12 Vision
+        foodDetectionSchraeg();         //(4) 16 Vision
+        wandDetectionGerade();          //(4) 20 Vision
+        wandDetectionSchreag();         //(4) 24 Vision
+
+        //Todo buggy
+        //directionGoingHead();           //(4) 28 Head Direction
+        //directionGoingTail();           //(4) 32 Tail Direction
 
         if (enableInputLayerLogging) {
             System.out.println("\nInputLayer Values: ");

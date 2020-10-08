@@ -19,7 +19,7 @@ public class Snakes {
 
     public Snakes() {
         if (population > 0) {
-            selectParents();
+            selectParents2();
         }
         layerArray = new Array<>();
 

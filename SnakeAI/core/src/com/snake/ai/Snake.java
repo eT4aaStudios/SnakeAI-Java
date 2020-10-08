@@ -22,6 +22,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import static com.snake.ai.main.FIRSTPOPULATIONSIZE;
 import static com.snake.ai.main.POPULATIONSIZE;
 import static com.snake.ai.main.allSnakesArrays;
 import static com.snake.ai.main.bestArrays;
@@ -60,8 +61,8 @@ public class Snake extends JPanel implements Runnable {
     List<Point> treats;
     Font smallFont;
 
-    static int nCols = 12;
-    static int nRows = 12;
+    static int nCols = 22;
+    static int nRows = 22;
     static int Sleep_Time = 85;
     final int treastmenge = 1;
 
@@ -136,7 +137,7 @@ public class Snake extends JPanel implements Runnable {
         score = 0;
         timealaive = 0;
         steps = 0;
-        if (snakeNr == POPULATIONSIZE) {
+        if ((snakeNr == POPULATIONSIZE && population > 0) || (snakeNr == FIRSTPOPULATIONSIZE && population == 0)) {
             population++;
             System.out.println("\n_____________________");
             System.out.println("    NEW POPULATION!   ");
@@ -145,7 +146,10 @@ public class Snake extends JPanel implements Runnable {
             for (int i = 0; i < allSnakesArrays.get(population - 1).allSnakesArray.size; i++) {
                 maxFitness += allSnakesArrays.get(population - 1).allSnakesArray.get(i).fitness;
             }
-            System.out.println("average Fitness: " + maxFitness / POPULATIONSIZE);
+            if (population > 1)
+                System.out.println("average Fitness: " + maxFitness / POPULATIONSIZE);
+            else
+                System.out.println("average Fitness: " + maxFitness / FIRSTPOPULATIONSIZE);
             bestSnakes best = new bestSnakes();
             bestArrays.add(best);
             allSnakes allSnakes = new allSnakes();
@@ -285,31 +289,31 @@ public class Snake extends JPanel implements Runnable {
             if (currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(i).value > highest) {
                 highest = currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(i).value;
                 id = i;
+
             }
         }
-        if (highest >= 1) {
-            switch (id) {
-                case 0:
-                    if (dir != Dir.down && dir != Dir.up) {
-                        dir = Dir.up;
-                    }
-                    break;
-                case 1:
-                    if (dir != Dir.up && dir != Dir.down) {
-                        dir = Dir.down;
-                    }
-                    break;
-                case 2:
-                    if (dir != Dir.right && dir != Dir.left) {
-                        dir = Dir.left;
-                    }
-                    break;
-                case 3:
-                    if (dir != Dir.left && dir != Dir.right) {
-                        dir = Dir.right;
-                    }
-                    break;
-            }
+
+        switch (id) {
+            case 0:
+                if (dir != Dir.down && dir != Dir.up) {
+                    dir = Dir.up;
+                }
+                break;
+            case 1:
+                if (dir != Dir.up && dir != Dir.down) {
+                    dir = Dir.down;
+                }
+                break;
+            case 2:
+                if (dir != Dir.right && dir != Dir.left) {
+                    dir = Dir.left;
+                }
+                break;
+            case 3:
+                if (dir != Dir.left && dir != Dir.right) {
+                    dir = Dir.right;
+                }
+                break;
         }
         steps++;
     }
@@ -428,15 +432,15 @@ public class Snake extends JPanel implements Runnable {
     }
 
     void drawSnake(Graphics2D g) {
-        g.setColor(new Color(0.56f,0.56f,0.56f,0.57f));
+        g.setColor(new Color(0.56f, 0.56f, 0.56f, 0.57f));
         if (snake.size() > 0) {
-            for(int i = 0;i < snake.size();i++) {
+            for (int i = 0; i < snake.size(); i++) {
                 Point p = snake.get(i);
                 g.fillRect(p.x * 10, p.y * 10, 10, 10);
             }
         }
 
-        g.setColor(energy < 500 ? Color.red : new Color(0,0.7f,0.8f,0.9f));
+        g.setColor(energy < 500 ? Color.red : new Color(0, 0.7f, 0.8f, 0.9f));
         if (snake.size() > 0) {
             Point head = snake.get(0);
             g.fillRect(head.x * 10, head.y * 10, 10, 10);

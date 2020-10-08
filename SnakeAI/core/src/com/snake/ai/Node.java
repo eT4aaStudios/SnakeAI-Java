@@ -19,11 +19,12 @@ public class Node {
             if (populationGreaterZero) {
                 Random r = new Random();
                 int i = r.nextInt(1);
-                if (i == 1) {
+                /*if (i == 1) {
                     singlePoint(NodeNumber, LayerNumber, parent1, parent2, evo);
                 } else {
                     multiplePoint(NodeNumber, LayerNumber, parent1, parent2, evo);
-                }
+                }*/
+                singlePoint(NodeNumber, LayerNumber, parent1, parent2, evo);
             } else {
                 for (int i = 0; i < layerNodeValueArray.get(LayerNumber + 1); i++) {
                     WeigthArray.add(-1d + Math.random() * (1d - -1d));
@@ -38,12 +39,12 @@ public class Node {
         int i = r.nextInt(layerNodeValueArray.get(LayerNumber + 1));
         for (int j = 0; j < i; j++) {
             //Weight 1
-            WeigthArray.add(evo.mutation2_2(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2, 1));
+            WeigthArray.add(evo.mutation3(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2, 1));
             WeigthNumber++;
         }
         for (int k = WeigthNumber; k < layerNodeValueArray.get(LayerNumber + 1); k++) {
             //Weight 2
-            WeigthArray.add(evo.mutation2_2(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2, 2));
+            WeigthArray.add(evo.mutation3(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2, 2));
             WeigthNumber++;
         }
         //System.out.println("WeigthNumber: " + WeigthNumber);
@@ -78,13 +79,13 @@ public class Node {
             for (int j = 0; j < mengeDerErsten; j++) {
                 //Weight 1
                 //System.out.println("Weight 1");
-                WeigthArray.add(evo.mutation2_2(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2, 1));
+                WeigthArray.add(evo.mutation3(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2, 1));
                 WeigthNumber++;
             }
             for (int j = 0; j < nodemengePerPoint - mengeDerErsten; j++) {
                 //Weight 2
                 //System.out.println("Weight 2");
-                WeigthArray.add(evo.mutation2_2(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2, 2));
+                WeigthArray.add(evo.mutation3(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2, 2));
                 WeigthNumber++;
 
             }
@@ -98,13 +99,13 @@ public class Node {
             for (int j = 0; j < m; j++) {
                 //Weight 1
                 //System.out.println("Weight 1");
-                WeigthArray.add(evo.mutation2_2(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2, 1));
+                WeigthArray.add(evo.mutation3(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2, 1));
                 WeigthNumber++;
             }
             for (int j = m; j < rest; j++) {
                 //Weight 2
                 //System.out.println("Weight 2");
-                WeigthArray.add(evo.mutation2_2(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2, 2));
+                WeigthArray.add(evo.mutation3(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2, 2));
                 WeigthNumber++;
 
             }
