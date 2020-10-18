@@ -28,10 +28,15 @@ public class main extends Game {
 
     public static SpriteBatch batch;
     Stage stage;
-    TextButton buttonstart, buttonstop, buttonmax, buttonfreeze, buttonshownodes;
+    TextButton buttonstart;
+    TextButton buttonstop;
+    TextButton buttonmax;
+    TextButton buttonfreeze;
+    TextButton buttonshownodes;
+    static TextButton savedSnakesScreenbutton;
     Skin skin;
-    static float w;
-    static float h;
+    public static float w;
+    public static float h;
     public static int foodpositionX, foodpositionY;
     public static int SnakeHeadX, SnakeHeadY;
     Array<Integer> felderarray;
@@ -41,39 +46,44 @@ public class main extends Game {
     public static Array<Integer> layerNodeValueArray;
     public static boolean currentScreen;
     public static Array<allSnakes> allSnakesArrays;
+    public static boolean loadFromSavedSnake;
+    public static int gameNr;
+    public static int SnakeNr;
 
     //Neuronales Netzwerk Eigenschaften
-    public static final double bias = 0d;
-    public static final double biasOutput = -0.4d;
+    public static double bias = 0d;
+    public static double biasOutput = -0.4d;
 
-
-    public static final double mutationPropability = 5;//%
-    public static final double mutationMin = -0.5f;
-    public static final double mutationMax = 0.5f;
-    public static final int bestSnakesArraySize = 4;
+    public static double mutationPropability = 5;//%
+    public static double mutationMin = -0.5f;
+    public static double mutationMax = 0.5f;
+    public static int bestSnakesArraySize = 4;
 
     //Neuronales Netzwerk Aussehen
-    final static int inputLayerNodes = 24;
-    final static int Layer2Nodes = 20;
-    final static int Layer3Nodes = 12;
-    final static int Layer4Nodes = 0;
-    final static int outputLayerNodes = 4;
-    static final int LayerMenge = 4;
+    static int inputLayerNodes = 24;
+    static int Layer2Nodes = 20;
+    static int Layer3Nodes = 12;
+    static int Layer4Nodes = 0;
+    static int outputLayerNodes = 4;
+    static int LayerMenge = 4;
 
     //Debugging Eigenschaften
-    public static final boolean enableNodeLogging = false;
-    public static final boolean enableSehrNahLogging = false;
-    public static final boolean enableOutputLayerLogging = false;
-    public static final boolean enableInputLayerLogging = false;
+    public static boolean enableNodeLogging = false;
+    public static boolean enableSehrNahLogging = false;
+    public static boolean enableOutputLayerLogging = false;
+    public static boolean enableInputLayerLogging = false;
 
     //Evolutions Eigenschaften
     public static int POPULATIONSIZE = 500;
     public static int FIRSTPOPULATIONSIZE = 500;
 
-    public static final int reihen = nCols;
-    public static final int spalten = nRows;
+    public static int reihen = nCols;
+    public static int spalten = nRows;
 
     Snake snake = new Snake();
+
+    NodeVis NodeVis;
+    SavedSnakes SavedSnakes;
 
     @Override
     public void create() {
@@ -139,7 +149,7 @@ public class main extends Game {
         buttonshownodes.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                main.this.setScreen(new NodeVis());
+                main.this.setScreen(NodeVis);
                 if (currentScreen) {
                     stage.clear();
                     stage.addActor(buttonshownodes);
@@ -147,6 +157,7 @@ public class main extends Game {
                     stage.addActor(buttonstop);
                     stage.addActor(buttonmax);
                     stage.addActor(buttonfreeze);
+                    stage.addActor(savedSnakesScreenbutton);
                 } else {
                     stage.clear();
                     stage.addActor(buttonshownodes);
@@ -154,7 +165,23 @@ public class main extends Game {
                 currentScreen = !currentScreen;
             }
         });
+        savedSnakesScreenbutton = new TextButton("Show Saved Snakes", skin);
+        savedSnakesScreenbutton.setSize(w / 4, h / 8);
+        savedSnakesScreenbutton.setPosition(buttonstart.getX(), h / 20f);
+        savedSnakesScreenbutton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (main.this.getScreen() != SavedSnakes)
+                    main.this.setScreen(SavedSnakes);
+                else {
+                    main.this.setScreen(NodeVis);
+                    Gdx.input.setInputProcessor(stage);
+                    stage.addActor(savedSnakesScreenbutton);
+                }
+            }
+        });
 
+        stage.addActor(savedSnakesScreenbutton);
         stage.addActor(buttonshownodes);
         stage.addActor(buttonstart);
         stage.addActor(buttonstop);
@@ -169,6 +196,9 @@ public class main extends Game {
         allSnakes allSnakes = new allSnakes();
         allSnakesArrays.add(allSnakes);
         allSnakes.allSnakesArray.add(currentSnake);
+
+        NodeVis = new NodeVis();
+        SavedSnakes = new SavedSnakes();
     }
 
     @Override
@@ -177,8 +207,8 @@ public class main extends Game {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         super.render();
 
-
-        stage.draw();
+        if (this.getScreen() != SavedSnakes)
+            stage.draw();
     }
 
 
@@ -206,7 +236,7 @@ public class main extends Game {
             //Logging
             for (int k = 0; k < currentSnake.layerArray.get(Layernumber).NodeArray.size; k++) {
                 if (enableNodeLogging) {
-                    System.out.println("Layer NR.: " + Layernumber + " Node NR.: "+k+" ERGEBNIS: " + currentSnake.layerArray.get(Layernumber).NodeArray.get(k).value);
+                    System.out.println("Layer NR.: " + Layernumber + " Node NR.: " + k + " ERGEBNIS: " + currentSnake.layerArray.get(Layernumber).NodeArray.get(k).value);
                 }
             }
             if (enableNodeLogging) {

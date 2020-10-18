@@ -4,8 +4,13 @@ import com.badlogic.gdx.utils.Array;
 
 import java.util.Random;
 
+import static com.snake.ai.SavedSnakes.prefs;
 import static com.snake.ai.main.LayerMenge;
+import static com.snake.ai.main.SnakeNr;
+import static com.snake.ai.main.bestArrays;
+import static com.snake.ai.main.gameNr;
 import static com.snake.ai.main.layerNodeValueArray;
+import static com.snake.ai.main.loadFromSavedSnake;
 
 public class Node {
     public Array<Double> WeigthArray;
@@ -24,7 +29,22 @@ public class Node {
                 } else {
                     multiplePoint(NodeNumber, LayerNumber, parent1, parent2, evo);
                 }*/
-                singlePoint(NodeNumber, LayerNumber, parent1, parent2, evo);
+                if (loadFromSavedSnake) {
+                    for (int m = 0; m < layerNodeValueArray.get(LayerNumber + 1); m++) {
+                        WeigthArray.add(
+                                (double) prefs.getFloat("gameNr " + gameNr +
+                                        " bestSnakeNr " + 0 +
+                                        " SnakeNr " + SnakeNr +
+                                        " LayerNr " + LayerNumber +
+                                        " NodeNr " + NodeNumber +
+                                //TODO ERRROR index can't be >= size: 0 >= 0
+                                        //TODO bestSnakeNr == Population
+                                        " WeightNr " + m, bestArrays.get(0).bestSnakesArray.get(SnakeNr).layerArray.get(LayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(m).floatValue())
+                        );
+                    }
+                } else {
+                    singlePoint(NodeNumber, LayerNumber, parent1, parent2, evo);
+                }
             } else {
                 for (int i = 0; i < layerNodeValueArray.get(LayerNumber + 1); i++) {
                     WeigthArray.add(-1d + Math.random() * (1d - -1d));

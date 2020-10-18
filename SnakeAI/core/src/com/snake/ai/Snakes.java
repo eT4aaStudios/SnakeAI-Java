@@ -82,44 +82,44 @@ public class Snakes {
     public void selectParents2() {
         //Parent 1
         int maxFitness = 0;
-        for (int i = 0; i < allSnakesArrays.get(population - 1).allSnakesArray.size; i++) {
-            maxFitness += allSnakesArrays.get(population - 1).allSnakesArray.get(i).fitness;
+        for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
+            maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
         }
 
         maxFitness = 0;
-        for (int i = 0; i < allSnakesArrays.get(population - 1).allSnakesArray.size; i++) {
-            maxFitness += allSnakesArrays.get(population - 1).allSnakesArray.get(i).fitness;
+        for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
+            maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
         }
 
         Random r = new Random();
         int choosenId = r.nextInt(maxFitness);
 
         int zahlZumChecken = 0;
-        for (int i = 0; i < allSnakesArrays.get(population - 1).allSnakesArray.size; i++) {
-            if (choosenId >= zahlZumChecken && choosenId <= zahlZumChecken + allSnakesArrays.get(population - 1).allSnakesArray.get(i).fitness) {
-                parent1Snake = allSnakesArrays.get(population - 1).allSnakesArray.get(i);
-                i = allSnakesArrays.get(population - 1).allSnakesArray.size;
+        for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
+            if (choosenId >= zahlZumChecken && choosenId <= zahlZumChecken + allSnakesArrays.get(0).allSnakesArray.get(i).fitness) {
+                parent1Snake = allSnakesArrays.get(0).allSnakesArray.get(i);
+                i = allSnakesArrays.get(0).allSnakesArray.size;
             } else {
-                zahlZumChecken += allSnakesArrays.get(population - 1).allSnakesArray.get(i).fitness;
+                zahlZumChecken += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
             }
         }
 
         //Parent 2
         maxFitness = 0;
-        for (int i = 0; i < allSnakesArrays.get(population - 1).allSnakesArray.size; i++) {
-            maxFitness += allSnakesArrays.get(population - 1).allSnakesArray.get(i).fitness;
+        for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
+            maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
         }
 
         r = new Random();
         choosenId = r.nextInt(maxFitness);
 
         zahlZumChecken = 0;
-        for (int i = 0; i < allSnakesArrays.get(population - 1).allSnakesArray.size; i++) {
-            if (choosenId >= zahlZumChecken && choosenId <= zahlZumChecken + allSnakesArrays.get(population - 1).allSnakesArray.get(i).fitness) {
-                parent2Snake = allSnakesArrays.get(population - 1).allSnakesArray.get(i);
-                i = allSnakesArrays.get(population - 1).allSnakesArray.size;
+        for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
+            if (choosenId >= zahlZumChecken && choosenId <= zahlZumChecken + allSnakesArrays.get(0).allSnakesArray.get(i).fitness) {
+                parent2Snake = allSnakesArrays.get(0).allSnakesArray.get(i);
+                i = allSnakesArrays.get(0).allSnakesArray.size;
             } else {
-                zahlZumChecken += allSnakesArrays.get(population - 1).allSnakesArray.get(i).fitness;
+                zahlZumChecken += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
             }
         }
     }

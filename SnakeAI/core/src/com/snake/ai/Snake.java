@@ -125,11 +125,12 @@ public class Snake extends JPanel implements Runnable {
     void startNewGame() {
         gameOver = false;
 
+        //TODO Save
         stop();
         initGrid();
         treats = new LinkedList<>();
 
-        energy = 2000;
+        energy = 200;
 
         if (score > hiScore) {
             hiScore = score;
@@ -143,8 +144,8 @@ public class Snake extends JPanel implements Runnable {
             System.out.println("    NEW POPULATION!   ");
             System.out.println("_____________________\n");
             int maxFitness = 0;
-            for (int i = 0; i < allSnakesArrays.get(population - 1).allSnakesArray.size; i++) {
-                maxFitness += allSnakesArrays.get(population - 1).allSnakesArray.get(i).fitness;
+            for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
+                maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
             }
             if (population > 1)
                 System.out.println("average Fitness: " + maxFitness / POPULATIONSIZE);
@@ -153,9 +154,13 @@ public class Snake extends JPanel implements Runnable {
             bestSnakes best = new bestSnakes();
             bestArrays.add(best);
             allSnakes allSnakes = new allSnakes();
-            allSnakesArrays.add(allSnakes);
-            for (int i = 0; i < bestArrays.get(population - 1).bestSnakesArray.size; i++)
-                System.out.println("Nr.:" + i + " Snake Fitness: " + bestArrays.get(population - 1).bestSnakesArray.get(i).fitness);
+            if (allSnakesArrays.size > 1) {
+                allSnakesArrays.set(0, allSnakesArrays.get(1));
+                allSnakesArrays.set(1, allSnakes);
+            } else
+                allSnakesArrays.add(allSnakes);
+            for (int i = 0; i < bestArrays.get(0).bestSnakesArray.size; i++)
+                System.out.println("Nr.:" + i + " Snake Fitness: " + bestArrays.get(0).bestSnakesArray.get(i).fitness);
             if (isFocused())
                 Sleep_Time2 = 2000;
             snakeNr = 0;
@@ -240,7 +245,7 @@ public class Snake extends JPanel implements Runnable {
                 } else {
                     if (eatsTreat()) {
                         score++;
-                        energy = 2000;
+                        energy = 200;
                         growSnake();
                     }
                     moveSnake();
@@ -319,7 +324,7 @@ public class Snake extends JPanel implements Runnable {
     }
 
     boolean energyUsed() {
-        energy -= 10;
+        energy -= 1;
         timealaive++;
         return energy <= 0;
     }
@@ -352,8 +357,8 @@ public class Snake extends JPanel implements Runnable {
         return false;
     }
 
-    void gameOver() {
-        allSnakesArrays.get(population).allSnakesArray.add(currentSnake);
+    public void gameOver() {
+        allSnakesArrays.get(allSnakesArrays.size - 1).allSnakesArray.add(currentSnake);
         currentSnake.score = score;
         gameOver = true;
         stop();
@@ -440,7 +445,7 @@ public class Snake extends JPanel implements Runnable {
             }
         }
 
-        g.setColor(energy < 500 ? Color.red : new Color(0, 0.7f, 0.8f, 0.9f));
+        g.setColor(energy < 11 ? Color.red : new Color(0, 0.7f, 0.8f, 0.9f));
         if (snake.size() > 0) {
             Point head = snake.get(0);
             g.fillRect(head.x * 10, head.y * 10, 10, 10);
@@ -475,8 +480,8 @@ public class Snake extends JPanel implements Runnable {
         g.drawString(s2, 30, h - 410);
 
         String s3;
-        if (bestArrays.get(population).bestSnakesArray.size != 0)
-            s3 = format("BestFitness %d   CurrentFitness %d", bestArrays.get(population).bestSnakesArray.get(bestArrays.get(population).bestSnakesArray.size - 1).fitness, currentSnake.fitness);
+        if (bestArrays.get(0).bestSnakesArray.size != 0)
+            s3 = format("BestFitness %d   CurrentFitness %d", bestArrays.get(0).bestSnakesArray.get(bestArrays.get(0).bestSnakesArray.size - 1).fitness, currentSnake.fitness);
         else
             s3 = format("CurrentFitness %d", currentSnake.fitness);
         g.drawString(s3, 30, h - 380);
