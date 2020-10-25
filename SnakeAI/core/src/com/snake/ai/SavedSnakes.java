@@ -57,6 +57,8 @@ public class SavedSnakes implements Screen {
         savedStage = new Stage();
         Gdx.input.setInputProcessor(savedStage);
         prefs = Gdx.app.getPreferences("SnakeAi");
+        prefs.clear();
+        prefs.flush();
 
         saveCurrentSnake = new TextButton("Save Current Snake", skin);
         saveCurrentSnake.setSize(w / 4, h / 8);
@@ -149,7 +151,8 @@ public class SavedSnakes implements Screen {
         }
         prefs.putFloat("gameNr " + gameNr + "average Fitness", maxFitness / POPULATIONSIZE);
         prefs.putInteger("gameNr " + gameNr + "hiScore", hiScore);
-        prefs.putInteger("gameNr " + gameNr + "bestSnakeEver.fitness", bestSnakeEver.fitness);
+        prefs.putInteger("gameNr " + gameNr + "bestSnakeEver.fitness", bestSnakeEver.bestSnakeEver.fitness);
+
         prefs.putInteger("gameNr " + gameNr + "population", population);
 
         for (int j = 0; j < bestSnakesArray.size; j++) {

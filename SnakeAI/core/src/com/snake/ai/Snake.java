@@ -27,6 +27,7 @@ import static com.snake.ai.main.POPULATIONSIZE;
 import static com.snake.ai.main.allSnakesArrays;
 import static com.snake.ai.main.bestSnakeEver;
 import static com.snake.ai.main.bestSnakeTreats;
+
 import static com.snake.ai.main.bestSnakesArray;
 import static com.snake.ai.main.bestSnakesArraySize;
 import static com.snake.ai.main.currentSnake;
@@ -57,7 +58,7 @@ public class Snake extends JPanel implements Runnable {
     int score;
     static int hiScore;
     static final int startlength = 3;
-    static Dir dir;
+    static Dir dir, startDir;
     static int energy;
     static int timealaive;
 
@@ -183,29 +184,44 @@ public class Snake extends JPanel implements Runnable {
 
         snake = new ArrayList<>();
 
-        Random r = new Random();
-        switch (r.nextInt(4)) {
-            case 0:
-                dir = Dir.left;
+        if (replay) {
+            dir = bestSnakeEver.startDir;
+        } else {
+            Random r = new Random();
+            switch (r.nextInt(4)) {
+                case 0:
+                    dir = Dir.left;
+                    break;
+                case 1:
+                    dir = Dir.right;
+                    break;
+                case 2:
+                    dir = Dir.up;
+                    break;
+                case 3:
+                    dir = Dir.down;
+                    break;
+            }
+        }
+        switch (dir) {
+            case left:
                 for (int x = 0; x < startlength; x++)
                     snake.add(new Point(nCols / 2 + x, nRows / 2));
                 break;
-            case 1:
-                dir = Dir.right;
+            case right:
                 for (int x = startlength; x > 0; x--)
                     snake.add(new Point(nCols / 2 + x, nRows / 2));
                 break;
-            case 2:
-                dir = Dir.up;
+            case up:
                 for (int x = 0; x < startlength; x++)
                     snake.add(new Point(nCols / 2, nRows / 2 + x));
                 break;
-            case 3:
-                dir = Dir.down;
+            case down:
                 for (int x = startlength; x > 0; x--)
                     snake.add(new Point(nCols / 2, nRows / 2 + x));
                 break;
         }
+        startDir = dir;
 
         (gameThread = new Thread(this)).start();
     }
@@ -257,8 +273,8 @@ public class Snake extends JPanel implements Runnable {
                     }
                     moveSnake();
 
-                    main.SnakeHeadX = snake.get(0).x;
-                    main.SnakeHeadY = snake.get(0).y;
+                    main.SnakeHeadX = snake.get(0).getX();
+                    main.SnakeHeadY = snake.get(0).getY();
                 }
 
                 main main2 = new main();
@@ -300,7 +316,6 @@ public class Snake extends JPanel implements Runnable {
             if (currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(i).value > highest) {
                 highest = currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(i).value;
                 id = i;
-
             }
         }
 
@@ -359,7 +374,7 @@ public class Snake extends JPanel implements Runnable {
         for (Point p : treats)
             if (p.x == nextCol && p.y == nextRow) {
                 addTreat();
-                return treats.remove(p);
+                return true;
             }
         return false;
     }
@@ -373,9 +388,12 @@ public class Snake extends JPanel implements Runnable {
 
         allSnakesArrays.get(allSnakesArrays.size - 1).allSnakesArray.add(currentSnake);
 
-        if (currentSnake.fitness > bestSnakeEver.fitness) {
-            bestSnakeEver = currentSnake;
-            bestSnakeTreats = treats;
+        if (!replay && currentSnake.fitness > bestSnakeEver.bestSnakeEver.fitness) {
+            bestSnakeEver.bestSnakeEver = currentSnake;
+            bestSnakeEver.bestSnakeTreats = treats;
+            bestSnakeEver.startDir = startDir;
+            //TODO
+            //replay = false;
         }
         // Muss unten sein
         startNewGame();
@@ -412,7 +430,7 @@ public class Snake extends JPanel implements Runnable {
 
         Point p = new Point(x, y);
         if (replay) {
-            treats.add(bestSnakeTreats.get(treats.size()));
+            treats.add(bestSnakeEver.bestSnakeTreats.get(treats.size()));
         } else
             treats.add(p);
     }
@@ -446,8 +464,8 @@ public class Snake extends JPanel implements Runnable {
     void drawTreats(Graphics2D g) {
         g.setColor(Color.red);
         if (treats.size() > 0) {
-            for (Point p : treats)
-                g.fillRect(p.x * 10, p.y * 10, 10, 10);
+            Point p = treats.get(treats.size() - 1);
+            g.fillRect(p.x * 10, p.y * 10, 10, 10);
         }
     }
 
@@ -472,7 +490,7 @@ public class Snake extends JPanel implements Runnable {
 
         String s3;
         if (bestSnakesArray.size != 0)
-            s3 = format("BestFitnessEver %d   CurrentFitness %d", bestSnakeEver.fitness, currentSnake.fitness);
+            s3 = format("BestFitnessEver %d   CurrentFitness %d", bestSnakeEver.bestSnakeEver.fitness, currentSnake.fitness);
         else
             s3 = format("CurrentFitness %d", currentSnake.fitness);
         g.drawString(s3, 30, h - 380);

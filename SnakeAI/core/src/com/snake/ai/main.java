@@ -42,7 +42,7 @@ public class main extends Game {
     public static float w;
     public static float h;
     public static int foodpositionX, foodpositionY;
-    public static int SnakeHeadX, SnakeHeadY;
+    public static double SnakeHeadX, SnakeHeadY;
     Array<Integer> felderarray;
     public static boolean freeze;
     public static Snakes currentSnake;
@@ -50,12 +50,15 @@ public class main extends Game {
     public static boolean currentScreen;
     public static Array<allSnakes> allSnakesArrays;
     public static Array<Snakes> bestSnakesArray;
+
     public static Snakes bestSnakeEver;
+
     public static boolean loadFromSavedSnake;
     public static int gameNr;
     public static int SnakeNr;
     public static boolean replay;
-    public static List<Point> bestSnakeTreats;
+
+    public static BestSnakeEver bestSnakeEver = new BestSnakeEver();
 
     //Neuronales Netzwerk Eigenschaften
     public static double bias = 0d;
@@ -78,7 +81,7 @@ public class main extends Game {
     public static boolean enableNodeLogging = false;
     public static boolean enableSehrNahLogging = false;
     public static boolean enableOutputLayerLogging = false;
-    public static boolean enableInputLayerLogging = false;
+    public static boolean enableInputLayerLogging = true;
 
     //Evolutions Eigenschaften
     public static int POPULATIONSIZE = 500;
@@ -157,10 +160,9 @@ public class main extends Game {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 System.out.println("Replay");
-                if(bestSnakeEver != null) {
-                    replay = true;
-                    currentSnake = bestSnakeEver;
-                }
+                replay = true;
+                Snake.gameOver = true;
+                currentSnake = bestSnakeEver.bestSnakeEver;
             }
         });
         buttonshownodes = new TextButton("Show Nodes", skin);
@@ -214,7 +216,7 @@ public class main extends Game {
         stage.addActor(buttonreplay);
 
         currentSnake = new Snakes();
-        for (int i = 0;i < bestSnakesArraySize;i++) {
+        for (int i = 0; i < bestSnakesArraySize; i++) {
             bestSnakesArray.add(currentSnake);
         }
 
@@ -222,7 +224,7 @@ public class main extends Game {
         allSnakesArrays.add(allSnakes);
         allSnakes.allSnakesArray.add(currentSnake);
 
-        bestSnakeEver = currentSnake;
+        bestSnakeEver.bestSnakeEver = currentSnake;
         NodeVis = new NodeVis();
         SavedSnakes = new SavedSnakes();
     }
@@ -246,7 +248,7 @@ public class main extends Game {
     public void ResetLayers() {
         for (int i = 0; i < currentSnake.layerArray.size; i++) {
             for (int j = 0; j < currentSnake.layerArray.get(i).NodeArray.size; j++) {
-                currentSnake.layerArray.get(i).NodeArray.get(j).value = 0;
+                currentSnake.layerArray.get(i).NodeArray.get(j).value = 0d;
             }
         }
     }
@@ -273,7 +275,7 @@ public class main extends Game {
 
     public void berechneLayer(int Layernumber) {
         for (int NodeLayer2 = 0; NodeLayer2 < currentSnake.layerArray.get(Layernumber + 1).NodeArray.size; NodeLayer2++) {
-            double sum = 0;
+            double sum = 0d;
             for (int NodeLayer1 = 0; NodeLayer1 < currentSnake.layerArray.get(Layernumber).NodeArray.size; NodeLayer1++) {
                 //weigth
                 double weigth = currentSnake.layerArray.get(Layernumber).NodeArray.get(NodeLayer1).WeigthArray.get(NodeLayer2);
@@ -294,7 +296,7 @@ public class main extends Game {
         x += bias;
 
         //Sigmoid
-        return 1 / (1 + Math.exp(-x));
+        return 1d / (1d + Math.exp(-x));
 
         //Tanh
         //return Math.tanh(x);
@@ -320,7 +322,7 @@ public class main extends Game {
         //return Math.tanh(x);
 
         //Relu
-        return Math.max(0, x);
+        return Math.max(0d, x);
 
         //Relu 2.0
         //if (x > 0) {
