@@ -11,6 +11,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 
+import java.awt.Point;
+import java.util.List;
+
 import static com.snake.ai.Snake.nCols;
 import static com.snake.ai.Snake.nRows;
 
@@ -31,9 +34,10 @@ public class main extends Game {
     TextButton buttonstart;
     TextButton buttonstop;
     TextButton buttonmax;
-    TextButton buttonfreeze;
+    static TextButton buttonfreeze;
     TextButton buttonshownodes;
     static TextButton savedSnakesScreenbutton;
+    TextButton buttonreplay;
     Skin skin;
     public static float w;
     public static float h;
@@ -41,14 +45,17 @@ public class main extends Game {
     public static int SnakeHeadX, SnakeHeadY;
     Array<Integer> felderarray;
     public static boolean freeze;
-    public static Array<bestSnakes> bestArrays;
     public static Snakes currentSnake;
     public static Array<Integer> layerNodeValueArray;
     public static boolean currentScreen;
     public static Array<allSnakes> allSnakesArrays;
+    public static Array<Snakes> bestSnakesArray;
+    public static Snakes bestSnakeEver;
     public static boolean loadFromSavedSnake;
     public static int gameNr;
     public static int SnakeNr;
+    public static boolean replay;
+    public static List<Point> bestSnakeTreats;
 
     //Neuronales Netzwerk Eigenschaften
     public static double bias = 0d;
@@ -96,8 +103,8 @@ public class main extends Game {
         for (int i = 0; i < layerNodeValueArray.size; i++)
             if (layerNodeValueArray.get(i) == 0)
                 layerNodeValueArray.removeIndex(i);
-        bestArrays = new Array<>();
         allSnakesArrays = new Array<>();
+        bestSnakesArray = new Array<>();
         Snake.main2();
         w = Gdx.graphics.getWidth();
         h = Gdx.graphics.getHeight();
@@ -135,17 +142,30 @@ public class main extends Game {
             }
         });
         buttonfreeze = new TextButton("Freeze", skin);
-        buttonfreeze.setSize(w / 4, h / 4);
-        buttonfreeze.setPosition(w - buttonstop.getWidth() * 2, h / 1.6f);
+        buttonfreeze.setSize(w / 4, h / 8);
+        buttonfreeze.setPosition(((w - buttonstop.getWidth() * 3) / 4) * 3 + buttonfreeze.getWidth() * 2, h / 20f);
         buttonfreeze.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 freeze = !freeze;
             }
         });
+        buttonreplay = new TextButton("Replay Best Snake", skin);
+        buttonreplay.setSize(w / 4, h / 4);
+        buttonreplay.setPosition(w - buttonstop.getWidth() * 2, h / 1.6f);
+        buttonreplay.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                System.out.println("Replay");
+                if(bestSnakeEver != null) {
+                    replay = true;
+                    currentSnake = bestSnakeEver;
+                }
+            }
+        });
         buttonshownodes = new TextButton("Show Nodes", skin);
         buttonshownodes.setSize(w / 4, h / 8);
-        buttonshownodes.setPosition(w - buttonstop.getWidth() * 2, h / 20f);
+        buttonshownodes.setPosition(((w - buttonstop.getWidth() * 3) / 4) * 2 + buttonshownodes.getWidth(), h / 20f);
         buttonshownodes.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -157,9 +177,12 @@ public class main extends Game {
                     stage.addActor(buttonstop);
                     stage.addActor(buttonmax);
                     stage.addActor(buttonfreeze);
+                    stage.addActor(buttonreplay);
                     stage.addActor(savedSnakesScreenbutton);
                 } else {
                     stage.clear();
+                    stage.addActor(savedSnakesScreenbutton);
+                    stage.addActor(buttonfreeze);
                     stage.addActor(buttonshownodes);
                 }
                 currentScreen = !currentScreen;
@@ -167,7 +190,7 @@ public class main extends Game {
         });
         savedSnakesScreenbutton = new TextButton("Show Saved Snakes", skin);
         savedSnakesScreenbutton.setSize(w / 4, h / 8);
-        savedSnakesScreenbutton.setPosition(buttonstart.getX(), h / 20f);
+        savedSnakesScreenbutton.setPosition((w - savedSnakesScreenbutton.getWidth() * 3) / 4, h / 20f);
         savedSnakesScreenbutton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -176,6 +199,7 @@ public class main extends Game {
                 else {
                     main.this.setScreen(NodeVis);
                     Gdx.input.setInputProcessor(stage);
+                    stage.addActor(buttonfreeze);
                     stage.addActor(savedSnakesScreenbutton);
                 }
             }
@@ -187,23 +211,25 @@ public class main extends Game {
         stage.addActor(buttonstop);
         stage.addActor(buttonmax);
         stage.addActor(buttonfreeze);
+        stage.addActor(buttonreplay);
 
         currentSnake = new Snakes();
-        bestSnakes best = new bestSnakes();
-        bestArrays.add(best);
-        best.bestSnakesArray.add(currentSnake);
+        for (int i = 0;i < bestSnakesArraySize;i++) {
+            bestSnakesArray.add(currentSnake);
+        }
 
         allSnakes allSnakes = new allSnakes();
         allSnakesArrays.add(allSnakes);
         allSnakes.allSnakesArray.add(currentSnake);
 
+        bestSnakeEver = currentSnake;
         NodeVis = new NodeVis();
         SavedSnakes = new SavedSnakes();
     }
 
     @Override
     public void render() {
-        Gdx.gl.glClearColor(0.7f, 1, 0.8f, 1);
+        Gdx.gl.glClearColor(0.4f, 0.7f, 0.4f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         super.render();
 
