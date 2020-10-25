@@ -26,6 +26,8 @@ import static com.snake.ai.main.FIRSTPOPULATIONSIZE;
 import static com.snake.ai.main.POPULATIONSIZE;
 import static com.snake.ai.main.allSnakesArrays;
 import static com.snake.ai.main.bestSnakeEver;
+import static com.snake.ai.main.bestSnakeTreats;
+
 import static com.snake.ai.main.bestSnakesArray;
 import static com.snake.ai.main.bestSnakesArraySize;
 import static com.snake.ai.main.currentSnake;
@@ -393,7 +395,6 @@ public class Snake extends JPanel implements Runnable {
             //TODO
             //replay = false;
         }
-
         // Muss unten sein
         startNewGame();
         repaint();

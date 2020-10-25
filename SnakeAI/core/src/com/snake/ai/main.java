@@ -11,6 +11,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 
+import java.awt.Point;
+import java.util.List;
+
 import static com.snake.ai.Snake.nCols;
 import static com.snake.ai.Snake.nRows;
 
@@ -47,10 +50,14 @@ public class main extends Game {
     public static boolean currentScreen;
     public static Array<allSnakes> allSnakesArrays;
     public static Array<Snakes> bestSnakesArray;
+
+    public static Snakes bestSnakeEver;
+
     public static boolean loadFromSavedSnake;
     public static int gameNr;
     public static int SnakeNr;
     public static boolean replay;
+
     public static BestSnakeEver bestSnakeEver = new BestSnakeEver();
 
     //Neuronales Netzwerk Eigenschaften

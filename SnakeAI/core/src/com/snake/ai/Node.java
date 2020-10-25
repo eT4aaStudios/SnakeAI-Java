@@ -7,7 +7,6 @@ import java.util.Random;
 import static com.snake.ai.SavedSnakes.prefs;
 import static com.snake.ai.main.LayerMenge;
 import static com.snake.ai.main.SnakeNr;
-import static com.snake.ai.main.bestArrays;
 import static com.snake.ai.main.gameNr;
 import static com.snake.ai.main.layerNodeValueArray;
 import static com.snake.ai.main.loadFromSavedSnake;
@@ -33,13 +32,12 @@ public class Node {
                     for (int m = 0; m < layerNodeValueArray.get(LayerNumber + 1); m++) {
                         WeigthArray.add(
                                 (double) prefs.getFloat("gameNr " + gameNr +
-                                        " bestSnakeNr " + 0 +
                                         " SnakeNr " + SnakeNr +
                                         " LayerNr " + LayerNumber +
                                         " NodeNr " + NodeNumber +
                                 //TODO ERRROR index can't be >= size: 0 >= 0
                                         //TODO bestSnakeNr == Population
-                                        " WeightNr " + m, bestArrays.get(0).bestSnakesArray.get(SnakeNr).layerArray.get(LayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(m).floatValue())
+                                        " WeightNr " + m)
                         );
                     }
                 } else {

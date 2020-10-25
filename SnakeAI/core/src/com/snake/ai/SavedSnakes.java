@@ -152,6 +152,7 @@ public class SavedSnakes implements Screen {
         prefs.putFloat("gameNr " + gameNr + "average Fitness", maxFitness / POPULATIONSIZE);
         prefs.putInteger("gameNr " + gameNr + "hiScore", hiScore);
         prefs.putInteger("gameNr " + gameNr + "bestSnakeEver.fitness", bestSnakeEver.bestSnakeEver.fitness);
+
         prefs.putInteger("gameNr " + gameNr + "population", population);
 
         for (int j = 0; j < bestSnakesArray.size; j++) {
