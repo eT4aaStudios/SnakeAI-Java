@@ -50,7 +50,7 @@ public class NodeVis implements Screen {
                     shapeRenderer.circle(Layer * 200 + 100, Gdx.graphics.getHeight() / 2f + currentSnake.layerArray.get(Layer).NodeArray.size * 8f - Node * 22f + 80, 8);
 
                     if (Layer == 0 || Layer == currentSnake.layerArray.size - 1) {
-                        double highest = 0;
+                        double highest = 0d;
                         int id = 0;
                         for (int i = 0; i < currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.size; i++) {
                             if (currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(i).value > highest) {
@@ -58,12 +58,12 @@ public class NodeVis implements Screen {
                                 id = i;
                             }
                         }
-                        if((currentSnake.layerArray.get(Layer).NodeArray.get(Node).value >= 0.9f && Layer == 0) || Node == id) {
+                        if((currentSnake.layerArray.get(Layer).NodeArray.get(Node).value >= 0.9d && Layer == 0) || Node == id) {
                             shapeRenderer.setColor(Color.GREEN);
                         }else
                             shapeRenderer.setColor(Color.WHITE);
                     }else {
-                        if(currentSnake.layerArray.get(Layer).NodeArray.get(Node).value >= 0.7f)
+                        if(currentSnake.layerArray.get(Layer).NodeArray.get(Node).value >= 0.7d)
                             shapeRenderer.setColor(0,0.7f,0.8f,0.9f);
                         else
                             shapeRenderer.setColor(Color.GRAY);

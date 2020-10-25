@@ -25,11 +25,14 @@ import javax.swing.SwingUtilities;
 import static com.snake.ai.main.FIRSTPOPULATIONSIZE;
 import static com.snake.ai.main.POPULATIONSIZE;
 import static com.snake.ai.main.allSnakesArrays;
-import static com.snake.ai.main.bestArrays;
+import static com.snake.ai.main.bestSnakeEver;
+import static com.snake.ai.main.bestSnakesArray;
 import static com.snake.ai.main.bestSnakesArraySize;
 import static com.snake.ai.main.currentSnake;
 import static com.snake.ai.main.enableOutputLayerLogging;
 import static com.snake.ai.main.freeze;
+import static com.snake.ai.main.loadFromSavedSnake;
+import static com.snake.ai.main.replay;
 import static java.lang.String.format;
 
 public class Snake extends JPanel implements Runnable {
@@ -50,9 +53,10 @@ public class Snake extends JPanel implements Runnable {
     static volatile boolean gameOver = true;
 
     Thread gameThread;
-    int score, hiScore;
+    int score;
+    static int hiScore;
     static final int startlength = 3;
-    static Dir dir;
+    static Dir dir, startDir;
     static int energy;
     static int timealaive;
 
@@ -129,6 +133,7 @@ public class Snake extends JPanel implements Runnable {
         stop();
         initGrid();
         treats = new LinkedList<>();
+        addTreat();
 
         energy = 200;
 
@@ -139,6 +144,7 @@ public class Snake extends JPanel implements Runnable {
         timealaive = 0;
         steps = 0;
         if ((snakeNr == POPULATIONSIZE && population > 0) || (snakeNr == FIRSTPOPULATIONSIZE && population == 0)) {
+            loadFromSavedSnake = false;
             population++;
             System.out.println("\n_____________________");
             System.out.println("    NEW POPULATION!   ");
@@ -151,16 +157,21 @@ public class Snake extends JPanel implements Runnable {
                 System.out.println("average Fitness: " + maxFitness / POPULATIONSIZE);
             else
                 System.out.println("average Fitness: " + maxFitness / FIRSTPOPULATIONSIZE);
-            bestSnakes best = new bestSnakes();
-            bestArrays.add(best);
+
             allSnakes allSnakes = new allSnakes();
             if (allSnakesArrays.size > 1) {
                 allSnakesArrays.set(0, allSnakesArrays.get(1));
                 allSnakesArrays.set(1, allSnakes);
             } else
                 allSnakesArrays.add(allSnakes);
-            for (int i = 0; i < bestArrays.get(0).bestSnakesArray.size; i++)
-                System.out.println("Nr.:" + i + " Snake Fitness: " + bestArrays.get(0).bestSnakesArray.get(i).fitness);
+
+            allSnakesArrays.get(0).allSnakesArray.sort(new FitnessComparator());
+
+            bestSnakesArray.clear();
+            for (int i = 0; i < bestSnakesArraySize; i++) {
+                bestSnakesArray.add(allSnakesArrays.get(0).allSnakesArray.get(i));
+                System.out.println("Nr.:" + i + " Snake Fitness: " + bestSnakesArray.get(i).fitness);
+            }
             if (isFocused())
                 Sleep_Time2 = 2000;
             snakeNr = 0;
@@ -171,34 +182,44 @@ public class Snake extends JPanel implements Runnable {
 
         snake = new ArrayList<>();
 
-        Random r = new Random();
-        switch (r.nextInt(4)) {
-            case 0:
-                dir = Dir.left;
+        if (replay) {
+            dir = bestSnakeEver.startDir;
+        } else {
+            Random r = new Random();
+            switch (r.nextInt(4)) {
+                case 0:
+                    dir = Dir.left;
+                    break;
+                case 1:
+                    dir = Dir.right;
+                    break;
+                case 2:
+                    dir = Dir.up;
+                    break;
+                case 3:
+                    dir = Dir.down;
+                    break;
+            }
+        }
+        switch (dir) {
+            case left:
                 for (int x = 0; x < startlength; x++)
                     snake.add(new Point(nCols / 2 + x, nRows / 2));
                 break;
-            case 1:
-                dir = Dir.right;
+            case right:
                 for (int x = startlength; x > 0; x--)
                     snake.add(new Point(nCols / 2 + x, nRows / 2));
                 break;
-            case 2:
-                dir = Dir.up;
+            case up:
                 for (int x = 0; x < startlength; x++)
                     snake.add(new Point(nCols / 2, nRows / 2 + x));
                 break;
-            case 3:
-                dir = Dir.down;
+            case down:
                 for (int x = startlength; x > 0; x--)
                     snake.add(new Point(nCols / 2, nRows / 2 + x));
                 break;
         }
-
-
-        do
-            addTreat();
-        while (treats.isEmpty());
+        startDir = dir;
 
         (gameThread = new Thread(this)).start();
     }
@@ -249,10 +270,9 @@ public class Snake extends JPanel implements Runnable {
                         growSnake();
                     }
                     moveSnake();
-                    addTreat();
 
-                    main.SnakeHeadX = snake.get(0).x;
-                    main.SnakeHeadY = snake.get(0).y;
+                    main.SnakeHeadX = snake.get(0).getX();
+                    main.SnakeHeadY = snake.get(0).getY();
                 }
 
                 main main2 = new main();
@@ -294,7 +314,6 @@ public class Snake extends JPanel implements Runnable {
             if (currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(i).value > highest) {
                 highest = currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(i).value;
                 id = i;
-
             }
         }
 
@@ -352,26 +371,29 @@ public class Snake extends JPanel implements Runnable {
         int nextRow = head.y + dir.y;
         for (Point p : treats)
             if (p.x == nextCol && p.y == nextRow) {
-                return treats.remove(p);
+                addTreat();
+                return true;
             }
         return false;
     }
 
     public void gameOver() {
-        allSnakesArrays.get(allSnakesArrays.size - 1).allSnakesArray.add(currentSnake);
         currentSnake.score = score;
         gameOver = true;
         stop();
         Evolution startFitness = new Evolution();
         currentSnake.fitness = startFitness.FitnessFuntction(steps, score);
 
-        if (bestArrays.get(population).bestSnakesArray.size < bestSnakesArraySize)
-            bestArrays.get(population).bestSnakesArray.add(currentSnake);
-        else if (currentSnake.fitness > bestArrays.get(population).bestSnakesArray.get(bestArrays.get(population).bestSnakesArray.size - 1).fitness) {
-            bestArrays.get(population).bestSnakesArray.removeIndex(0);
-            bestArrays.get(population).bestSnakesArray.add(currentSnake);
+        allSnakesArrays.get(allSnakesArrays.size - 1).allSnakesArray.add(currentSnake);
+
+        if (!replay && currentSnake.fitness > bestSnakeEver.bestSnakeEver.fitness) {
+            bestSnakeEver.bestSnakeEver = currentSnake;
+            bestSnakeEver.bestSnakeTreats = treats;
+            bestSnakeEver.startDir = startDir;
+            //TODO
+            //replay = false;
         }
-        bestArrays.get(population).bestSnakesArray.sort(new FitnessComparator());
+
         // Muss unten sein
         startNewGame();
         repaint();
@@ -398,32 +420,18 @@ public class Snake extends JPanel implements Runnable {
     }
 
     void addTreat() {
-        if (treats.size() < treastmenge) {
+        int x, y;
+        x = rand.nextInt(nCols - 2) + 1;
+        y = rand.nextInt(nRows - 2) + 1;
+        if (grid[y][x] != 0)
+            main.foodpositionX = x;
+        main.foodpositionY = y;
 
-            if (rand.nextInt(10) == 0) { // 1 in 10
-
-                if (rand.nextInt(4) != 0) {  // 3 in 4
-                    int x, y;
-                    while (true) {
-
-                        x = rand.nextInt(nCols);
-                        y = rand.nextInt(nRows);
-                        if (grid[y][x] != 0)
-                            continue;
-                        main.foodpositionX = x;
-                        main.foodpositionY = y;
-
-                        Point p = new Point(x, y);
-                        if (snake.contains(p) || treats.contains(p))
-                            continue;
-
-                        treats.add(p);
-                        break;
-                    }
-                } else if (treats.size() > 1)
-                    treats.remove(0);
-            }
-        }
+        Point p = new Point(x, y);
+        if (replay) {
+            treats.add(bestSnakeEver.bestSnakeTreats.get(treats.size()));
+        } else
+            treats.add(p);
     }
 
     void drawGrid(Graphics2D g) {
@@ -455,8 +463,8 @@ public class Snake extends JPanel implements Runnable {
     void drawTreats(Graphics2D g) {
         g.setColor(Color.red);
         if (treats.size() > 0) {
-            for (Point p : treats)
-                g.fillRect(p.x * 10, p.y * 10, 10, 10);
+            Point p = treats.get(treats.size() - 1);
+            g.fillRect(p.x * 10, p.y * 10, 10, 10);
         }
     }
 
@@ -480,8 +488,8 @@ public class Snake extends JPanel implements Runnable {
         g.drawString(s2, 30, h - 410);
 
         String s3;
-        if (bestArrays.get(0).bestSnakesArray.size != 0)
-            s3 = format("BestFitness %d   CurrentFitness %d", bestArrays.get(0).bestSnakesArray.get(bestArrays.get(0).bestSnakesArray.size - 1).fitness, currentSnake.fitness);
+        if (bestSnakesArray.size != 0)
+            s3 = format("BestFitnessEver %d   CurrentFitness %d", bestSnakeEver.bestSnakeEver.fitness, currentSnake.fitness);
         else
             s3 = format("CurrentFitness %d", currentSnake.fitness);
         g.drawString(s3, 30, h - 380);
@@ -499,6 +507,7 @@ public class Snake extends JPanel implements Runnable {
         drawGrid(g);
 
         if (gameOver) {
+            replay = false;
             drawStartScreen(g);
         } else {
             drawSnake(g);
@@ -532,6 +541,6 @@ public class Snake extends JPanel implements Runnable {
 class FitnessComparator implements Comparator<Snakes> {
     @Override
     public int compare(Snakes snakes, Snakes t1) {
-        return Integer.compare(snakes.fitness, t1.fitness);
+        return Integer.compare(t1.fitness, snakes.fitness);
     }
 }

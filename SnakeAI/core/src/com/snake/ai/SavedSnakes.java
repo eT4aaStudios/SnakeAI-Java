@@ -16,18 +16,19 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.Array;
 
 import static com.badlogic.gdx.Gdx.gl;
+import static com.snake.ai.Snake.hiScore;
 import static com.snake.ai.Snake.population;
+import static com.snake.ai.Snake.snakeNr;
 import static com.snake.ai.main.POPULATIONSIZE;
 import static com.snake.ai.main.allSnakesArrays;
 import static com.snake.ai.main.batch;
-import static com.snake.ai.main.bestArrays;
+import static com.snake.ai.main.bestSnakeEver;
+import static com.snake.ai.main.bestSnakesArray;
 import static com.snake.ai.main.bestSnakesArraySize;
 import static com.snake.ai.main.currentSnake;
 import static com.snake.ai.main.freeze;
-import static com.snake.ai.main.gameNr;
 import static com.snake.ai.main.h;
 import static com.snake.ai.main.loadFromSavedSnake;
 import static com.snake.ai.main.w;
@@ -56,16 +57,19 @@ public class SavedSnakes implements Screen {
         savedStage = new Stage();
         Gdx.input.setInputProcessor(savedStage);
         prefs = Gdx.app.getPreferences("SnakeAi");
+        prefs.clear();
+        prefs.flush();
 
         saveCurrentSnake = new TextButton("Save Current Snake", skin);
         saveCurrentSnake.setSize(w / 4, h / 8);
-        saveCurrentSnake.setPosition(w - w / 4 * 2, h / 20f);
+        saveCurrentSnake.setPosition(((w - saveCurrentSnake.getWidth() * 3) / 4) * 2 + saveCurrentSnake.getWidth(), h / 20f);
         saveCurrentSnake.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 saveCurrentSnake();
             }
         });
+        savedStage.addActor(main.buttonfreeze);
         savedStage.addActor(saveCurrentSnake);
         savedStage.addActor(main.savedSnakesScreenbutton);
 
@@ -100,8 +104,11 @@ public class SavedSnakes implements Screen {
 
         for (int i = 0; i < prefs.getInteger("GameMenge"); i++) {
             Group g = new Group();
-            loadSavedSnake = new TextButton("Load Game Nr.: " + i+
-                    "\naverage Fitness "+prefs.getFloat("gameNr " + gameNr + "average Fitness"), skin);
+            loadSavedSnake = new TextButton("Load Game Nr.: " + i +
+                    "\nAverage Fitness: " + prefs.getFloat("gameNr " + i + "average Fitness") +
+                    "\nBest Fitness Ever: " + prefs.getFloat("gameNr " + i + "bestSnakeEver.fitness") +
+                    "\nHighScore: " + prefs.getInteger("gameNr " + i + "hiScore") +
+                    "\nPoulation: " + prefs.getInteger("gameNr " + i + "population"), skin);
             loadSavedSnake.setSize(w / 1.3f, h / 8);
             loadSavedSnake.setPosition(w / -4.5f, 0);
             final int finalI = i + 1;
@@ -143,19 +150,19 @@ public class SavedSnakes implements Screen {
             maxFitness += allSnakesArrays.get(0).allSnakesArray.get(m).fitness;
         }
         prefs.putFloat("gameNr " + gameNr + "average Fitness", maxFitness / POPULATIONSIZE);
+        prefs.putInteger("gameNr " + gameNr + "hiScore", hiScore);
+        prefs.putInteger("gameNr " + gameNr + "bestSnakeEver.fitness", bestSnakeEver.bestSnakeEver.fitness);
+        prefs.putInteger("gameNr " + gameNr + "population", population);
 
-        for (int i = 0; i < bestArrays.size; i++) {
-            for (int j = 0; j < bestArrays.get(i).bestSnakesArray.size; j++) {
-                for (int k = 0; k < bestArrays.get(i).bestSnakesArray.get(j).layerArray.size - 1; k++) {
-                    for (int l = 0; l < bestArrays.get(i).bestSnakesArray.get(j).layerArray.get(k).NodeArray.size; l++) {
-                        for (int m = 0; m < bestArrays.get(i).bestSnakesArray.get(j).layerArray.get(k).NodeArray.get(l).WeigthArray.size; m++) {
-                            prefs.putFloat("gameNr " + gameNr +
-                                    " bestSnakeNr " + i +
-                                    " SnakeNr " + j +
-                                    " LayerNr " + k +
-                                    " NodeNr " + l +
-                                    " WeightNr " + m, bestArrays.get(i).bestSnakesArray.get(j).layerArray.get(k).NodeArray.get(l).WeigthArray.get(m).floatValue());
-                        }
+        for (int j = 0; j < bestSnakesArray.size; j++) {
+            for (int k = 0; k < bestSnakesArray.get(j).layerArray.size - 1; k++) {
+                for (int l = 0; l < bestSnakesArray.get(j).layerArray.get(k).NodeArray.size; l++) {
+                    for (int m = 0; m < bestSnakesArray.get(j).layerArray.get(k).NodeArray.get(l).WeigthArray.size; m++) {
+                        prefs.putFloat("gameNr " + gameNr +
+                                " SnakeNr " + j +
+                                " LayerNr " + k +
+                                " NodeNr " + l +
+                                " WeightNr " + m, bestSnakesArray.get(j).layerArray.get(k).NodeArray.get(l).WeigthArray.get(m).floatValue());
                     }
                 }
             }
@@ -166,8 +173,6 @@ public class SavedSnakes implements Screen {
     }
 
     public void saveEinstellungen(int gameNr) {
-        prefs.putInteger("gameNr " + gameNr + "population",population);
-
         //Neuronales Netzwerk Eigenschaften
         prefs.putFloat("gameNr " + gameNr + "bias", (float) main.bias);
         prefs.putFloat("gameNr " + gameNr + "biasOutput", (float) main.biasOutput);
@@ -199,31 +204,27 @@ public class SavedSnakes implements Screen {
 
     public void loadBestArraySnake(int gameNr) {
         freeze = true;
-        bestArrays = new Array<>();
         loadFromSavedSnake = true;
         loadEinstellungen(gameNr);
         main.gameNr = gameNr;
 
-        System.out.println(bestSnakesArraySize);
-        for (int i = 0;i < bestSnakesArraySize;i++) {
+        bestSnakesArray.clear();
+        for (int i = 0; i < bestSnakesArraySize; i++) {
             main.SnakeNr = i;
             currentSnake = new Snakes();
-            bestSnakes best = new bestSnakes();
-            bestArrays.add(best);
-            best.bestSnakesArray.add(currentSnake);
-
-            allSnakes allSnakes = new allSnakes();
-            allSnakesArrays.add(allSnakes);
-            allSnakes.allSnakesArray.add(currentSnake);
+            bestSnakesArray.add(currentSnake);
         }
+        allSnakes allSnakes = new allSnakes();
+        allSnakesArrays.add(allSnakes);
+        allSnakes.allSnakesArray.add(currentSnake);
 
+        snakeNr = 0;
         Snake.gameOver = true;
-        Snake snake = new Snake();
-        Snake.main2();
     }
 
     public void loadEinstellungen(int gameNr) {
         population = prefs.getInteger("gameNr " + gameNr + "population");
+        hiScore = prefs.getInteger("gameNr " + gameNr + "hiScore");
 
         main.bias = prefs.getFloat("gameNr " + gameNr + "bias");
         main.biasOutput = prefs.getFloat("gameNr " + gameNr + "biasOutput");
@@ -253,23 +254,9 @@ public class SavedSnakes implements Screen {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public void render(float delta) {
-        gl.glClearColor(1f, 1f, 1, 1);
+        Gdx.gl.glClearColor(0.4f, 0.4f, 0.7f, 1);
         gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         savedStage.act(Gdx.graphics.getDeltaTime());
