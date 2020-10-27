@@ -149,9 +149,9 @@ public class Snake extends JPanel implements Runnable {
         if (!replay && ((snakeNr == POPULATIONSIZE && population > 0) || (snakeNr == FIRSTPOPULATIONSIZE && population == 0))) {
             loadFromSavedSnake = false;
             population++;
-            System.out.println("\n_____________________");
-            System.out.println("    NEW POPULATION!   ");
-            System.out.println("_____________________\n");
+            System.out.println("\n_______________________");
+            System.out.println("NEW POPULATION (Nr.: "+population+")");
+            System.out.println("_______________________\n");
 
             //Umsortierung
             allSnakes allSnakes = new allSnakes();
@@ -163,7 +163,7 @@ public class Snake extends JPanel implements Runnable {
 
             allSnakesArrays.get(0).allSnakesArray.sort(new FitnessComparator());
 
-            //AVergage Fitness
+            //Average Fitness
             int maxFitness = 0;
             for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
                 maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
