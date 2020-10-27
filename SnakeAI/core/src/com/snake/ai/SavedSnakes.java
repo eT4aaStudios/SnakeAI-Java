@@ -62,14 +62,13 @@ public class SavedSnakes implements Screen {
 
         saveCurrentSnake = new TextButton("Save Current Snake", skin);
         saveCurrentSnake.setSize(w / 4, h / 8);
-        saveCurrentSnake.setPosition(((w - saveCurrentSnake.getWidth() * 3) / 4) * 2 + saveCurrentSnake.getWidth(), h / 20f);
+        saveCurrentSnake.setPosition(((w - saveCurrentSnake.getWidth() * 2) / 4) * 2 + saveCurrentSnake.getWidth(), h / 20f);
         saveCurrentSnake.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 saveCurrentSnake();
             }
         });
-        savedStage.addActor(main.buttonfreeze);
         savedStage.addActor(saveCurrentSnake);
         savedStage.addActor(main.savedSnakesScreenbutton);
 

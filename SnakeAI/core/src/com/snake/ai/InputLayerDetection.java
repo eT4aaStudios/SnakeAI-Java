@@ -3,6 +3,7 @@ package com.snake.ai;
 import java.awt.Point;
 
 import static com.snake.ai.Snake.snake;
+import static com.snake.ai.Snake.steps;
 import static com.snake.ai.main.SnakeHeadX;
 import static com.snake.ai.main.SnakeHeadY;
 import static com.snake.ai.main.currentSnake;
@@ -16,14 +17,6 @@ import static com.snake.ai.main.spalten;
 public class InputLayerDetection {
 
     public InputLayerDetection() {
-        if (enableInputLayerLogging) {
-            System.out.println("\nInputLayer Values: ");
-            for (int i = 0; i < currentSnake.layerArray.get(0).NodeArray.size; i++) {
-                currentSnake.layerArray.get(0).NodeArray.get(i).value = 0d;
-            }
-            System.out.println("\n");
-        }
-
         schwanzDetectionGerade();       //(4) 4  Vision
         schwanzDetectionSchraeg();      //(4) 8  Vision
         foodDetectionGerade();          //(4) 12 Vision
@@ -35,7 +28,7 @@ public class InputLayerDetection {
         //directionGoingHead();           //(4) 28 Head Direction
         //directionGoingTail();           //(4) 32 Tail Direction
 
-        if (enableInputLayerLogging) {
+        if (enableInputLayerLogging && steps == 0) {
             System.out.println("\nInputLayer Values: ");
             for (int i = 0; i < currentSnake.layerArray.get(0).NodeArray.size; i++) {
                 System.out.println(currentSnake.layerArray.get(0).NodeArray.get(i).value);
