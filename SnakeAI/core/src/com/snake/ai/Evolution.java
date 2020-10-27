@@ -1,7 +1,11 @@
 package com.snake.ai;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+
 import java.util.Random;
 
+import static com.snake.ai.Snake.hiScore;
 import static com.snake.ai.Snake.population;
 import static com.snake.ai.main.mutationMax;
 import static com.snake.ai.main.mutationMin;
@@ -102,6 +106,10 @@ public class Evolution {
         double weigth1 = parent1.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
 
         double mutationAmount = mutationMin + Math.random() * (mutationMax - mutationMin);
+        mutationAmount = Math.pow(0.98d, hiScore + 30);
+        if(Gdx.input.isKeyPressed(Input.Keys.M)) {
+            System.out.println(mutationAmount);
+        }
 
         Random r = new Random();
         if (r.nextInt(100) < mutationPropability) {

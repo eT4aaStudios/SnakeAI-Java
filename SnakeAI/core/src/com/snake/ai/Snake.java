@@ -231,8 +231,8 @@ public class Snake extends JPanel implements Runnable {
                 break;
         }
         startDir = dir;
-        main.SnakeHeadX = snake.get(0).getX();
-        main.SnakeHeadY = snake.get(0).getY();
+        main.SnakeHeadX = snake.get(0).x;
+        main.SnakeHeadY = snake.get(0).y;
 
         (gameThread = new Thread(this)).start();
     }
@@ -284,8 +284,8 @@ public class Snake extends JPanel implements Runnable {
                     }
                     moveSnake();
 
-                    main.SnakeHeadX = snake.get(0).getX();
-                    main.SnakeHeadY = snake.get(0).getY();
+                    main.SnakeHeadX = snake.get(0).x;
+                    main.SnakeHeadY = snake.get(0).y;
                 }
 
                 main main2 = new main();
@@ -440,14 +440,19 @@ public class Snake extends JPanel implements Runnable {
             treats.add(bestSnakeEver.bestSnakeTreats.get(treats.size()));
         }else {
             int x, y;
-            x = rand.nextInt(nCols - 2) + 1;
-            y = rand.nextInt(nRows - 2) + 1;
-            if (grid[y][x] != 0)
+            while (true) {
+                x = rand.nextInt(nCols - 2) + 1;
+                y = rand.nextInt(nRows - 2) + 1;
+                if (grid[y][x] != 0)
+                    continue;
                 main.foodpositionX = x;
-            main.foodpositionY = y;
-
-            Point p = new Point(x, y);
+                main.foodpositionY = y;
+                Point p = new Point(x, y);
+                if (treats.contains(p) || (snake != null && snake.contains(p)))
+                    continue;
             treats.add(p);
+                break;
+            }
         }
     }
 

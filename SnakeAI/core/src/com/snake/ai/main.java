@@ -38,7 +38,7 @@ public class main extends Game {
     public static float w;
     public static float h;
     public static int foodpositionX, foodpositionY;
-    public static double SnakeHeadX, SnakeHeadY;
+    public static int SnakeHeadX, SnakeHeadY;
     Array<Integer> felderarray;
     public static boolean freeze;
     public static Snakes currentSnake;
@@ -235,7 +235,7 @@ public class main extends Game {
     public void ResetLayers() {
         for (int i = 0; i < currentSnake.layerArray.size; i++) {
             for (int j = 0; j < currentSnake.layerArray.get(i).NodeArray.size; j++) {
-                currentSnake.layerArray.get(i).NodeArray.get(j).value = 0d;
+                currentSnake.layerArray.get(i).NodeArray.get(j).value = 0;
             }
         }
     }
@@ -262,7 +262,7 @@ public class main extends Game {
 
     public void berechneLayer(int Layernumber) {
         for (int NodeLayer2 = 0; NodeLayer2 < currentSnake.layerArray.get(Layernumber + 1).NodeArray.size; NodeLayer2++) {
-            double sum = 0d;
+            double sum = 0;
             for (int NodeLayer1 = 0; NodeLayer1 < currentSnake.layerArray.get(Layernumber).NodeArray.size; NodeLayer1++) {
                 //weigth
                 double weigth = currentSnake.layerArray.get(Layernumber).NodeArray.get(NodeLayer1).WeigthArray.get(NodeLayer2);
@@ -285,7 +285,7 @@ public class main extends Game {
         x += bias;
 
         //Sigmoid
-        return 1d / (1d + Math.exp(-x));
+        return 1 / (1 + Math.exp(-x));
 
         //Tanh
         //return Math.tanh(x);
@@ -311,7 +311,7 @@ public class main extends Game {
         //return Math.tanh(x);
 
         //Relu
-        return Math.max(0d, x);
+        return Math.max(0, x);
 
         //Relu 2.0
         //if (x > 0) {
