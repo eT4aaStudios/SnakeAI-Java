@@ -47,7 +47,7 @@ public class main extends Game {
     public static Array<allSnakes> allSnakesArrays;
     public static Array<Snakes> bestSnakesArray;
 
-    public static boolean loadFromSavedSnake;
+    public static boolean loadFromSavedSnake,loadBestSnakeEver;
     public static int gameNr;
     public static int SnakeNr;
     public static boolean replay, requestReplayStop;
@@ -144,7 +144,6 @@ public class main extends Game {
         buttonreplay.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Replay");
                 if (replay) {
                     requestReplayStop = true;
                     buttonreplay.setText(" Replay Best Snake\n(Active: false)");

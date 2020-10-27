@@ -152,15 +152,8 @@ public class Snake extends JPanel implements Runnable {
             System.out.println("\n_____________________");
             System.out.println("    NEW POPULATION!   ");
             System.out.println("_____________________\n");
-            int maxFitness = 0;
-            for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
-                maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
-            }
-            if (population > 1)
-                System.out.println("average Fitness: " + maxFitness / POPULATIONSIZE);
-            else
-                System.out.println("average Fitness: " + maxFitness / FIRSTPOPULATIONSIZE);
 
+            //Umsortierung
             allSnakes allSnakes = new allSnakes();
             if (allSnakesArrays.size > 1) {
                 allSnakesArrays.set(0, allSnakesArrays.get(1));
@@ -170,6 +163,17 @@ public class Snake extends JPanel implements Runnable {
 
             allSnakesArrays.get(0).allSnakesArray.sort(new FitnessComparator());
 
+            //AVergage Fitness
+            int maxFitness = 0;
+            for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
+                maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
+            }
+            if (population > 1)
+                System.out.println("average Fitness: " + maxFitness / POPULATIONSIZE);
+            else
+                System.out.println("average Fitness: " + maxFitness / FIRSTPOPULATIONSIZE);
+
+            //Best Snakes System.out
             bestSnakesArray.clear();
             for (int i = 0; i < bestSnakesArraySize; i++) {
                 bestSnakesArray.add(allSnakesArrays.get(0).allSnakesArray.get(i));
@@ -433,8 +437,6 @@ public class Snake extends JPanel implements Runnable {
 
     void addTreat() {
         if (replay) {
-            System.out.println("treats "+treats);
-            System.out.println("bestSnakeEver.bestSnakeTreats "+bestSnakeEver.bestSnakeTreats);
             treats.add(bestSnakeEver.bestSnakeTreats.get(treats.size()));
         }else {
             int x, y;

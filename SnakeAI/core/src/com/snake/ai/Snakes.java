@@ -8,6 +8,7 @@ import static com.snake.ai.Snake.population;
 import static com.snake.ai.main.LayerMenge;
 import static com.snake.ai.main.allSnakesArrays;
 import static com.snake.ai.main.bestSnakesArray;
+import static com.snake.ai.main.loadBestSnakeEver;
 import static com.snake.ai.main.loadFromSavedSnake;
 
 
@@ -19,7 +20,7 @@ public class Snakes {
     protected Snakes parent1Snake, parent2Snake;
 
     public Snakes() {
-        if (population > 0 && !loadFromSavedSnake) {
+        if (population > 0 && !loadFromSavedSnake && !loadBestSnakeEver) {
             selectParents2();
         }
         layerArray = new Array<>();

@@ -9,6 +9,7 @@ import static com.snake.ai.main.LayerMenge;
 import static com.snake.ai.main.SnakeNr;
 import static com.snake.ai.main.gameNr;
 import static com.snake.ai.main.layerNodeValueArray;
+import static com.snake.ai.main.loadBestSnakeEver;
 import static com.snake.ai.main.loadFromSavedSnake;
 
 public class Node {
@@ -28,15 +29,23 @@ public class Node {
                 } else {
                     multiplePoint(NodeNumber, LayerNumber, parent1, parent2, evo);
                 }*/
-                if (loadFromSavedSnake) {
+                if (loadBestSnakeEver) {
+                    for (int m = 0; m < layerNodeValueArray.get(LayerNumber + 1); m++) {
+                        WeigthArray.add(
+                                (double) prefs.getFloat("gameNr " + gameNr +
+                                        " bestSnakeEver.bestSnakeEver " +
+                                        " LayerNr " + LayerNumber +
+                                        " NodeNr " + NodeNumber +
+                                        " WeightNr " + m)
+                        );
+                    }
+                } else if (loadFromSavedSnake) {
                     for (int m = 0; m < layerNodeValueArray.get(LayerNumber + 1); m++) {
                         WeigthArray.add(
                                 (double) prefs.getFloat("gameNr " + gameNr +
                                         " SnakeNr " + SnakeNr +
                                         " LayerNr " + LayerNumber +
                                         " NodeNr " + NodeNumber +
-                                //TODO ERRROR index can't be >= size: 0 >= 0
-                                        //TODO bestSnakeNr == Population
                                         " WeightNr " + m)
                         );
                     }
