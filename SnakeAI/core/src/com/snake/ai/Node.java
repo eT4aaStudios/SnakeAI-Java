@@ -15,19 +15,20 @@ import static com.snake.ai.main.loadFromSavedSnake;
 public class Node {
     public Array<Double> WeigthArray;
     public double value;
+    Evolution evo;
 
     public Node(int NodeNumber, int LayerNumber, boolean populationGreaterZero, Snakes parent1, Snakes parent2) {
         if (LayerNumber + 1 < LayerMenge) {
-            Evolution evo = new Evolution();
 
+            evo = new Evolution();
             WeigthArray = new Array<>();
             if (populationGreaterZero) {
                 Random r = new Random();
                 int i = r.nextInt(1);
                 /*if (i == 1) {
-                    singlePoint(NodeNumber, LayerNumber, parent1, parent2, evo);
+                    singlePoint(NodeNumber, LayerNumber, parent1, parent2);
                 } else {
-                    multiplePoint(NodeNumber, LayerNumber, parent1, parent2, evo);
+                    multiplePoint(NodeNumber, LayerNumber, parent1, parent2);
                 }*/
                 if (loadBestSnakeEver) {
                     for (int m = 0; m < layerNodeValueArray.get(LayerNumber + 1); m++) {
@@ -50,7 +51,8 @@ public class Node {
                         );
                     }
                 } else {
-                    singlePoint(NodeNumber, LayerNumber, parent1, parent2, evo);
+                    //TODO
+                    singlePoint(NodeNumber, LayerNumber, parent1, parent2);
                 }
             } else {
                 for (int i = 0; i < layerNodeValueArray.get(LayerNumber + 1); i++) {
@@ -60,7 +62,14 @@ public class Node {
         }
     }
 
-    public void singlePoint(int NodeNumber, int LayerNumber, Snakes parent1, Snakes parent2, Evolution evo) {
+    public void noPoint(int NodeNumber, int LayerNumber, Snakes parent1, Snakes parent2) {
+        for (int i = 0; i < layerNodeValueArray.get(LayerNumber + 1); i++) {
+            //Weight 1
+            WeigthArray.add(evo.mutation3(LayerNumber, NodeNumber, i, parent1, parent2, 1));
+        }
+    }
+
+    public void singlePoint(int NodeNumber, int LayerNumber, Snakes parent1, Snakes parent2) {
         int WeigthNumber = 0;
         Random r = new Random();
         int i = r.nextInt(layerNodeValueArray.get(LayerNumber + 1));
@@ -77,7 +86,7 @@ public class Node {
         //System.out.println("WeigthNumber: " + WeigthNumber);
     }
 
-    public void multiplePoint(int NodeNumber, int LayerNumber, Snakes parent1, Snakes parent2, Evolution evo) {
+    public void multiplePoint(int NodeNumber, int LayerNumber, Snakes parent1, Snakes parent2) {
         Random r = new Random();
         int pointmenge = 0;
         switch (LayerNumber) {

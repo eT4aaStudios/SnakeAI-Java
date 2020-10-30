@@ -21,6 +21,7 @@ public class Snakes {
 
     public Snakes() {
         if (population > 0 && !loadFromSavedSnake && !loadBestSnakeEver) {
+            //TODO
             selectParents2();
         }
         layerArray = new Array<>();
@@ -94,7 +95,13 @@ public class Snakes {
         }
 
         Random r = new Random();
-        int choosenId = r.nextInt(maxFitness);
+        int choosenId = 0;
+        try {
+            choosenId = r.nextInt(maxFitness);
+        } catch (Exception e) {
+            choosenId = 1;
+            System.out.println("Error Snakes Line: choosenId = r.nextInt(maxFitness);");
+        }
 
         int zahlZumChecken = 0;
         for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
@@ -113,7 +120,12 @@ public class Snakes {
         }
 
         r = new Random();
-        choosenId = r.nextInt(maxFitness);
+        try {
+            choosenId = r.nextInt(maxFitness);
+        } catch (Exception e) {
+            choosenId = 2;
+            System.out.println("Error Snakes Line: choosenId = r.nextInt(maxFitness);");
+        }
 
         zahlZumChecken = 0;
         for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {

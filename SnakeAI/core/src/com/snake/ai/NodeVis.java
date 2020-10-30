@@ -14,6 +14,7 @@ public class NodeVis implements Screen {
 
     ShapeRenderer shapeRenderer;
     BitmapFont font = new BitmapFont();
+    static int highest;
 
     @Override
     public void show() {
@@ -48,25 +49,18 @@ public class NodeVis implements Screen {
                 for (int Node = 0; Node < currentSnake.layerArray.get(Layer).NodeArray.size; Node++) {
                     shapeRenderer.setColor(Color.BLACK);
                     shapeRenderer.circle(Layer * 200 + 100, Gdx.graphics.getHeight() / 2f + currentSnake.layerArray.get(Layer).NodeArray.size * 8f - Node * 22f + 80, 8);
-
-                    if (Layer == 0 || Layer == currentSnake.layerArray.size - 1) {
-                        double highest = 0d;
-                        int id = 0;
-                        for (int i = 0; i < currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.size; i++) {
-                            if (currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(i).value > highest) {
-                                highest = currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(i).value;
-                                id = i;
-                            }
-                        }
-                        if((currentSnake.layerArray.get(Layer).NodeArray.get(Node).value >= 0.9d && Layer == 0) || Node == id) {
-                            shapeRenderer.setColor(Color.GREEN);
-                        }else
-                            shapeRenderer.setColor(Color.WHITE);
-                    }else {
-                        if(currentSnake.layerArray.get(Layer).NodeArray.get(Node).value >= 0.7d)
-                            shapeRenderer.setColor(0,0.7f,0.8f,0.9f);
-                        else
-                            shapeRenderer.setColor(Color.GRAY);
+                    if (Layer == 0) {
+                        float value = (float) (currentSnake.layerArray.get(0).NodeArray.get(Node).value);
+                        shapeRenderer.setColor(value * 3, value / 1.2f, value / 1.2f, 1f);
+                    } else if (Layer == currentSnake.layerArray.size - 1) {
+                        if (Node == highest) {
+                            float value = (float) (currentSnake.layerArray.get(0).NodeArray.get(Node).value);
+                            shapeRenderer.setColor(value * 3, value / 1.2f, value / 1.2f, 1f);
+                        } else
+                            shapeRenderer.setColor(Color.BLACK);
+                    } else {
+                        float value = (float) (currentSnake.layerArray.get(0).NodeArray.get(Node).value);
+                        shapeRenderer.setColor(value / 1.2f, value / 1.2f, value * 3, 1f);
                     }
                     shapeRenderer.circle(Layer * 200 + 100, Gdx.graphics.getHeight() / 2f + currentSnake.layerArray.get(Layer).NodeArray.size * 8f - Node * 22f + 80, 6);
                 }
@@ -75,15 +69,15 @@ public class NodeVis implements Screen {
 
             main.batch.begin();
 
-            font.draw(main.batch, "InputLayer", 100 - font.getRegion().getRegionWidth() / 6f,  h / 1.02f);
+            font.draw(main.batch, "InputLayer", 100 - font.getRegion().getRegionWidth() / 6f, h / 1.02f);
             font.draw(main.batch, "HiddenLayer 1", 200 + 100 - font.getRegion().getRegionWidth() / 6f, h / 1.02f);
             font.draw(main.batch, "HiddenLayer 2", 2 * 200 + 100 - font.getRegion().getRegionWidth() / 6f, h / 1.02f);
             font.draw(main.batch, "OutputLayer", 3 * 200 + 100 - font.getRegion().getRegionWidth() / 6f, h / 1.02f);
 
-            font.draw(main.batch, "R", 3 * 200 + 115, Gdx.graphics.getHeight() / 2f + currentSnake.layerArray.get(3).NodeArray.size * 8f - 0 * 22f + 85);
-            font.draw(main.batch, "U", 3 * 200 + 115, Gdx.graphics.getHeight() / 2f + currentSnake.layerArray.get(3).NodeArray.size * 8f - 1 * 22f + 85);
+            font.draw(main.batch, "U", 3 * 200 + 115, Gdx.graphics.getHeight() / 2f + currentSnake.layerArray.get(3).NodeArray.size * 8f - 0 * 22f + 85);
+            font.draw(main.batch, "D", 3 * 200 + 115, Gdx.graphics.getHeight() / 2f + currentSnake.layerArray.get(3).NodeArray.size * 8f - 1 * 22f + 85);
             font.draw(main.batch, "L", 3 * 200 + 115, Gdx.graphics.getHeight() / 2f + currentSnake.layerArray.get(3).NodeArray.size * 8f - 2 * 22f + 85);
-            font.draw(main.batch, "D", 3 * 200 + 115, Gdx.graphics.getHeight() / 2f + currentSnake.layerArray.get(3).NodeArray.size * 8f - 3 * 22f + 85);
+            font.draw(main.batch, "R", 3 * 200 + 115, Gdx.graphics.getHeight() / 2f + currentSnake.layerArray.get(3).NodeArray.size * 8f - 3 * 22f + 85);
             main.batch.end();
         }
     }

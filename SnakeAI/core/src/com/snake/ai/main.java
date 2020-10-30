@@ -47,7 +47,7 @@ public class main extends Game {
     public static Array<allSnakes> allSnakesArrays;
     public static Array<Snakes> bestSnakesArray;
 
-    public static boolean loadFromSavedSnake,loadBestSnakeEver;
+    public static boolean loadFromSavedSnake, loadBestSnakeEver;
     public static int gameNr;
     public static int SnakeNr;
     public static boolean replay, requestReplayStop;
@@ -273,11 +273,11 @@ public class main extends Game {
 
 
             //Node Deren Value geschrieben werden soll
-            if (Layernumber == LayerMenge - 2) {
+            if (Layernumber == LayerMenge - 2)
                 currentSnake.layerArray.get(Layernumber + 1).NodeArray.get(NodeLayer2).value = outputActivationFunction(sum);
-            } else {
+            else
                 currentSnake.layerArray.get(Layernumber + 1).NodeArray.get(NodeLayer2).value = activationFunction(sum);
-            }
+
         }
     }
 
