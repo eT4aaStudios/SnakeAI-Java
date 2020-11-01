@@ -7,9 +7,11 @@ import com.snake.ai.main;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
-		cfg.title = "SnakeAi";
+		cfg.title = "Snake Ai by eT4aa";
 		cfg.height = 750;
 		cfg.width = 800;
+		cfg.x = (int) (cfg.width / -1.5f);
+		cfg.vSyncEnabled = true;
 		new LwjglApplication(new main(), cfg);
 	}
 }

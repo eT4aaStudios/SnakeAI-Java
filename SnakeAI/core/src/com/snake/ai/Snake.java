@@ -33,9 +33,11 @@ import static com.snake.ai.main.bestSnakesArraySize;
 import static com.snake.ai.main.currentSnake;
 import static com.snake.ai.main.enableOutputLayerLogging;
 import static com.snake.ai.main.freeze;
+import static com.snake.ai.main.h;
 import static com.snake.ai.main.loadFromSavedSnake;
 import static com.snake.ai.main.replay;
 import static com.snake.ai.main.requestReplayStop;
+import static com.snake.ai.main.w;
 import static java.lang.String.format;
 
 public class Snake extends JPanel implements Runnable {
@@ -576,7 +578,7 @@ public class Snake extends JPanel implements Runnable {
                 f.pack();
                 f.setLocationRelativeTo(null);
                 f.setVisible(true);
-                f.setLocation(1700, 500);
+                f.setLocation((int) (w / 1.2), (int) (h / 5));
             }
         });
     }
