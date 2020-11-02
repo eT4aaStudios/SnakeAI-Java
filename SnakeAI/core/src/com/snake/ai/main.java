@@ -58,10 +58,10 @@ public class main extends Game {
     public static double bias = 0d;
     public static double biasOutput = -0.4d;
 
-    public static double mutationPropability = 5;//%
+    public static double mutationPropability = 3;//%
     public static double mutationMin = -0.5f;
     public static double mutationMax = 0.5f;
-    public static int bestSnakesArraySize = 4;
+    public static int bestSnakesArraySize = 5;
 
     //Neuronales Netzwerk Aussehen
     static int inputLayerNodes = 24;
@@ -211,7 +211,14 @@ public class main extends Game {
         allSnakesArrays.add(allSnakes);
         allSnakes.allSnakesArray.add(currentSnake);
 
+        //TODO
         bestSnakeEver.bestSnakeEver = currentSnake;
+
+        /*bestSnakeEver.bestSnakeEver.fitness = currentSnake.fitness;
+        bestSnakeEver.bestSnakeEver.layerArray = new Array<>(currentSnake.layerArray);
+        bestSnakeEver.bestSnakeEver.parent1Snake = currentSnake.parent1Snake;
+        bestSnakeEver.bestSnakeEver.parent2Snake = currentSnake.parent2Snake;
+        bestSnakeEver.bestSnakeEver.score = currentSnake.score;*/
         NodeVis = new NodeVis();
         SavedSnakes = new SavedSnakes();
     }

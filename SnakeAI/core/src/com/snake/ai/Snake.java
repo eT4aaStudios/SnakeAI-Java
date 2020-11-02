@@ -345,34 +345,34 @@ public class Snake extends JPanel implements Runnable {
                 if (dir != Dir.down) {
                     dir = Dir.up;
                     NodeVis.highest = 0;
-                }else
+                } else
                     NodeVis.highest = 1;
                 break;
             case 1:
                 if (dir != Dir.up) {
                     dir = Dir.down;
                     NodeVis.highest = 1;
-                }else
+                } else
                     NodeVis.highest = 0;
                 break;
             case 2:
                 if (dir != Dir.right) {
                     dir = Dir.left;
                     NodeVis.highest = 2;
-                }else
+                } else
                     NodeVis.highest = 3;
                 break;
             case 3:
                 if (dir != Dir.left) {
                     dir = Dir.right;
                     NodeVis.highest = 3;
-                }else
+                } else
                     NodeVis.highest = 2;
                 break;
         }
         if (!replay)
             bestSnakeEver.directionTmpArray.add(dir);
-        else if(!gameOver && !requestReplayStop)
+        else if (!gameOver && !requestReplayStop)
             dir = bestSnakeEver.directionArray.get(steps);
         steps++;
     }
@@ -404,11 +404,11 @@ public class Snake extends JPanel implements Runnable {
         Point head = snake.get(0);
         int nextCol = head.x + dir.x;
         int nextRow = head.y + dir.y;
-        for (Point p : treats)
-            if (p.x == nextCol && p.y == nextRow) {
-                addTreat();
-                return true;
-            }
+        if (treats.get(treats.size() - 1).x == nextCol && treats.get(treats.size() - 1).y == nextRow) {
+            addTreat();
+            System.out.println();
+            return true;
+        }
         return false;
     }
 
