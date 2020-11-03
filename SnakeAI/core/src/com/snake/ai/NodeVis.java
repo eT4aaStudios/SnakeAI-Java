@@ -9,23 +9,26 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import static com.snake.ai.main.currentScreen;
 import static com.snake.ai.main.currentSnake;
 import static com.snake.ai.main.h;
+import static com.snake.ai.main.shapeRenderer;
+import static com.snake.ai.main.w;
 
 public class NodeVis implements Screen {
 
-    ShapeRenderer shapeRenderer;
     BitmapFont font = new BitmapFont();
     static int highest;
 
     @Override
     public void show() {
-        shapeRenderer = new ShapeRenderer();
         font.setColor(0f, 0f, 0f, 1f);
+        font.getData().setScale(w / 1100);
     }
 
     @Override
     public void render(float delta) {
         if (currentScreen) {
+            shapeRenderer.setColor(Color.BLACK);
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.line(w / 2,h,w / 2,0);
             for (int Layer = 0; Layer < currentSnake.layerArray.size - 1; Layer++) {
                 for (int Node = 0; Node < currentSnake.layerArray.get(Layer).NodeArray.size; Node++) {
                     for (int Weight = 0; Weight < currentSnake.layerArray.get(Layer).NodeArray.get(Node).WeigthArray.size; Weight++) {
@@ -37,8 +40,8 @@ public class NodeVis implements Screen {
                             Gdx.gl20.glLineWidth(currentSnake.layerArray.get(Layer).NodeArray.get(Node).WeigthArray.get(Weight).floatValue() * -1);
                         }
 
-                        shapeRenderer.line(Layer * 200 + 100, Gdx.graphics.getHeight() / 2f + currentSnake.layerArray.get(Layer).NodeArray.size * 8f - Node * 22f + 80,
-                                (Layer + 1) * 200 + 100, Gdx.graphics.getHeight() / 2f + currentSnake.layerArray.get(Layer + 1).NodeArray.size * 8f - Weight * 22f + 80);
+                        shapeRenderer.line(Layer * (w / 2 / 3.4f) + (w / 2 / 50), h / 2 + currentSnake.layerArray.get(Layer).NodeArray.size * h / 56f - Node * h / 28f,
+                                (Layer + 1) * (w / 2 / 3.4f) + (w / 2 / 50), h / 2 + currentSnake.layerArray.get(Layer + 1).NodeArray.size * h / 56f - Weight * h / 28f);
                     }
                 }
             }
@@ -48,7 +51,7 @@ public class NodeVis implements Screen {
             for (int Layer = 0; Layer < currentSnake.layerArray.size; Layer++) {
                 for (int Node = 0; Node < currentSnake.layerArray.get(Layer).NodeArray.size; Node++) {
                     shapeRenderer.setColor(Color.BLACK);
-                    shapeRenderer.circle(Layer * 200 + 100, Gdx.graphics.getHeight() / 2f + currentSnake.layerArray.get(Layer).NodeArray.size * 8f - Node * 22f + 80, 8);
+                    shapeRenderer.circle(Layer * (w / 2 / 3.4f) + (w / 2 / 50), h / 2 + currentSnake.layerArray.get(Layer).NodeArray.size * h / 56f - Node * h / 28f, 8);
                     if (Layer == 0) {
                         float value = (float) (currentSnake.layerArray.get(0).NodeArray.get(Node).value);
                         shapeRenderer.setColor(value * 3, value / 1.2f, value / 1.2f, 1f);
@@ -62,22 +65,22 @@ public class NodeVis implements Screen {
                         float value = (float) (currentSnake.layerArray.get(0).NodeArray.get(Node).value);
                         shapeRenderer.setColor(value / 1.2f, value / 1.2f, value * 3, 1f);
                     }
-                    shapeRenderer.circle(Layer * 200 + 100, Gdx.graphics.getHeight() / 2f + currentSnake.layerArray.get(Layer).NodeArray.size * 8f - Node * 22f + 80, 6);
+                    shapeRenderer.circle(Layer * (w / 2 / 3.4f) + (w / 2 / 50), h / 2 + currentSnake.layerArray.get(Layer).NodeArray.size * h / 56f - Node * h / 28f, 6);
                 }
             }
             shapeRenderer.end();
 
             main.batch.begin();
 
-            font.draw(main.batch, "InputLayer", 100 - font.getRegion().getRegionWidth() / 6f, h / 1.02f);
-            font.draw(main.batch, "HiddenLayer 1", 200 + 100 - font.getRegion().getRegionWidth() / 6f, h / 1.02f);
-            font.draw(main.batch, "HiddenLayer 2", 2 * 200 + 100 - font.getRegion().getRegionWidth() / 6f, h / 1.02f);
-            font.draw(main.batch, "OutputLayer", 3 * 200 + 100 - font.getRegion().getRegionWidth() / 6f, h / 1.02f);
+            font.draw(main.batch, "InputLayer", w / 100f, h / 1.02f);
+            font.draw(main.batch, "HiddenLayer 1", w / 8f, h / 1.02f);
+            font.draw(main.batch, "HiddenLayer 2", w / 3.8f, h / 1.02f);
+            font.draw(main.batch, "OutputLayer", w / 2.43f, h / 1.02f);
 
-            font.draw(main.batch, "U", 3 * 200 + 115, Gdx.graphics.getHeight() / 2f + currentSnake.layerArray.get(3).NodeArray.size * 8f - 0 * 22f + 85);
-            font.draw(main.batch, "D", 3 * 200 + 115, Gdx.graphics.getHeight() / 2f + currentSnake.layerArray.get(3).NodeArray.size * 8f - 1 * 22f + 85);
-            font.draw(main.batch, "L", 3 * 200 + 115, Gdx.graphics.getHeight() / 2f + currentSnake.layerArray.get(3).NodeArray.size * 8f - 2 * 22f + 85);
-            font.draw(main.batch, "R", 3 * 200 + 115, Gdx.graphics.getHeight() / 2f + currentSnake.layerArray.get(3).NodeArray.size * 8f - 3 * 22f + 85);
+            font.draw(main.batch, "U", 3 * (w / 2 / 3.2f) + (w / 2 / 50), h / 2 + currentSnake.layerArray.get(3).NodeArray.size * h / 53f - 0 * h / 28f);
+            font.draw(main.batch, "D", 3 * (w / 2 / 3.2f) + (w / 2 / 50), h / 2 + currentSnake.layerArray.get(3).NodeArray.size * h / 53f - 1 * h / 28f);
+            font.draw(main.batch, "L", 3 * (w / 2 / 3.2f) + (w / 2 / 50), h / 2 + currentSnake.layerArray.get(3).NodeArray.size * h / 53f - 2 * h / 28f);
+            font.draw(main.batch, "R", 3 * (w / 2 / 3.2f) + (w / 2 / 50), h / 2 + currentSnake.layerArray.get(3).NodeArray.size * h / 53f - 3 * h / 28f);
             main.batch.end();
         }
     }

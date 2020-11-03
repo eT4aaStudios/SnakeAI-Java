@@ -1,7 +1,5 @@
 package com.snake.ai;
 
-import java.awt.Point;
-
 import static com.snake.ai.Snake.snake;
 import static com.snake.ai.main.SnakeHeadX;
 import static com.snake.ai.main.SnakeHeadY;

@@ -3,9 +3,11 @@ package com.snake.ai;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -16,10 +18,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-
-import java.awt.Point;
+import com.badlogic.gdx.utils.Array;
 
 import static com.badlogic.gdx.Gdx.gl;
+import static com.snake.ai.Snake.gameOver;
 import static com.snake.ai.Snake.hiScore;
 import static com.snake.ai.Snake.population;
 import static com.snake.ai.Snake.snakeNr;
@@ -29,11 +31,14 @@ import static com.snake.ai.main.batch;
 import static com.snake.ai.main.bestSnakeEver;
 import static com.snake.ai.main.bestSnakesArray;
 import static com.snake.ai.main.bestSnakesArraySize;
+import static com.snake.ai.main.buttonshownodes;
 import static com.snake.ai.main.currentSnake;
 import static com.snake.ai.main.freeze;
 import static com.snake.ai.main.h;
 import static com.snake.ai.main.loadBestSnakeEver;
 import static com.snake.ai.main.loadFromSavedSnake;
+import static com.snake.ai.main.savedSnakesScreenbutton;
+import static com.snake.ai.main.shapeRenderer;
 import static com.snake.ai.main.w;
 
 public class SavedSnakes implements Screen {
@@ -62,8 +67,8 @@ public class SavedSnakes implements Screen {
         prefs = Gdx.app.getPreferences("SnakeAi");
 
         saveCurrentSnake = new TextButton("Save Current Snake", skin);
-        saveCurrentSnake.setSize(w / 4, h / 8);
-        saveCurrentSnake.setPosition(((w - saveCurrentSnake.getWidth() * 2) / 4) * 2 + saveCurrentSnake.getWidth(), h / 20f);
+        saveCurrentSnake.setSize(savedSnakesScreenbutton.getWidth(), savedSnakesScreenbutton.getHeight());
+        saveCurrentSnake.setPosition(buttonshownodes.getX(), savedSnakesScreenbutton.getY());
         saveCurrentSnake.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -112,8 +117,8 @@ public class SavedSnakes implements Screen {
                     "\nBest Fitness Ever: " + prefs.getFloat("gameNr " + i + "bestSnakeEver.fitness") +
                     "\nHighScore: " + prefs.getInteger("gameNr " + i + "hiScore") +
                     "\nPoulation: " + prefs.getInteger("gameNr " + i + "population"), skin);
-            loadSavedSnake.setSize(w / 2f, h / 6);
-            loadSavedSnake.setPosition(w / -6f, 0);
+            loadSavedSnake.setSize(w / 2 / 2f, h / 6);
+            loadSavedSnake.setPosition(w / 2 / -6f, 0);
             final int finalI = i;
             loadSavedSnake.addListener(new ClickListener() {
                 @Override
@@ -123,15 +128,23 @@ public class SavedSnakes implements Screen {
                         System.out.flush();
                         System.out.println("Loaded saved Game Nr.:" + finalI);
                         loadBestArraySnake(finalI);
-                    } else
-                        System.out.println("You need to start the Game to load a Saved Game");
+                    } else {
+                        if (gameOver) {
+                            Snake snake = new Snake();
+                            snake.startNewGame();
+                            System.out.print("\033[H\033[2J");
+                            System.out.flush();
+                            System.out.println("Loaded saved Game Nr.:" + finalI);
+                            loadBestArraySnake(finalI);
+                        }
+                    }
                 }
             });
             g.addActor(loadSavedSnake);
 
             delete = new TextButton("Delete", skin);
-            delete.setSize(w / 6.5f, h / 6);
-            delete.setPosition(w / 2.7f, 0);
+            delete.setSize(w / 2 / 6.5f, h / 6);
+            delete.setPosition(w / 2 / 2.7f, 0);
             delete.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -142,7 +155,7 @@ public class SavedSnakes implements Screen {
             });
             g.addActor(delete);
 
-            WeckerselectionContainer.add(g).padBottom(4).size(w / 3.2f, h / 5.5f);
+            WeckerselectionContainer.add(g).padBottom(4).size(w / 2 / 3.2f, h / 5.5f);
             WeckerselectionContainer.row();
         }
         WeckerselectionContainer.pack();
@@ -152,8 +165,8 @@ public class SavedSnakes implements Screen {
         WeckerscrollPane = new ScrollPane(WeckerselectionContainer, skin2);
         WeckerscrollPane.setScrollingDisabled(true, false);
         WeckerscrollPane.layout();
-        WeckerscrollTable.add(WeckerscrollPane).size(w / 1f, h / 1.3f).fill();
-        WeckerscrollTable.setPosition(0, h / 10 - WeckerscrollTable.getHeight() / 1.3f);
+        WeckerscrollTable.add(WeckerscrollPane).size(w / 2, h / 1.3f).fill();
+        WeckerscrollTable.setPosition(w / 4 - w / 2, h / 10 - WeckerscrollTable.getHeight() / 1.3f);
         WeckerscrollPane.setScrollY(position);
         WeckerscrollPane.updateVisualScroll();
 
@@ -204,8 +217,8 @@ public class SavedSnakes implements Screen {
         }
 
         //Treats
-        prefs.putInteger("gameNr " + gameNr + "bestSnakeTreatsSize", bestSnakeEver.bestSnakeTreats.size());
-        for (int i = 0; i < bestSnakeEver.bestSnakeTreats.size(); i++) {
+        prefs.putInteger("gameNr " + gameNr + "bestSnakeTreatsSize", bestSnakeEver.bestSnakeTreats.size);
+        for (int i = 0; i < bestSnakeEver.bestSnakeTreats.size; i++) {
             prefs.putInteger("gameNr " + gameNr + "bestSnakeTreatsX " + i, bestSnakeEver.bestSnakeTreats.get(i).x);
             prefs.putInteger("gameNr " + gameNr + "bestSnakeTreatsY " + i, bestSnakeEver.bestSnakeTreats.get(i).y);
         }
@@ -346,6 +359,8 @@ public class SavedSnakes implements Screen {
             }
         }
 
+        if(bestSnakeEver.bestSnakeTreats == null)
+            bestSnakeEver.bestSnakeTreats = new Array<>();
         bestSnakeEver.bestSnakeTreats.clear();
         for (int i = 0; i < prefs.getInteger("gameNr " + gameNr + "bestSnakeTreatsSize"); i++) {
             int x = prefs.getInteger("gameNr " + gameNr + "bestSnakeTreatsX " + i);
@@ -419,7 +434,7 @@ public class SavedSnakes implements Screen {
 
         //Treats
         prefs.putInteger("gameNr " + gameNr + "bestSnakeTreatsSize", prefs.getInteger("gameNr " + gameNr2 + "bestSnakeTreatsSize"));
-        for (int i = 0; i < bestSnakeEver.bestSnakeTreats.size(); i++) {
+        for (int i = 0; i < bestSnakeEver.bestSnakeTreats.size; i++) {
             prefs.putInteger("gameNr " + gameNr + "bestSnakeTreatsX " + i, prefs.getInteger("gameNr " + gameNr2 + "bestSnakeTreatsX " + i));
             prefs.putInteger("gameNr " + gameNr + "bestSnakeTreatsY " + i, prefs.getInteger("gameNr " + gameNr2 + "bestSnakeTreatsY " + i));
         }
@@ -585,6 +600,11 @@ public class SavedSnakes implements Screen {
         gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         savedStage.act(Gdx.graphics.getDeltaTime());
+
+        shapeRenderer.setColor(Color.BLACK);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.line(w / 2,h,w / 2,0);
+        shapeRenderer.end();
 
         savedStage.draw();
         batch.begin();

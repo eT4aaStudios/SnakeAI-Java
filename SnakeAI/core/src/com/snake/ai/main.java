@@ -2,17 +2,29 @@ package com.snake.ai;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 
+import static com.snake.ai.Snake.gameOver;
+import static com.snake.ai.Snake.hiScore;
 import static com.snake.ai.Snake.nCols;
 import static com.snake.ai.Snake.nRows;
+import static com.snake.ai.Snake.population;
+import static com.snake.ai.Snake.score;
+import static com.snake.ai.Snake.snakeNr;
 
 public class main extends Game {
     //Best :
@@ -28,10 +40,11 @@ public class main extends Game {
 
     public static SpriteBatch batch;
     Stage stage;
-    TextButton buttonstart;
-    TextButton buttonstop;
-    TextButton buttonmax;
-    TextButton buttonshownodes;
+    Button buttonStart;
+    TextButton buttonLangsamer;
+    TextButton buttonSchneller;
+    TextButton buttonMax;
+    static TextButton buttonshownodes;
     static TextButton savedSnakesScreenbutton;
     TextButton buttonreplay;
     Skin skin;
@@ -46,6 +59,9 @@ public class main extends Game {
     public static boolean currentScreen;
     public static Array<allSnakes> allSnakesArrays;
     public static Array<Snakes> bestSnakesArray;
+    static ShapeRenderer shapeRenderer;
+    BitmapFont font;
+    public static Array<Integer> averageFitnessArray;
 
     public static boolean loadFromSavedSnake, loadBestSnakeEver;
     public static int gameNr;
@@ -56,7 +72,7 @@ public class main extends Game {
 
     //Neuronales Netzwerk Eigenschaften
     public static double bias = 0d;
-    public static double biasOutput = -0.4d;
+    public static double biasOutput = -0.4;
 
     public static double mutationPropability = 3;//%
     public static double mutationMin = -0.5f;
@@ -102,7 +118,8 @@ public class main extends Game {
                 layerNodeValueArray.removeIndex(i);
         allSnakesArrays = new Array<>();
         bestSnakesArray = new Array<>();
-        Snake.main2();
+        averageFitnessArray = new Array<>();
+        averageFitnessArray.add(0);
         w = Gdx.graphics.getWidth();
         h = Gdx.graphics.getHeight();
         felderarray = new Array<>();
@@ -110,37 +127,58 @@ public class main extends Game {
         skin = new Skin(Gdx.files.internal("uiskin.json"));
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
-        buttonstart = new TextButton("Langsamer", skin);
-        buttonstart.setSize(w / 4, h / 4);
-        buttonstart.setPosition(w / 6, h / 1.6f);
-        buttonstart.addListener(new ClickListener() {
+        shapeRenderer = new ShapeRenderer();
+        font = new BitmapFont();
+        font.getData().setScale(w / 1100);
+
+        buttonStart = new Button(new TextureRegionDrawable(new TextureRegion(new Texture("transparent2.png"))));
+        buttonStart.setSize(w / 2, h);
+        buttonStart.setPosition(w / 2, 0);
+        buttonStart.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                if (gameOver) {
+                    snake.startNewGame();
+                } else {
+                    freeze = !freeze;
+                }
+            }
+        });
+        buttonLangsamer = new TextButton("Slower", skin);
+        buttonLangsamer.setSize(w / 8, h / 8);
+        buttonLangsamer.setPosition(w / 100, h / 3f);
+        buttonLangsamer.getLabel().setFontScale(w / 1100);
+        buttonLangsamer.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Snake.Sleep_Time += 40;
             }
         });
-        buttonstop = new TextButton("Schneller", skin);
-        buttonstop.setSize(w / 4, h / 4);
-        buttonstop.setPosition(buttonstart.getX(), h / 4f);
-        buttonstop.addListener(new ClickListener() {
+        buttonSchneller = new TextButton("Faster", skin);
+        buttonSchneller.setSize(buttonLangsamer.getWidth(), buttonLangsamer.getHeight());
+        buttonSchneller.setPosition(buttonLangsamer.getX(), h / 5.3f);
+        buttonSchneller.getLabel().setFontScale(buttonLangsamer.getLabel().getFontScaleX());
+        buttonSchneller.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (Snake.Sleep_Time > 30)
                     Snake.Sleep_Time -= 30;
             }
         });
-        buttonmax = new TextButton("Max Speed", skin);
-        buttonmax.setSize(w / 4, h / 4);
-        buttonmax.setPosition(w - buttonstop.getWidth() * 2, h / 4f);
-        buttonmax.addListener(new ClickListener() {
+        buttonMax = new TextButton("Max Speed", skin);
+        buttonMax.setSize(buttonLangsamer.getWidth(), buttonLangsamer.getHeight());
+        buttonMax.setPosition(w / 7f, buttonLangsamer.getY());
+        buttonMax.getLabel().setFontScale(buttonLangsamer.getLabel().getFontScaleX());
+        buttonMax.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Snake.Sleep_Time = 1;
             }
         });
         buttonreplay = new TextButton(" Replay Best Snake\n(Active: " + replay + ")", skin);
-        buttonreplay.setSize(w / 4, h / 4);
-        buttonreplay.setPosition(w - buttonstop.getWidth() * 2, h / 1.6f);
+        buttonreplay.setSize(buttonLangsamer.getWidth(), buttonLangsamer.getHeight());
+        buttonreplay.setPosition(buttonMax.getX(), buttonSchneller.getY());
+        buttonreplay.getLabel().setFontScale(buttonLangsamer.getLabel().getFontScaleX());
         buttonreplay.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -151,28 +189,31 @@ public class main extends Game {
                     replay = true;
                     buttonreplay.setText(" Replay Best Snake\n(Active: true)");
                 }
-                Snake.gameOver = true;
+                gameOver = true;
                 currentSnake = bestSnakeEver.bestSnakeEver;
 
             }
         });
         buttonshownodes = new TextButton("Show Nodes", skin);
-        buttonshownodes.setSize(w / 4, h / 8);
-        buttonshownodes.setPosition(((w - buttonstop.getWidth() * 2) / 4) * 2 + buttonshownodes.getWidth(), h / 20f);
+        buttonshownodes.setSize(buttonLangsamer.getWidth(), h / 8);
+        buttonshownodes.setPosition(buttonMax.getX(), h / 50f);
+        buttonshownodes.getLabel().setFontScale(buttonLangsamer.getLabel().getFontScaleX());
         buttonshownodes.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 main.this.setScreen(NodeVis);
                 if (currentScreen) {
                     stage.clear();
+                    stage.addActor(buttonStart);
                     stage.addActor(buttonshownodes);
-                    stage.addActor(buttonstart);
-                    stage.addActor(buttonstop);
-                    stage.addActor(buttonmax);
+                    stage.addActor(buttonLangsamer);
+                    stage.addActor(buttonSchneller);
+                    stage.addActor(buttonMax);
                     stage.addActor(buttonreplay);
                     stage.addActor(savedSnakesScreenbutton);
                 } else {
                     stage.clear();
+                    stage.addActor(buttonStart);
                     stage.addActor(savedSnakesScreenbutton);
                     stage.addActor(buttonshownodes);
                 }
@@ -180,8 +221,9 @@ public class main extends Game {
             }
         });
         savedSnakesScreenbutton = new TextButton("Show Saved Snakes", skin);
-        savedSnakesScreenbutton.setSize(w / 4, h / 8);
-        savedSnakesScreenbutton.setPosition((w - savedSnakesScreenbutton.getWidth() * 2) / 3, h / 20f);
+        savedSnakesScreenbutton.setSize(buttonLangsamer.getWidth(), h / 8);
+        savedSnakesScreenbutton.setPosition(buttonLangsamer.getX(), buttonshownodes.getY());
+        savedSnakesScreenbutton.getLabel().setFontScale(buttonLangsamer.getLabel().getFontScaleX());
         savedSnakesScreenbutton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -195,11 +237,12 @@ public class main extends Game {
             }
         });
 
+        stage.addActor(buttonStart);
         stage.addActor(savedSnakesScreenbutton);
         stage.addActor(buttonshownodes);
-        stage.addActor(buttonstart);
-        stage.addActor(buttonstop);
-        stage.addActor(buttonmax);
+        stage.addActor(buttonLangsamer);
+        stage.addActor(buttonSchneller);
+        stage.addActor(buttonMax);
         stage.addActor(buttonreplay);
 
         currentSnake = new Snakes();
@@ -211,14 +254,8 @@ public class main extends Game {
         allSnakesArrays.add(allSnakes);
         allSnakes.allSnakesArray.add(currentSnake);
 
-        //TODO
         bestSnakeEver.bestSnakeEver = currentSnake;
 
-        /*bestSnakeEver.bestSnakeEver.fitness = currentSnake.fitness;
-        bestSnakeEver.bestSnakeEver.layerArray = new Array<>(currentSnake.layerArray);
-        bestSnakeEver.bestSnakeEver.parent1Snake = currentSnake.parent1Snake;
-        bestSnakeEver.bestSnakeEver.parent2Snake = currentSnake.parent2Snake;
-        bestSnakeEver.bestSnakeEver.score = currentSnake.score;*/
         NodeVis = new NodeVis();
         SavedSnakes = new SavedSnakes();
     }
@@ -228,9 +265,22 @@ public class main extends Game {
         Gdx.gl.glClearColor(0.4f, 0.7f, 0.4f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         super.render();
+        shapeRenderer.setColor(Color.BLACK);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.line(w / 2, h, w / 2, 0);
+        shapeRenderer.end();
 
-        if (this.getScreen() != SavedSnakes)
+
+        drawGame();
+
+        if (this.getScreen() != SavedSnakes) {
             stage.draw();
+            if (!currentScreen) {
+                drawFonts();
+                drawGraph();
+            }
+        }
+
     }
 
 
@@ -326,5 +376,142 @@ public class main extends Game {
         //} else {
         //    return 0;
         //}
+    }
+
+    public void drawGraph() {
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(Color.WHITE);
+        shapeRenderer.rect(buttonLangsamer.getX()
+                , h / 2.1f
+                , w / 3.9f
+                , h / 2.23f);
+        shapeRenderer.end();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.DARK_GRAY);
+        //X Achse
+        shapeRenderer.line(w / 20
+                , h / 1.85f
+                , w / 4f
+                , h / 1.85f);
+        //Y Achse
+        shapeRenderer.line(w / 20
+                , h / 1.85f
+                , w / 20
+                , h / 1.13f);
+
+        batch.begin();
+        font.setColor(Color.DARK_GRAY);
+        if (averageFitnessArray != null && averageFitnessArray.size > 1) {
+            averageFitnessArray.sort();
+            font.getData().setScale(w / 450 / (String.valueOf(averageFitnessArray.get(averageFitnessArray.size - 1)).length()));
+            for (float i = 0; i <= averageFitnessArray.get(averageFitnessArray.size - 1); i += averageFitnessArray.get(averageFitnessArray.size - 1) / 4f) {
+                font.draw(batch, "" + i, w / 80, ((h / 1.13f - h / 1.81f) / averageFitnessArray.get(averageFitnessArray.size - 1)) * i + h / 1.81f);
+            }
+            for (float i = 0; i <= averageFitnessArray.size; i += averageFitnessArray.size / 4f) {
+                font.draw(batch, "" + i, ((w / 4f - w / 20f) / averageFitnessArray.size) * i + w / 25f, h / 1.9f);
+            }
+
+            for (float i = 0; i < averageFitnessArray.size - 1; i += averageFitnessArray.size / 4f) {
+                shapeRenderer.line(
+                        ((w / 4f - w / 20f) / averageFitnessArray.size) * i + w / 20f
+                        , averageFitnessArray.get((int) i) + h / 1.81f
+                        , ((w / 4f - w / 20f) / averageFitnessArray.size) * (i + 1) + w / 20f
+                        , averageFitnessArray.get((int) (i)) + h / 1.81f);
+            }
+        }
+        batch.end();
+        font.getData().setScale(w / 1100);
+        font.setColor(Color.WHITE);
+
+        shapeRenderer.end();
+    }
+
+    public void drawFonts() {
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(Color.GRAY);
+        shapeRenderer.rect(w / 3.6f
+                , h / 50
+                , w / 4.7f
+                , h / 1.1f);
+        shapeRenderer.setColor(Color.DARK_GRAY);
+        shapeRenderer.rect(w / 3.6f + (w / 4.7f - w / 5.4f) / 2
+                , h / 50 + (h / 1.1f - h / 1.17f) / 2
+                , w / 5.4f
+                , h / 1.17f);
+        shapeRenderer.end();
+
+        batch.begin();
+        font.draw(batch, "Paused: " + freeze, w / 1.12f, h / 1.075f);
+
+        font.draw(batch, "Game Nr: " + gameNr, w / 3.35f, h / 1.13f);
+        font.draw(batch, "Snake Nr: " + snakeNr, w / 3.35f, h / 1.18f);
+        font.draw(batch, "Score: " + score, w / 3.35f, h / 1.23f);
+        font.draw(batch, "Population: " + population, w / 3.35f, h / 1.28f);
+        font.setColor(Color.RED);
+        font.draw(batch, "Highscore: " + hiScore, w / 3.35f, h / 1.34f);
+        font.draw(batch, "Best Fitness Ever: " + bestSnakeEver.bestSnakeEver.fitness, w / 3.35f, h / 1.4f);
+        font.setColor(Color.WHITE);
+        font.draw(batch, "______________________", w / 3.35f, h / 1.45f);
+        font.draw(batch, "Bias: " + bias, w / 3.35f, h / 1.55f);
+        font.draw(batch, "Output Bias: " + biasOutput, w / 3.35f, h / 1.63f);
+        font.draw(batch, "Input Layer Nodes: " + inputLayerNodes, w / 3.35f, h / 1.72f);
+        font.draw(batch, "Layer 2 Nodes: " + Layer2Nodes, w / 3.35f, h / 1.82f);
+        font.draw(batch, "Layer 3 Nodes: " + Layer3Nodes, w / 3.35f, h / 1.93f);
+        font.draw(batch, "Layer 4 Nodes: " + Layer4Nodes, w / 3.35f, h / 2.05f);
+        font.draw(batch, "Output Layer Nodes: " + outputLayerNodes, w / 3.35f, h / 2.18f);
+        font.draw(batch, "______________________", w / 3.35f, h / 2.34f);
+        font.draw(batch, "Mutation Probability: " + mutationPropability, w / 3.35f, h / 2.55f);
+        font.draw(batch, "Mutation Min: " + mutationMin, w / 3.35f, h / 2.8f);
+        font.draw(batch, "Mutation Max: " + mutationMax, w / 3.35f, h / 3.1f);
+        font.draw(batch, "Population Size: " + POPULATIONSIZE, w / 3.35f, h / 3.4f);
+        font.draw(batch, "First Population Size: " + FIRSTPOPULATIONSIZE, w / 3.35f, h / 3.8f);
+        font.draw(batch, "______________________", w / 3.35f, h / 4.5f);
+        font.draw(batch, "Rows: " + reihen, w / 3.35f, h / 5.5f);
+        font.draw(batch, "Columns: " + spalten, w / 3.35f, h / 6.5f);
+        batch.end();
+    }
+
+    public void drawGame() {
+        //Feld
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        for (int i = 0; i < reihen; i++) {
+            for (int j = 0; j < spalten; j++) {
+                if (i == 0 || j == 0 || i == reihen - 1 || j == spalten - 1) {
+                    shapeRenderer.setColor(Color.GRAY);
+                } else {
+                    shapeRenderer.setColor(Color.DARK_GRAY);
+                }
+                shapeRenderer.rect(w / 2 + i * w / 2 / reihen
+                        , j * h / spalten
+                        , w / 2 / reihen
+                        , h / spalten);
+            }
+        }
+        //Treats
+        if (Snake.treats != null && Snake.treats.size > 0) {
+            try {
+                shapeRenderer.setColor(1, 0.3f, 0.3f, 1);
+                shapeRenderer.rect(Snake.treats.get(Snake.treats.size - 1).x * w / 2 / reihen + w / 2
+                        , (spalten - 1 - Snake.treats.get(Snake.treats.size - 1).y) * h / spalten
+                        , w / 2 / reihen
+                        , h / spalten);
+            } catch (Exception ignored) {
+
+            }
+        }
+        //Schlange
+        if (Snake.snake != null && Snake.snake.size() > 0)
+            for (int i = 0; i < Snake.snake.size(); i++) {
+                if (i == 0)
+                    shapeRenderer.setColor(0.3f, 1, 0.3f, 1);
+                else
+                    shapeRenderer.setColor(0.3f, 0.3f, 1, 1);
+                shapeRenderer.rect(Snake.snake.get(i).x * w / 2 / reihen + w / 2
+                        , (spalten - 1 - Snake.snake.get(i).y) * h / spalten
+                        , w / 2 / reihen
+                        , h / spalten);
+            }
+        shapeRenderer.end();
     }
 }

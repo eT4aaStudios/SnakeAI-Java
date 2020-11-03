@@ -2,45 +2,26 @@ package com.snake.ai;
 
 import com.badlogic.gdx.utils.Array;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.RenderingHints;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
 import static com.snake.ai.main.FIRSTPOPULATIONSIZE;
 import static com.snake.ai.main.POPULATIONSIZE;
 import static com.snake.ai.main.allSnakesArrays;
+import static com.snake.ai.main.averageFitnessArray;
 import static com.snake.ai.main.bestSnakeEver;
 import static com.snake.ai.main.bestSnakesArray;
 import static com.snake.ai.main.bestSnakesArraySize;
 import static com.snake.ai.main.currentSnake;
 import static com.snake.ai.main.enableOutputLayerLogging;
 import static com.snake.ai.main.freeze;
-import static com.snake.ai.main.h;
 import static com.snake.ai.main.loadFromSavedSnake;
 import static com.snake.ai.main.replay;
 import static com.snake.ai.main.requestReplayStop;
-import static com.snake.ai.main.w;
-import static java.lang.String.format;
 
-public class Snake extends JPanel implements Runnable {
+public class Snake implements Runnable {
     enum Dir {
         up(0, -1), right(1, 0), down(0, 1), left(-1, 0);
 
@@ -58,7 +39,7 @@ public class Snake extends JPanel implements Runnable {
     static volatile boolean gameOver = true;
 
     Thread gameThread;
-    int score;
+    static int score;
     static int hiScore;
     static final int startlength = 3;
     static Dir dir, startDir;
@@ -67,70 +48,19 @@ public class Snake extends JPanel implements Runnable {
 
     int[][] grid;
     static List<Point> snake;
-    static List<Point> treats;
-    Font smallFont;
+    static Array<Point> treats;
 
     static int nCols = 22;
-    static int nRows = 22;
+    static int nRows = nCols;
     static int Sleep_Time = 85;
-    final int treastmenge = 1;
 
     public static int population;
     public static int snakeNr;
     public static int steps;
     int Sleep_Time2;
-    public static JFrame f;
 
     public Snake() {
-        setPreferredSize(new Dimension(640, 440));
-        setBackground(Color.darkGray);
-        setFont(new Font("SansSerif", Font.BOLD, 48));
-        setFocusable(true);
-
-        smallFont = getFont().deriveFont(Font.BOLD, 18);
         initGrid();
-
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                if (gameOver) {
-                    startNewGame();
-                } else {
-                    freeze = !freeze;
-                }
-                repaint();
-            }
-        });
-
-        addKeyListener(new KeyAdapter() {
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-
-                switch (e.getKeyCode()) {
-                    case KeyEvent.VK_UP:
-                        if (dir != Dir.down)
-                            dir = Dir.up;
-                        break;
-
-                    case KeyEvent.VK_LEFT:
-                        if (dir != Dir.right)
-                            dir = Dir.left;
-                        break;
-
-                    case KeyEvent.VK_RIGHT:
-                        if (dir != Dir.left)
-                            dir = Dir.right;
-                        break;
-
-                    case KeyEvent.VK_DOWN:
-                        if (dir != Dir.up)
-                            dir = Dir.down;
-                        break;
-                }
-                repaint();
-            }
-        });
     }
 
     void startNewGame() {
@@ -139,7 +69,7 @@ public class Snake extends JPanel implements Runnable {
         //TODO Save
         stop();
         initGrid();
-        treats = new LinkedList<>();
+        treats = new Array<>();
         addTreat();
 
         bestSnakeEver.directionTmpArray.clear();
@@ -174,10 +104,13 @@ public class Snake extends JPanel implements Runnable {
             for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
                 maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
             }
-            if (population > 1)
+            if (population > 1) {
                 System.out.println("average Fitness: " + maxFitness / POPULATIONSIZE);
-            else
+                averageFitnessArray.add(maxFitness / POPULATIONSIZE);
+            } else {
                 System.out.println("average Fitness: " + maxFitness / FIRSTPOPULATIONSIZE);
+                averageFitnessArray.add(maxFitness / FIRSTPOPULATIONSIZE);
+            }
 
             //Best Snakes System.out
             bestSnakesArray.clear();
@@ -185,8 +118,6 @@ public class Snake extends JPanel implements Runnable {
                 bestSnakesArray.add(allSnakesArrays.get(0).allSnakesArray.get(i));
                 System.out.println("Nr.:" + i + " Snake Fitness: " + bestSnakesArray.get(i).fitness + " Score: " + bestSnakesArray.get(i).score);
             }
-            if (isFocused())
-                Sleep_Time2 = 2000;
             snakeNr = 0;
         }
 
@@ -303,8 +234,6 @@ public class Snake extends JPanel implements Runnable {
                 doAction();
                 Evolution evo = new Evolution();
                 currentSnake.fitness = evo.FitnessFuntction(steps, score);
-
-                repaint();
             }
         }
     }
@@ -404,9 +333,8 @@ public class Snake extends JPanel implements Runnable {
         Point head = snake.get(0);
         int nextCol = head.x + dir.x;
         int nextRow = head.y + dir.y;
-        if (treats.get(treats.size() - 1).x == nextCol && treats.get(treats.size() - 1).y == nextRow) {
+        if (treats.get(treats.size - 1).x == nextCol && treats.get(treats.size - 1).y == nextRow) {
             addTreat();
-            System.out.println();
             return true;
         }
         return false;
@@ -428,7 +356,7 @@ public class Snake extends JPanel implements Runnable {
             bestSnakeEver.directionArray = null;
 
             bestSnakeEver.bestSnakeEver = currentSnake;
-            bestSnakeEver.bestSnakeTreats = new LinkedList<>(treats);
+            bestSnakeEver.bestSnakeTreats = new Array<>(treats);
             bestSnakeEver.startDir = startDir;
             bestSnakeEver.directionArray = new Array<>(bestSnakeEver.directionTmpArray);
         }
@@ -440,7 +368,6 @@ public class Snake extends JPanel implements Runnable {
 
         // Muss unten sein
         startNewGame();
-        repaint();
     }
 
     void moveSnake() {
@@ -465,7 +392,7 @@ public class Snake extends JPanel implements Runnable {
 
     void addTreat() {
         if (replay) {
-            treats.add(bestSnakeEver.bestSnakeTreats.get(treats.size()));
+            treats.add(bestSnakeEver.bestSnakeTreats.get(treats.size));
         } else {
             int x, y;
             while (true) {
@@ -476,115 +403,12 @@ public class Snake extends JPanel implements Runnable {
                 main.foodpositionX = x;
                 main.foodpositionY = y;
                 Point p = new Point(x, y);
-                if (treats.contains(p) || (snake != null && snake.contains(p)))
+                if (treats.contains(p,false) || (snake != null && snake.contains(p)))
                     continue;
                 treats.add(p);
                 break;
             }
         }
-    }
-
-    void drawGrid(Graphics2D g) {
-        g.setColor(Color.lightGray);
-        for (int r = 0; r < nRows; r++) {
-            for (int c = 0; c < nCols; c++) {
-                if (grid[r][c] == WALL)
-                    g.fillRect(c * 10, r * 10, 10, 10);
-            }
-        }
-    }
-
-    void drawSnake(Graphics2D g) {
-        g.setColor(new Color(0.56f, 0.56f, 0.56f, 0.57f));
-        if (snake.size() > 0) {
-            for (int i = 0; i < snake.size(); i++) {
-                Point p = snake.get(i);
-                g.fillRect(p.x * 10, p.y * 10, 10, 10);
-            }
-        }
-
-        g.setColor(energy < 11 ? Color.red : new Color(0, 0.7f, 0.8f, 0.9f));
-        if (snake.size() > 0) {
-            Point head = snake.get(0);
-            g.fillRect(head.x * 10, head.y * 10, 10, 10);
-        }
-    }
-
-    void drawTreats(Graphics2D g) {
-        g.setColor(Color.red);
-        if (treats.size() > 0) {
-            Point p = treats.get(treats.size() - 1);
-            g.fillRect(p.x * 10, p.y * 10, 10, 10);
-        }
-    }
-
-    void drawStartScreen(Graphics2D g) {
-        g.setColor(Color.cyan);
-        g.setFont(getFont());
-        g.drawString("Snake Ai", 240, 190);
-        g.setColor(Color.red);
-        g.setFont(smallFont);
-        g.drawString("Made by eT4aa", 275, 240);
-    }
-
-    @SuppressWarnings("DefaultLocale")
-    void drawScore(Graphics2D g) {
-        int h = getHeight();
-        g.setFont(smallFont);
-        g.setColor(Color.white);
-
-        g.drawString(format("Highscore %d    score %d   ", hiScore, score), 30, h - 30);
-        g.drawString(format("Snake Nr. %d    population %d", snakeNr, population), 30, h - 410);
-        g.drawString(format("Paused %b", freeze), getWidth() - 150, h - 410);
-        g.drawString(format("Energy %d", energy), getWidth() - 150, h - 30);
-
-        String s1;
-        if (bestSnakesArray.size != 0)
-            s1 = format("BestFitnessEver %d   CurrentFitness %d", bestSnakeEver.bestSnakeEver.fitness, currentSnake.fitness);
-        else
-            s1 = format("CurrentFitness %d", currentSnake.fitness);
-        g.drawString(s1, 30, h - 380);
-
-
-    }
-
-    @Override
-    public void paintComponent(Graphics gg) {
-        super.paintComponent(gg);
-        Graphics2D g = (Graphics2D) gg;
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-
-        drawGrid(g);
-
-        if (gameOver) {
-            drawStartScreen(g);
-        } else {
-            drawSnake(g);
-            drawTreats(g);
-            drawScore(g);
-        }
-    }
-
-    public static void main2() {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                f = new JFrame();
-                f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                f.setTitle("Snake");
-                f.setResizable(true);
-                f.add(new Snake(), BorderLayout.CENTER);
-                f.pack();
-                f.setLocationRelativeTo(null);
-                f.setVisible(true);
-                f.setLocation((int) (w / 1.2), (int) (h / 5));
-            }
-        });
-    }
-
-    public boolean isFocused() {
-        return f.isFocused();
     }
 }
 
