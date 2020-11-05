@@ -17,6 +17,7 @@ import static com.snake.ai.main.bestSnakesArraySize;
 import static com.snake.ai.main.currentSnake;
 import static com.snake.ai.main.enableOutputLayerLogging;
 import static com.snake.ai.main.freeze;
+import static com.snake.ai.main.hiscoreArray;
 import static com.snake.ai.main.loadFromSavedSnake;
 import static com.snake.ai.main.replay;
 import static com.snake.ai.main.requestReplayStop;
@@ -89,6 +90,7 @@ public class Snake implements Runnable {
             System.out.println("NEW POPULATION (Nr.: " + population + ")");
             System.out.println("_______________________\n");
 
+
             //Umsortierung
             allSnakes allSnakes = new allSnakes();
             if (allSnakesArrays.size > 1) {
@@ -111,6 +113,15 @@ public class Snake implements Runnable {
                 System.out.println("average Fitness: " + maxFitness / FIRSTPOPULATIONSIZE);
                 averageFitnessArray.add(maxFitness / FIRSTPOPULATIONSIZE);
             }
+
+            int maxHiscore = 0;
+            for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
+                if (maxHiscore <= allSnakesArrays.get(0).allSnakesArray.get(i).score) {
+                    maxHiscore = allSnakesArrays.get(0).allSnakesArray.get(i).score;
+                }
+            }
+            hiscoreArray.add(maxHiscore);
+
 
             //Best Snakes System.out
             bestSnakesArray.clear();

@@ -27,14 +27,17 @@ import static com.snake.ai.Snake.population;
 import static com.snake.ai.Snake.snakeNr;
 import static com.snake.ai.main.POPULATIONSIZE;
 import static com.snake.ai.main.allSnakesArrays;
+import static com.snake.ai.main.averageFitnessArray;
 import static com.snake.ai.main.batch;
 import static com.snake.ai.main.bestSnakeEver;
 import static com.snake.ai.main.bestSnakesArray;
 import static com.snake.ai.main.bestSnakesArraySize;
+import static com.snake.ai.main.buttonStart;
 import static com.snake.ai.main.buttonshownodes;
 import static com.snake.ai.main.currentSnake;
 import static com.snake.ai.main.freeze;
 import static com.snake.ai.main.h;
+import static com.snake.ai.main.hiscoreArray;
 import static com.snake.ai.main.loadBestSnakeEver;
 import static com.snake.ai.main.loadFromSavedSnake;
 import static com.snake.ai.main.savedSnakesScreenbutton;
@@ -79,6 +82,7 @@ public class SavedSnakes implements Screen {
             }
         });
         savedStage.addActor(saveCurrentSnake);
+        savedStage.addActor(buttonStart);
         savedStage.addActor(main.savedSnakesScreenbutton);
 
         loadSavedSnakeScrollPane();
@@ -117,7 +121,7 @@ public class SavedSnakes implements Screen {
                     "\nBest Fitness Ever: " + prefs.getFloat("gameNr " + i + "bestSnakeEver.fitness") +
                     "\nHighScore: " + prefs.getInteger("gameNr " + i + "hiScore") +
                     "\nPoulation: " + prefs.getInteger("gameNr " + i + "population"), skin);
-            loadSavedSnake.setSize(w / 2 / 2f, h / 6);
+            loadSavedSnake.setSize(w / 2 / 2f, h / 5);
             loadSavedSnake.setPosition(w / 2 / -6f, 0);
             final int finalI = i;
             loadSavedSnake.addListener(new ClickListener() {
@@ -143,7 +147,7 @@ public class SavedSnakes implements Screen {
             g.addActor(loadSavedSnake);
 
             delete = new TextButton("Delete", skin);
-            delete.setSize(w / 2 / 6.5f, h / 6);
+            delete.setSize(w / 2 / 6.5f, h / 5);
             delete.setPosition(w / 2 / 2.7f, 0);
             delete.addListener(new ClickListener() {
                 @Override
@@ -155,7 +159,7 @@ public class SavedSnakes implements Screen {
             });
             g.addActor(delete);
 
-            WeckerselectionContainer.add(g).padBottom(4).size(w / 2 / 3.2f, h / 5.5f);
+            WeckerselectionContainer.add(g).padBottom(4).size(w / 2 / 3.2f, h / 5f);
             WeckerselectionContainer.row();
         }
         WeckerselectionContainer.pack();
@@ -181,10 +185,25 @@ public class SavedSnakes implements Screen {
         saveEinstellungen(gameNr);
         saveBestSnakeArray(gameNr);
         saveBestSnakeEver(gameNr);
+        saveGraph(gameNr);
 
         prefs.flush();
         loadSavedSnakeScrollPane();
         freeze = false;
+    }
+
+    public void saveGraph(int gameNr) {
+        prefs.putInteger("gameNr " + gameNr + "averageFitnessArray", averageFitnessArray.size);
+        for (int i = 0; i < averageFitnessArray.size; i++) {
+            prefs.putInteger("gameNr " + gameNr + " averageFitnessArray Nr. " + i, averageFitnessArray.get(i));
+        }
+
+        prefs.putInteger("gameNr " + gameNr + "hiscoreArray", hiscoreArray.size);
+        for (int i = 0; i < hiscoreArray.size; i++) {
+            prefs.putInteger("gameNr " + gameNr + " hiscoreArray Nr. " + i, hiscoreArray.get(i));
+        }
+
+        prefs.flush();
     }
 
     private void saveBestSnakeEver(int gameNr) {
@@ -289,10 +308,25 @@ public class SavedSnakes implements Screen {
         loadEinstellungen(gameNr);
         loadBestSnakeEver(gameNr);
         loadBestSnakeArray(gameNr);
+        loadGraph(gameNr);
 
         snakeNr = 0;
         Snake.gameOver = true;
         freeze = false;
+    }
+
+    public void loadGraph(int gameNr) {
+        averageFitnessArray.clear();
+        for (int i = 0; i < prefs.getInteger("gameNr " + gameNr + "averageFitnessArray"); i++) {
+            averageFitnessArray.add(prefs.getInteger("gameNr " + gameNr + " averageFitnessArray Nr. " + i));
+        }
+
+        hiscoreArray.clear();
+        for (int i = 0; i < prefs.getInteger("gameNr " + gameNr + "hiscoreArray"); i++) {
+            hiscoreArray.add(prefs.getInteger("gameNr " + gameNr + " hiscoreArray Nr. " + i));
+        }
+
+        prefs.flush();
     }
 
     public void loadEinstellungen(int gameNr) {
@@ -388,15 +422,33 @@ public class SavedSnakes implements Screen {
     private void delete(int id) {
         prefs.putInteger("GameMenge", prefs.getInteger("GameMenge") - 1);
 
-        for (int i = id; i < prefs.getInteger("GameMenge"); i++) {
+        for (int i = id; i < prefs.getInteger("GameMenge") + 1; i++) {
             reWriteBestSnakeEver(i);
             reWriteBestSnakeArray(i);
             reWriteEinstellungen(i);
+            reWriteGraph(i);
         }
 
         removeBestSnakeEver(prefs.getInteger("GameMenge") + 1);
         removeBestSnakeArray(prefs.getInteger("GameMenge") + 1);
         removeEinstellungen(prefs.getInteger("GameMenge") + 1);
+        removeGraph(prefs.getInteger("GameMenge") + 1);
+
+        prefs.flush();
+    }
+
+    private void reWriteGraph(int gameNr) {
+        int gameNr2 = gameNr + 1;
+
+        for (int i = 0; i < prefs.getInteger("gameNr " + gameNr + "averageFitnessArray"); i++) {
+            prefs.putInteger("gameNr " + gameNr + " averageFitnessArray Nr. " + i, prefs.getInteger("gameNr " + gameNr2 + " averageFitnessArray Nr. " + i));
+        }
+        prefs.putInteger("gameNr " + gameNr + "averageFitnessArray", prefs.getInteger("gameNr " + gameNr2 + "averageFitnessArray"));
+
+        for (int i = 0; i < prefs.getInteger("gameNr " + gameNr + "hiscoreArray"); i++) {
+            prefs.putInteger("gameNr " + gameNr + " hiscoreArray Nr. " + i, prefs.getInteger("gameNr " + gameNr2 + " hiscoreArray Nr. " + i));
+        }
+        prefs.putInteger("gameNr " + gameNr + "hiscoreArray", prefs.getInteger("gameNr " + gameNr2 + "hiscoreArray"));
 
         prefs.flush();
     }
@@ -426,18 +478,18 @@ public class SavedSnakes implements Screen {
         prefs.putInteger("gameNr " + gameNr + "dirX", prefs.getInteger("gameNr " + gameNr2 + "dirY"));
 
         //directionArray
-        prefs.putInteger("gameNr " + gameNr + "directionArray", prefs.getInteger("gameNr " + gameNr2 + "directionArray"));
-        for (int i = 0; i < bestSnakeEver.directionArray.size; i++) {
+        for (int i = 0; i < prefs.getInteger("gameNr " + gameNr + "directionArray"); i++) {
             prefs.putInteger("gameNr " + gameNr + " richtung Nr. " + i + "dirX", prefs.getInteger("gameNr " + gameNr2 + " richtung Nr. " + i + "dirX"));
             prefs.putInteger("gameNr " + gameNr + " richtung Nr. " + i + "dirY", prefs.getInteger("gameNr " + gameNr2 + " richtung Nr. " + i + "dirY"));
         }
+        prefs.putInteger("gameNr " + gameNr + "directionArray", prefs.getInteger("gameNr " + gameNr2 + "directionArray"));
 
         //Treats
-        prefs.putInteger("gameNr " + gameNr + "bestSnakeTreatsSize", prefs.getInteger("gameNr " + gameNr2 + "bestSnakeTreatsSize"));
-        for (int i = 0; i < bestSnakeEver.bestSnakeTreats.size; i++) {
+        for (int i = 0; i < prefs.getInteger("gameNr " + gameNr2 + "bestSnakeTreatsSize"); i++) {
             prefs.putInteger("gameNr " + gameNr + "bestSnakeTreatsX " + i, prefs.getInteger("gameNr " + gameNr2 + "bestSnakeTreatsX " + i));
             prefs.putInteger("gameNr " + gameNr + "bestSnakeTreatsY " + i, prefs.getInteger("gameNr " + gameNr2 + "bestSnakeTreatsY " + i));
         }
+        prefs.putInteger("gameNr " + gameNr + "bestSnakeTreatsSize", prefs.getInteger("gameNr " + gameNr2 + "bestSnakeTreatsSize"));
 
         prefs.flush();
     }
@@ -465,7 +517,7 @@ public class SavedSnakes implements Screen {
         prefs.flush();
     }
 
-    public void reWriteEinstellungen(int gameNr) {
+    private void reWriteEinstellungen(int gameNr) {
         int gameNr2 = gameNr + 1;
 
         prefs.putFloat("gameNr " + gameNr + "average Fitness", prefs.getFloat("gameNr " + gameNr2 + "average Fitness"));
@@ -502,8 +554,21 @@ public class SavedSnakes implements Screen {
         prefs.flush();
     }
 
+    private void removeGraph(int gameNr) {
+        for (int i = 0; i < prefs.getInteger("gameNr " + gameNr + "averageFitnessArray"); i++) {
+            prefs.remove("gameNr " + gameNr + " averageFitnessArray Nr. " + i);
+        }
+        prefs.remove("gameNr " + gameNr + "averageFitnessArray");
+
+        for (int i = 0; i < prefs.getInteger("gameNr " + gameNr + "hiscoreArray"); i++) {
+            prefs.remove("gameNr " + gameNr + " hiscoreArray Nr. " + i);
+        }
+        prefs.remove("gameNr " + gameNr + "hiscoreArray");
+        prefs.flush();
+    }
+
+
     private void removeBestSnakeEver(int gameNr) {
-        int gameNr2 = gameNr + 1;
         //Snake
         for (int k = 0; k < bestSnakeEver.bestSnakeEver.layerArray.size - 1; k++) {
             for (int l = 0; l < bestSnakeEver.bestSnakeEver.layerArray.get(k).NodeArray.size; l++) {
@@ -540,7 +605,6 @@ public class SavedSnakes implements Screen {
     }
 
     private void removeBestSnakeArray(int gameNr) {
-        int gameNr2 = gameNr + 1;
         for (int j = 0; j < bestSnakesArray.size; j++) {
             for (int k = 0; k < bestSnakesArray.get(j).layerArray.size - 1; k++) {
                 for (int l = 0; l < bestSnakesArray.get(j).layerArray.get(k).NodeArray.size; l++) {
@@ -558,8 +622,6 @@ public class SavedSnakes implements Screen {
     }
 
     public void removeEinstellungen(int gameNr) {
-        int gameNr2 = gameNr + 1;
-
         prefs.remove("gameNr " + gameNr + "average Fitness");
         prefs.remove("gameNr " + gameNr + "hiScore");
         prefs.remove("gameNr " + gameNr + "bestSnakeEver.fitness");

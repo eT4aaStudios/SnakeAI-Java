@@ -1,5 +1,6 @@
 package com.snake.ai.desktop;
 
+import com.badlogic.gdx.Files;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.snake.ai.main;
@@ -17,6 +18,7 @@ public class DesktopLauncher {
 		cfg.x = cfg.width / 2;
 		cfg.y = cfg.height / 2;
 		cfg.vSyncEnabled = true;
+		cfg.addIcon("ic_launcher.png", Files.FileType.Internal);
 		new LwjglApplication(new main(), cfg);
 	}
 }

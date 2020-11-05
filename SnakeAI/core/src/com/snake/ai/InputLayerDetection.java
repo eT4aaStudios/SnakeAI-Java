@@ -30,8 +30,8 @@ public class InputLayerDetection {
         wandDetectionSchreag();         //(4) 24 Vision
 
         //Todo buggy
-        //directionGoingHead();           //(4) 28 Head Direction
-        //directionGoingTail();           //(4) 32 Tail Direction
+        directionGoingHead();           //(4) 28 Head Direction
+        directionGoingTail();           //(4) 32 Tail Direction
 
         if (enableInputLayerLogging) {
             System.out.println("\nInputLayer Values: ");

@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -40,7 +41,8 @@ public class main extends Game {
 
     public static SpriteBatch batch;
     Stage stage;
-    Button buttonStart;
+    static Button buttonStart;
+    Button buttonGraph;
     TextButton buttonLangsamer;
     TextButton buttonSchneller;
     TextButton buttonMax;
@@ -62,6 +64,9 @@ public class main extends Game {
     static ShapeRenderer shapeRenderer;
     BitmapFont font;
     public static Array<Integer> averageFitnessArray;
+    public static Array<Integer> hiscoreArray;
+    public static boolean graphmode1;
+    private Sprite banner;
 
     public static boolean loadFromSavedSnake, loadBestSnakeEver;
     public static int gameNr;
@@ -80,7 +85,7 @@ public class main extends Game {
     public static int bestSnakesArraySize = 5;
 
     //Neuronales Netzwerk Aussehen
-    static int inputLayerNodes = 24;
+    static int inputLayerNodes = 32;
     static int Layer2Nodes = 20;
     static int Layer3Nodes = 12;
     static int Layer4Nodes = 0;
@@ -120,6 +125,8 @@ public class main extends Game {
         bestSnakesArray = new Array<>();
         averageFitnessArray = new Array<>();
         averageFitnessArray.add(0);
+        hiscoreArray = new Array<>();
+        hiscoreArray.add(0);
         w = Gdx.graphics.getWidth();
         h = Gdx.graphics.getHeight();
         felderarray = new Array<>();
@@ -130,6 +137,9 @@ public class main extends Game {
         shapeRenderer = new ShapeRenderer();
         font = new BitmapFont();
         font.getData().setScale(w / 1100);
+        banner = new Sprite(new Texture("banner.png"));
+        banner.setSize(w / 3.9f,h / 2.23f);
+        banner.setPosition(w / 100,h / 2f);
 
         buttonStart = new Button(new TextureRegionDrawable(new TextureRegion(new Texture("transparent2.png"))));
         buttonStart.setSize(w / 2, h);
@@ -142,6 +152,15 @@ public class main extends Game {
                 } else {
                     freeze = !freeze;
                 }
+            }
+        });
+        buttonGraph = new Button(new TextureRegionDrawable(new TextureRegion(new Texture("transparent2.png"))));
+        buttonGraph.setSize(w / 3.9f, h / 2.23f);
+        buttonGraph.setPosition(w / 100, h / 2f);
+        buttonGraph.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                graphmode1 = !graphmode1;
             }
         });
         buttonLangsamer = new TextButton("Slower", skin);
@@ -204,13 +223,14 @@ public class main extends Game {
                 main.this.setScreen(NodeVis);
                 if (currentScreen) {
                     stage.clear();
+                    stage.addActor(buttonGraph);
                     stage.addActor(buttonStart);
+                    stage.addActor(savedSnakesScreenbutton);
                     stage.addActor(buttonshownodes);
                     stage.addActor(buttonLangsamer);
                     stage.addActor(buttonSchneller);
                     stage.addActor(buttonMax);
                     stage.addActor(buttonreplay);
-                    stage.addActor(savedSnakesScreenbutton);
                 } else {
                     stage.clear();
                     stage.addActor(buttonStart);
@@ -227,16 +247,26 @@ public class main extends Game {
         savedSnakesScreenbutton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (main.this.getScreen() != SavedSnakes)
+                if (main.this.getScreen() != SavedSnakes) {
                     main.this.setScreen(SavedSnakes);
-                else {
+                } else {
                     main.this.setScreen(NodeVis);
                     Gdx.input.setInputProcessor(stage);
+                    currentScreen = false;
+                    stage.clear();
+                    stage.addActor(buttonGraph);
+                    stage.addActor(buttonStart);
                     stage.addActor(savedSnakesScreenbutton);
+                    stage.addActor(buttonshownodes);
+                    stage.addActor(buttonLangsamer);
+                    stage.addActor(buttonSchneller);
+                    stage.addActor(buttonMax);
+                    stage.addActor(buttonreplay);
                 }
             }
         });
 
+        stage.addActor(buttonGraph);
         stage.addActor(buttonStart);
         stage.addActor(savedSnakesScreenbutton);
         stage.addActor(buttonshownodes);
@@ -262,7 +292,7 @@ public class main extends Game {
 
     @Override
     public void render() {
-        Gdx.gl.glClearColor(0.4f, 0.7f, 0.4f, 1);
+        Gdx.gl.glClearColor(0.3f, 0.7f, 0.3f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         super.render();
         shapeRenderer.setColor(Color.BLACK);
@@ -270,17 +300,18 @@ public class main extends Game {
         shapeRenderer.line(w / 2, h, w / 2, 0);
         shapeRenderer.end();
 
-
         drawGame();
 
         if (this.getScreen() != SavedSnakes) {
-            stage.draw();
             if (!currentScreen) {
                 drawFonts();
                 drawGraph();
             }
+            stage.draw();
         }
-
+        batch.begin();
+        font.draw(batch, "Paused: " + freeze, w / 1.12f, h / 1.075f);
+        batch.end();
     }
 
 
@@ -327,7 +358,6 @@ public class main extends Game {
                 double value = currentSnake.layerArray.get(Layernumber).NodeArray.get(NodeLayer1).value;
                 sum += weigth * value;
             }
-
 
             //Node Deren Value geschrieben werden soll
             if (Layernumber == LayerMenge - 2)
@@ -379,50 +409,76 @@ public class main extends Game {
     }
 
     public void drawGraph() {
+        Array<Integer> tmpArray;
+        if (!graphmode1) {
+            tmpArray = new Array<>(hiscoreArray);
+        } else {
+            tmpArray = new Array<>(averageFitnessArray);
+        }
+
+
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(Color.WHITE);
+        shapeRenderer.setColor(Color.GRAY);
+        shapeRenderer.rect(0
+                , h / 2f - w / 100
+                , (w / 100) * 2 + w / 3.9f
+                , (w / 100) * 2 + h / 2.23f);
+        shapeRenderer.setColor(Color.DARK_GRAY);
         shapeRenderer.rect(buttonLangsamer.getX()
-                , h / 2.1f
+                , h / 2f
                 , w / 3.9f
                 , h / 2.23f);
         shapeRenderer.end();
 
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(Color.DARK_GRAY);
-        //X Achse
-        shapeRenderer.line(w / 20
-                , h / 1.85f
-                , w / 4f
-                , h / 1.85f);
-        //Y Achse
-        shapeRenderer.line(w / 20
-                , h / 1.85f
-                , w / 20
-                , h / 1.13f);
-
         batch.begin();
-        font.setColor(Color.DARK_GRAY);
-        if (averageFitnessArray != null && averageFitnessArray.size > 1) {
-            averageFitnessArray.sort();
-            font.getData().setScale(w / 450 / (String.valueOf(averageFitnessArray.get(averageFitnessArray.size - 1)).length()));
-            for (float i = 0; i <= averageFitnessArray.get(averageFitnessArray.size - 1); i += averageFitnessArray.get(averageFitnessArray.size - 1) / 4f) {
-                font.draw(batch, "" + i, w / 80, ((h / 1.13f - h / 1.81f) / averageFitnessArray.get(averageFitnessArray.size - 1)) * i + h / 1.81f);
-            }
-            for (float i = 0; i <= averageFitnessArray.size; i += averageFitnessArray.size / 4f) {
-                font.draw(batch, "" + i, ((w / 4f - w / 20f) / averageFitnessArray.size) * i + w / 25f, h / 1.9f);
+        font.getData().setScale(w / 1100);
+        if (tmpArray.size > 1) {
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(Color.WHITE);
+            //X Achse
+            shapeRenderer.line(w / 20
+                    , h / 1.82f
+                    , w / 4f
+                    , h / 1.82f);
+            //Y Achse
+            shapeRenderer.line(w / 20
+                    , h / 1.82f
+                    , w / 20
+                    , h / 1.08f);
+
+            int highest = 0;
+            for (int i = 0; i < tmpArray.size; i++) {
+                if (tmpArray.get(i) >= tmpArray.get(highest))
+                    highest = i;
             }
 
-            for (float i = 0; i < averageFitnessArray.size - 1; i += averageFitnessArray.size / 4f) {
-                shapeRenderer.line(
-                        ((w / 4f - w / 20f) / averageFitnessArray.size) * i + w / 20f
-                        , averageFitnessArray.get((int) i) + h / 1.81f
-                        , ((w / 4f - w / 20f) / averageFitnessArray.size) * (i + 1) + w / 20f
-                        , averageFitnessArray.get((int) (i)) + h / 1.81f);
+
+            for (int i = 0; i < tmpArray.get(highest) + 1; i++) {
+                if ((i % ((int) ((tmpArray.get(highest) / 5.0)) + 1)) == 0) {
+                    font.draw(batch, "" + i, w / 80, ((h / 1.08f - h / 1.75f) / tmpArray.get(highest)) * i + h / 1.75f);
+                }
             }
+
+            for (int i = 0; i < tmpArray.size; i++) {
+                if (tmpArray.size > 1) {
+                    if ((i % ((int) ((tmpArray.size / 5.0)) + 1)) == 0) {
+                        font.draw(batch, "" + i, ((w / 4f - w / 20f) / tmpArray.size) * i + w / 20, h / 1.85f);
+                    }
+                }
+            }
+
+            for (int i = 0; i < tmpArray.size - 1; i++) {
+                shapeRenderer.line(
+                        ((w / 4f - w / 20f) / tmpArray.size) * i + w / 20f
+                        , ((h / 1.08f - h / 1.82f) / tmpArray.get(highest)) * tmpArray.get(i) + h / 1.82f
+                        , ((w / 4f - w / 20f) / tmpArray.size) * (i + 1) + w / 20f
+                        , ((h / 1.08f - h / 1.82f) / tmpArray.get(highest)) * tmpArray.get(i + 1) + h / 1.82f);
+            }
+        }else{
+            banner.draw(batch);
         }
         batch.end();
         font.getData().setScale(w / 1100);
-        font.setColor(Color.WHITE);
 
         shapeRenderer.end();
     }
@@ -430,25 +486,25 @@ public class main extends Game {
     public void drawFonts() {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(Color.GRAY);
-        shapeRenderer.rect(w / 3.6f
-                , h / 50
-                , w / 4.7f
-                , h / 1.1f);
+        shapeRenderer.rect((w / 3.6f + (w / 4.7f - w / 5.4f) / 2) - w / 100
+                , buttonshownodes.getY() - w / 100
+                , w / 5.4f + (w / 100) * 2
+                , (h / 2f - w / 100 + w / 100 + h / 2.23f) - buttonshownodes.getY() + (w / 100) * 2);
         shapeRenderer.setColor(Color.DARK_GRAY);
         shapeRenderer.rect(w / 3.6f + (w / 4.7f - w / 5.4f) / 2
-                , h / 50 + (h / 1.1f - h / 1.17f) / 2
+                , buttonshownodes.getY()
                 , w / 5.4f
-                , h / 1.17f);
+                , (h / 2f - w / 100 + w / 100 + h / 2.23f) - buttonshownodes.getY());
         shapeRenderer.end();
 
         batch.begin();
-        font.draw(batch, "Paused: " + freeze, w / 1.12f, h / 1.075f);
-
+        font.draw(batch, "Settings", w / 3.35f, h / 1.07f);
+        font.draw(batch, "______________________", w / 3.35f, h / 1.08f);
         font.draw(batch, "Game Nr: " + gameNr, w / 3.35f, h / 1.13f);
         font.draw(batch, "Snake Nr: " + snakeNr, w / 3.35f, h / 1.18f);
         font.draw(batch, "Score: " + score, w / 3.35f, h / 1.23f);
         font.draw(batch, "Population: " + population, w / 3.35f, h / 1.28f);
-        font.setColor(Color.RED);
+        font.setColor(1f, 0.3f, 0.3f, 1);
         font.draw(batch, "Highscore: " + hiScore, w / 3.35f, h / 1.34f);
         font.draw(batch, "Best Fitness Ever: " + bestSnakeEver.bestSnakeEver.fitness, w / 3.35f, h / 1.4f);
         font.setColor(Color.WHITE);
@@ -480,7 +536,10 @@ public class main extends Game {
                 if (i == 0 || j == 0 || i == reihen - 1 || j == spalten - 1) {
                     shapeRenderer.setColor(Color.GRAY);
                 } else {
-                    shapeRenderer.setColor(Color.DARK_GRAY);
+                    if ((i + j) % 2 == 0)
+                        shapeRenderer.setColor(0.2f, 0.2f, 0.2f, 1);
+                    else
+                        shapeRenderer.setColor(0.25f, 0.25f, 0.25f, 1);
                 }
                 shapeRenderer.rect(w / 2 + i * w / 2 / reihen
                         , j * h / spalten
@@ -491,7 +550,7 @@ public class main extends Game {
         //Treats
         if (Snake.treats != null && Snake.treats.size > 0) {
             try {
-                shapeRenderer.setColor(1, 0.3f, 0.3f, 1);
+                shapeRenderer.setColor(1, 1, 1, 1);
                 shapeRenderer.rect(Snake.treats.get(Snake.treats.size - 1).x * w / 2 / reihen + w / 2
                         , (spalten - 1 - Snake.treats.get(Snake.treats.size - 1).y) * h / spalten
                         , w / 2 / reihen
@@ -503,14 +562,23 @@ public class main extends Game {
         //Schlange
         if (Snake.snake != null && Snake.snake.size() > 0)
             for (int i = 0; i < Snake.snake.size(); i++) {
-                if (i == 0)
-                    shapeRenderer.setColor(0.3f, 1, 0.3f, 1);
-                else
-                    shapeRenderer.setColor(0.3f, 0.3f, 1, 1);
-                shapeRenderer.rect(Snake.snake.get(i).x * w / 2 / reihen + w / 2
-                        , (spalten - 1 - Snake.snake.get(i).y) * h / spalten
-                        , w / 2 / reihen
-                        , h / spalten);
+                try {
+                    shapeRenderer.setColor(0.3f, 0.7f, 0.3f, 1);
+                    shapeRenderer.rect(Snake.snake.get(i).x * w / 2 / reihen + w / 2
+                            , (spalten - 1 - Snake.snake.get(i).y) * h / spalten
+                            , w / 2 / reihen
+                            , h / spalten);
+                    if (i == 0) {
+                        shapeRenderer.setColor(1f, 0.3f, 0.3f, 1);
+                        //TODO  Index: 0, Size: 3
+                        shapeRenderer.rect(Snake.snake.get(i).x * w / 2 / reihen + w / 2
+                                , (spalten - 1 - Snake.snake.get(i).y) * h / spalten
+                                , w / 2 / reihen
+                                , h / spalten);
+                    }
+                } catch (Exception ignored) {
+
+                }
             }
         shapeRenderer.end();
     }
