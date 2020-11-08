@@ -58,7 +58,8 @@ public class Snake implements Runnable {
     public static int population;
     public static int snakeNr;
     public static int steps;
-    int Sleep_Time2;
+    long startTime;
+    static long timePerPop;
 
     public Snake() {
         initGrid();
@@ -90,6 +91,9 @@ public class Snake implements Runnable {
             System.out.println("NEW POPULATION (Nr.: " + population + ")");
             System.out.println("_______________________\n");
 
+            timePerPop = System.currentTimeMillis() - startTime;
+
+            startTime = System.currentTimeMillis();
 
             //Umsortierung
             allSnakes allSnakes = new allSnakes();
@@ -210,20 +214,12 @@ public class Snake implements Runnable {
     @Override
     public void run() {
         while (Thread.currentThread() == gameThread) {
-            if (Sleep_Time2 > 0) {
-                try {
-                    Thread.sleep(Sleep_Time2);
-                } catch (InterruptedException e) {
-                    return;
-                }
-                Sleep_Time2 = 0;
-            } else {
+            if (Sleep_Time > 0)
                 try {
                     Thread.sleep(Sleep_Time);
                 } catch (InterruptedException e) {
                     return;
                 }
-            }
             if (!freeze) {
 
                 if (energyUsed() || hitsWall() || hitsSnake()) {
@@ -414,7 +410,7 @@ public class Snake implements Runnable {
                 main.foodpositionX = x;
                 main.foodpositionY = y;
                 Point p = new Point(x, y);
-                if (treats.contains(p,false) || (snake != null && snake.contains(p)))
+                if (treats.contains(p, false) || (snake != null && snake.contains(p)))
                     continue;
                 treats.add(p);
                 break;
@@ -427,6 +423,6 @@ class FitnessComparator implements Comparator<Snakes> {
     @SuppressWarnings("NewApi")
     @Override
     public int compare(Snakes snakes, Snakes t1) {
-        return Integer.compare(t1.fitness, snakes.fitness);
+        return Long.compare(t1.fitness, snakes.fitness);
     }
 }

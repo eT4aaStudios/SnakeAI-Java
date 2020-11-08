@@ -51,7 +51,6 @@ public class Node {
                         );
                     }
                 } else {
-                    //TODO
                     singlePoint(NodeNumber, LayerNumber, parent1, parent2);
                 }
             } else {

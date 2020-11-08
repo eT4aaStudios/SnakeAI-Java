@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -19,6 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 
+import static com.snake.ai.Snake.Sleep_Time;
 import static com.snake.ai.Snake.gameOver;
 import static com.snake.ai.Snake.hiScore;
 import static com.snake.ai.Snake.nCols;
@@ -26,6 +26,7 @@ import static com.snake.ai.Snake.nRows;
 import static com.snake.ai.Snake.population;
 import static com.snake.ai.Snake.score;
 import static com.snake.ai.Snake.snakeNr;
+import static com.snake.ai.Snake.timePerPop;
 
 public class main extends Game {
     //Best :
@@ -66,7 +67,6 @@ public class main extends Game {
     public static Array<Integer> averageFitnessArray;
     public static Array<Integer> hiscoreArray;
     public static boolean graphmode1;
-    private Sprite banner;
 
     public static boolean loadFromSavedSnake, loadBestSnakeEver;
     public static int gameNr;
@@ -137,9 +137,6 @@ public class main extends Game {
         shapeRenderer = new ShapeRenderer();
         font = new BitmapFont();
         font.getData().setScale(w / 1100);
-        banner = new Sprite(new Texture("banner.png"));
-        banner.setSize(w / 3.9f,h / 2.23f);
-        banner.setPosition(w / 100,h / 2f);
 
         buttonStart = new Button(new TextureRegionDrawable(new TextureRegion(new Texture("transparent2.png"))));
         buttonStart.setSize(w / 2, h);
@@ -170,7 +167,7 @@ public class main extends Game {
         buttonLangsamer.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Snake.Sleep_Time += 40;
+                Sleep_Time += 40;
             }
         });
         buttonSchneller = new TextButton("Faster", skin);
@@ -180,8 +177,8 @@ public class main extends Game {
         buttonSchneller.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (Snake.Sleep_Time > 30)
-                    Snake.Sleep_Time -= 30;
+                if (Sleep_Time > 30)
+                    Sleep_Time -= 30;
             }
         });
         buttonMax = new TextButton("Max Speed", skin);
@@ -191,7 +188,7 @@ public class main extends Game {
         buttonMax.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Snake.Sleep_Time = 1;
+                Sleep_Time = 0;
             }
         });
         buttonreplay = new TextButton(" Replay Best Snake\n(Active: " + replay + ")", skin);
@@ -474,8 +471,6 @@ public class main extends Game {
                         , ((w / 4f - w / 20f) / tmpArray.size) * (i + 1) + w / 20f
                         , ((h / 1.08f - h / 1.82f) / tmpArray.get(highest)) * tmpArray.get(i + 1) + h / 1.82f);
             }
-        }else{
-            banner.draw(batch);
         }
         batch.end();
         font.getData().setScale(w / 1100);
@@ -509,22 +504,24 @@ public class main extends Game {
         font.draw(batch, "Best Fitness Ever: " + bestSnakeEver.bestSnakeEver.fitness, w / 3.35f, h / 1.4f);
         font.setColor(Color.WHITE);
         font.draw(batch, "______________________", w / 3.35f, h / 1.45f);
-        font.draw(batch, "Bias: " + bias, w / 3.35f, h / 1.55f);
-        font.draw(batch, "Output Bias: " + biasOutput, w / 3.35f, h / 1.63f);
+        font.draw(batch, "Bias: " + (float) bias, w / 3.35f, h / 1.55f);
+        font.draw(batch, "Output Bias: " + (float) biasOutput, w / 3.35f, h / 1.63f);
         font.draw(batch, "Input Layer Nodes: " + inputLayerNodes, w / 3.35f, h / 1.72f);
         font.draw(batch, "Layer 2 Nodes: " + Layer2Nodes, w / 3.35f, h / 1.82f);
         font.draw(batch, "Layer 3 Nodes: " + Layer3Nodes, w / 3.35f, h / 1.93f);
         font.draw(batch, "Layer 4 Nodes: " + Layer4Nodes, w / 3.35f, h / 2.05f);
         font.draw(batch, "Output Layer Nodes: " + outputLayerNodes, w / 3.35f, h / 2.18f);
         font.draw(batch, "______________________", w / 3.35f, h / 2.34f);
-        font.draw(batch, "Mutation Probability: " + mutationPropability, w / 3.35f, h / 2.55f);
-        font.draw(batch, "Mutation Min: " + mutationMin, w / 3.35f, h / 2.8f);
-        font.draw(batch, "Mutation Max: " + mutationMax, w / 3.35f, h / 3.1f);
+        font.draw(batch, "Mutation Probability: " + (float) mutationPropability, w / 3.35f, h / 2.55f);
+        font.draw(batch, "Mutation Min: " + (float) mutationMin, w / 3.35f, h / 2.8f);
+        font.draw(batch, "Mutation Max: " + (float) mutationMax, w / 3.35f, h / 3.1f);
         font.draw(batch, "Population Size: " + POPULATIONSIZE, w / 3.35f, h / 3.4f);
         font.draw(batch, "First Population Size: " + FIRSTPOPULATIONSIZE, w / 3.35f, h / 3.8f);
         font.draw(batch, "______________________", w / 3.35f, h / 4.5f);
         font.draw(batch, "Rows: " + reihen, w / 3.35f, h / 5.5f);
         font.draw(batch, "Columns: " + spalten, w / 3.35f, h / 6.5f);
+        font.draw(batch, "______________________", w / 3.35f, h / 7.5f);
+        font.draw(batch, "Time Per Population: " + timePerPop, w / 3.35f, h / 12f);
         batch.end();
     }
 
@@ -570,7 +567,6 @@ public class main extends Game {
                             , h / spalten);
                     if (i == 0) {
                         shapeRenderer.setColor(1f, 0.3f, 0.3f, 1);
-                        //TODO  Index: 0, Size: 3
                         shapeRenderer.rect(Snake.snake.get(i).x * w / 2 / reihen + w / 2
                                 , (spalten - 1 - Snake.snake.get(i).y) * h / spalten
                                 , w / 2 / reihen

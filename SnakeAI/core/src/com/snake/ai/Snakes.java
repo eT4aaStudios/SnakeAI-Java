@@ -16,7 +16,7 @@ public class Snakes {
 
     protected Array<Layer> layerArray;
     protected int score;
-    protected int fitness;
+    protected long fitness;
     protected Snakes parent1Snake, parent2Snake;
 
     public Snakes() {
@@ -85,11 +85,6 @@ public class Snakes {
     public void selectParents2() {
         //Parent 1
         int maxFitness = 0;
-        for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
-            maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
-        }
-
-        maxFitness = 0;
         for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
             maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
         }

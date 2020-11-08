@@ -41,8 +41,8 @@ public class NodeVis implements Screen {
                                 Gdx.gl20.glLineWidth(currentSnake.layerArray.get(Layer).NodeArray.get(Node).WeigthArray.get(Weight).floatValue() * -1);
                             }
 
-                            shapeRenderer.line(Layer * (w / 2 / 3.4f) + (w / 2 / 50), h / 2 + currentSnake.layerArray.get(Layer).NodeArray.size * h / 56f - Node * h / 28f,
-                                    (Layer + 1) * (w / 2 / 3.4f) + (w / 2 / 50), h / 2 + currentSnake.layerArray.get(Layer + 1).NodeArray.size * h / 56f - Weight * h / 28f);
+                            shapeRenderer.line(Layer * (w / 2 / 3.4f) + (w / 2 / 50), h / 2.6f + currentSnake.layerArray.get(Layer).NodeArray.size * h / 56f - Node * h / 37f,
+                                    (Layer + 1) * (w / 2 / 3.4f) + (w / 2 / 50), h / 2.6f + currentSnake.layerArray.get(Layer + 1).NodeArray.size * h / 56f - Weight * h / 37f);
                         }
                     }
                 }
@@ -52,7 +52,7 @@ public class NodeVis implements Screen {
                 for (int Layer = 0; Layer < currentSnake.layerArray.size; Layer++) {
                     for (int Node = 0; Node < currentSnake.layerArray.get(Layer).NodeArray.size; Node++) {
                         shapeRenderer.setColor(Color.BLACK);
-                        shapeRenderer.circle(Layer * (w / 2 / 3.4f) + (w / 2 / 50), h / 2 + currentSnake.layerArray.get(Layer).NodeArray.size * h / 56f - Node * h / 28f, w / 135);
+                        shapeRenderer.circle(Layer * (w / 2 / 3.4f) + (w / 2 / 50), h / 2.6f + currentSnake.layerArray.get(Layer).NodeArray.size * h / 56f - Node * h / 37f, w / 170);
                         if (Layer == 0) {
                             float value = (float) (currentSnake.layerArray.get(0).NodeArray.get(Node).value);
                             shapeRenderer.setColor(value * 3, value / 1.2f, value / 1.2f, 1f);
@@ -66,7 +66,7 @@ public class NodeVis implements Screen {
                             float value = (float) (currentSnake.layerArray.get(0).NodeArray.get(Node).value);
                             shapeRenderer.setColor(value / 1.2f, value / 1.2f, value * 3, 1f);
                         }
-                        shapeRenderer.circle(Layer * (w / 2 / 3.4f) + (w / 2 / 50), h / 2 + currentSnake.layerArray.get(Layer).NodeArray.size * h / 56f - Node * h / 28f, w / 180);
+                        shapeRenderer.circle(Layer * (w / 2 / 3.4f) + (w / 2 / 50), h / 2.6f + currentSnake.layerArray.get(Layer).NodeArray.size * h / 56f - Node * h / 37f, w / 220);
                     }
                 }
                 shapeRenderer.end();

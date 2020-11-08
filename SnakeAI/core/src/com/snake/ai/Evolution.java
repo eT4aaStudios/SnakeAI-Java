@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input;
 import java.util.Random;
 
 import static com.snake.ai.Snake.population;
+import static com.snake.ai.main.hiscoreArray;
 import static com.snake.ai.main.mutationMax;
 import static com.snake.ai.main.mutationMin;
 import static com.snake.ai.main.mutationPropability;
@@ -17,10 +18,6 @@ public class Evolution {
 
     public int FitnessFuntction2(int steps, int score) {
         return steps;
-    }
-
-    public int FitnessFuntction3(int steps, int score) {
-        return (int) (steps * 5d / (population + 1) + (score * population / 3d + 1));
     }
 
     public int FitnessFuntction4(int steps, int score) {
@@ -104,14 +101,17 @@ public class Evolution {
     public double mutation3(int connectedTolayerNumber, int NodeNumber, int WeigthNumber, Snakes parent1, Snakes parent2, int weigthNr) {
         double weigth1 = parent1.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
 
+        mutationMax = Math.pow(0.93,hiscoreArray.get(population));
+        mutationMin = -mutationMax;
+
         double mutationAmount = mutationMin + Math.random() * (mutationMax - mutationMin);
-        //TODO
         //mutationAmount = Math.pow(0.98d, hiScore + 30);
         if(Gdx.input.isKeyJustPressed(Input.Keys.M)) {
             System.out.println(mutationAmount);
         }
 
         Random r = new Random();
+        mutationPropability = Math.pow(0.93,hiscoreArray.get(population) - 30);
         if (r.nextInt(100) < mutationPropability) {
             //With Mutation
             if (weigth1 + mutationAmount > -1 && weigth1 + mutationAmount < 1)
