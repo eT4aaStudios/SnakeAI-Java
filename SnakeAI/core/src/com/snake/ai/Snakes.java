@@ -16,7 +16,7 @@ public class Snakes {
 
     protected Array<Layer> layerArray;
     protected int score;
-    protected long fitness;
+    protected int fitness;
     protected Snakes parent1Snake, parent2Snake;
 
     public Snakes() {
@@ -90,13 +90,8 @@ public class Snakes {
         }
 
         Random r = new Random();
-        int choosenId = 0;
-        try {
-            choosenId = r.nextInt(maxFitness);
-        } catch (Exception e) {
-            choosenId = 1;
-            System.out.println("Error Snakes Line: choosenId = r.nextInt(maxFitness);");
-        }
+        int choosenId = r.nextInt(maxFitness);
+
 
         int zahlZumChecken = 0;
         for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
@@ -115,12 +110,8 @@ public class Snakes {
         }
 
         r = new Random();
-        try {
-            choosenId = r.nextInt(maxFitness);
-        } catch (Exception e) {
-            choosenId = 2;
-            System.out.println("Error Snakes Line: choosenId = r.nextInt(maxFitness);");
-        }
+        choosenId = r.nextInt(maxFitness);
+
 
         zahlZumChecken = 0;
         for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {

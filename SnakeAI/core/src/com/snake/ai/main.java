@@ -21,8 +21,6 @@ import com.badlogic.gdx.utils.Array;
 import static com.snake.ai.Snake.Sleep_Time;
 import static com.snake.ai.Snake.gameOver;
 import static com.snake.ai.Snake.hiScore;
-import static com.snake.ai.Snake.nCols;
-import static com.snake.ai.Snake.nRows;
 import static com.snake.ai.Snake.population;
 import static com.snake.ai.Snake.score;
 import static com.snake.ai.Snake.snakeNr;
@@ -85,7 +83,7 @@ public class main extends Game {
     public static int bestSnakesArraySize = 5;
 
     //Neuronales Netzwerk Aussehen
-    static int inputLayerNodes = 32;
+    static int inputLayerNodes = 24;
     static int Layer2Nodes = 20;
     static int Layer3Nodes = 12;
     static int Layer4Nodes = 0;
@@ -102,8 +100,8 @@ public class main extends Game {
     public static int POPULATIONSIZE = 500;
     public static int FIRSTPOPULATIONSIZE = 500;
 
-    public static int reihen = nCols;
-    public static int spalten = nRows;
+    public static int reihen = 22;
+    public static int spalten = 22;
 
     Snake snake = new Snake();
 

@@ -19,8 +19,10 @@ import static com.snake.ai.main.enableOutputLayerLogging;
 import static com.snake.ai.main.freeze;
 import static com.snake.ai.main.hiscoreArray;
 import static com.snake.ai.main.loadFromSavedSnake;
+import static com.snake.ai.main.reihen;
 import static com.snake.ai.main.replay;
 import static com.snake.ai.main.requestReplayStop;
+import static com.snake.ai.main.spalten;
 
 public class Snake implements Runnable {
     enum Dir {
@@ -51,8 +53,6 @@ public class Snake implements Runnable {
     static List<Point> snake;
     static Array<Point> treats;
 
-    static int nCols = 22;
-    static int nRows = nCols;
     static int Sleep_Time = 85;
 
     public static int population;
@@ -76,7 +76,7 @@ public class Snake implements Runnable {
 
         bestSnakeEver.directionTmpArray.clear();
 
-        energy = 150;
+        energy = 150 + score * 2;
 
         if (score > hiScore) {
             hiScore = score;
@@ -168,22 +168,22 @@ public class Snake implements Runnable {
             case up:
                 NodeVis.highest = 0;
                 for (int x = 0; x < startlength; x++)
-                    snake.add(new Point(nCols / 2 + x, nRows / 2));
+                    snake.add(new Point(reihen / 2 + x, spalten / 2));
                 break;
             case down:
                 NodeVis.highest = 1;
                 for (int x = startlength; x > 0; x--)
-                    snake.add(new Point(nCols / 2 + x, nRows / 2));
+                    snake.add(new Point(reihen / 2 + x, spalten / 2));
                 break;
             case left:
                 NodeVis.highest = 2;
                 for (int x = 0; x < startlength; x++)
-                    snake.add(new Point(nCols / 2, nRows / 2 + x));
+                    snake.add(new Point(reihen / 2, spalten / 2 + x));
                 break;
             case right:
                 NodeVis.highest = 3;
                 for (int x = startlength; x > 0; x--)
-                    snake.add(new Point(nCols / 2, nRows / 2 + x));
+                    snake.add(new Point(reihen / 2, spalten / 2 + x));
                 break;
         }
         startDir = dir;
@@ -202,10 +202,10 @@ public class Snake implements Runnable {
     }
 
     void initGrid() {
-        grid = new int[nRows][nCols];
-        for (int r = 0; r < nRows; r++) {
-            for (int c = 0; c < nCols; c++) {
-                if (c == 0 || c == nCols - 1 || r == 0 || r == nRows - 1)
+        grid = new int[spalten][reihen];
+        for (int r = 0; r < spalten; r++) {
+            for (int c = 0; c < reihen; c++) {
+                if (c == 0 || c == reihen - 1 || r == 0 || r == spalten - 1)
                     grid[r][c] = WALL;
             }
         }
@@ -227,7 +227,7 @@ public class Snake implements Runnable {
                 } else {
                     if (eatsTreat()) {
                         score++;
-                        energy = 150;
+                        energy = 150 + score * 2;
                         growSnake();
                     }
                     moveSnake();
@@ -403,8 +403,8 @@ public class Snake implements Runnable {
         } else {
             int x, y;
             while (true) {
-                x = rand.nextInt(nCols - 2) + 1;
-                y = rand.nextInt(nRows - 2) + 1;
+                x = rand.nextInt(reihen - 2) + 1;
+                y = rand.nextInt(spalten - 2) + 1;
                 if (grid[y][x] != 0)
                     continue;
                 main.foodpositionX = x;
@@ -423,6 +423,6 @@ class FitnessComparator implements Comparator<Snakes> {
     @SuppressWarnings("NewApi")
     @Override
     public int compare(Snakes snakes, Snakes t1) {
-        return Long.compare(t1.fitness, snakes.fitness);
+        return Integer.compare(t1.fitness, snakes.fitness);
     }
 }

@@ -1,8 +1,5 @@
 package com.snake.ai;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-
 import java.util.Random;
 
 import static com.snake.ai.Snake.population;
@@ -13,15 +10,11 @@ import static com.snake.ai.main.mutationPropability;
 
 public class Evolution {
     public int FitnessFuntction(int steps, int score) {
-        return (int) (steps + (Math.pow(2d, score) + Math.pow(score, 2.1d) * 500) - (Math.pow(score, 1.2d) * Math.pow((0.25d * steps), 1.3d)));
+        return (int) (steps + (Math.pow(1.1d, score) + Math.pow(score, 2.1d) * 500) - (Math.pow(score, 1.2d) * Math.pow((0.25d * steps), 1.3d)));
     }
 
     public int FitnessFuntction2(int steps, int score) {
-        return steps;
-    }
-
-    public int FitnessFuntction4(int steps, int score) {
-        return (int) (0.001d * (steps * steps));
+        return (int) (steps + 0.8d * Math.pow(score,6d));
     }
 
     //Crossover
@@ -99,19 +92,21 @@ public class Evolution {
 
     //Normal mutation
     public double mutation3(int connectedTolayerNumber, int NodeNumber, int WeigthNumber, Snakes parent1, Snakes parent2, int weigthNr) {
-        double weigth1 = parent1.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
+        double weigth1 = 0;
+        try {
+            weigth1 = parent1.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
+        }catch (Exception ignored) {
 
-        mutationMax = Math.pow(0.93,hiscoreArray.get(population));
+        }
+
+        mutationMax = Math.pow(0.97,hiscoreArray.get(population));
         mutationMin = -mutationMax;
 
         double mutationAmount = mutationMin + Math.random() * (mutationMax - mutationMin);
-        //mutationAmount = Math.pow(0.98d, hiScore + 30);
-        if(Gdx.input.isKeyJustPressed(Input.Keys.M)) {
-            System.out.println(mutationAmount);
-        }
 
         Random r = new Random();
         mutationPropability = Math.pow(0.93,hiscoreArray.get(population) - 30);
+        //mutationPropability = Math.pow(0.995,hiscoreArray.get(population) - 400);
         if (r.nextInt(100) < mutationPropability) {
             //With Mutation
             if (weigth1 + mutationAmount > -1 && weigth1 + mutationAmount < 1)

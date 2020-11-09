@@ -269,7 +269,7 @@ public class SavedSnakes implements Screen {
         }
         prefs.putFloat("gameNr " + gameNr + "average Fitness", maxFitness / POPULATIONSIZE);
         prefs.putInteger("gameNr " + gameNr + "hiScore", hiScore);
-        prefs.putLong("gameNr " + gameNr + "bestSnakeEver.fitness", bestSnakeEver.bestSnakeEver.fitness);
+        prefs.putInteger("gameNr " + gameNr + "bestSnakeEver.fitness", bestSnakeEver.bestSnakeEver.fitness);
         prefs.putInteger("gameNr " + gameNr + "population", population);
 
         //Neuronales Netzwerk Eigenschaften
@@ -364,7 +364,7 @@ public class SavedSnakes implements Screen {
         loadBestSnakeEver = true;
         currentSnake = new Snakes();
         bestSnakeEver.bestSnakeEver = currentSnake;
-        bestSnakeEver.bestSnakeEver.fitness = prefs.getLong("gameNr " + gameNr + "bestSnakeEver.fitness");
+        bestSnakeEver.bestSnakeEver.fitness = prefs.getInteger("gameNr " + gameNr + "bestSnakeEver.fitness");
 
         int dirX = prefs.getInteger("gameNr " + gameNr + "dirX");
         int dirY = prefs.getInteger("gameNr " + gameNr + "dirY");
