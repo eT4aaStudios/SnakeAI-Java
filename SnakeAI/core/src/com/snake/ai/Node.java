@@ -13,8 +13,8 @@ import static com.snake.ai.main.loadBestSnakeEver;
 import static com.snake.ai.main.loadFromSavedSnake;
 
 public class Node {
-    public Array<Double> WeigthArray;
-    public double value;
+    public Array<Float> WeigthArray;
+    public float value;
     Evolution evo;
 
     public Node(int NodeNumber, int LayerNumber, boolean populationGreaterZero, Snakes parent1, Snakes parent2) {
@@ -33,7 +33,7 @@ public class Node {
                 if (loadBestSnakeEver) {
                     for (int m = 0; m < layerNodeValueArray.get(LayerNumber + 1); m++) {
                         WeigthArray.add(
-                                (double) prefs.getFloat("gameNr " + gameNr +
+                                prefs.getFloat("gameNr " + gameNr +
                                         " bestSnakeEver.bestSnakeEver " +
                                         " LayerNr " + LayerNumber +
                                         " NodeNr " + NodeNumber +
@@ -43,7 +43,7 @@ public class Node {
                 } else if (loadFromSavedSnake) {
                     for (int m = 0; m < layerNodeValueArray.get(LayerNumber + 1); m++) {
                         WeigthArray.add(
-                                (double) prefs.getFloat("gameNr " + gameNr +
+                                prefs.getFloat("gameNr " + gameNr +
                                         " SnakeNr " + SnakeNr +
                                         " LayerNr " + LayerNumber +
                                         " NodeNr " + NodeNumber +
@@ -55,7 +55,7 @@ public class Node {
                 }
             } else {
                 for (int i = 0; i < layerNodeValueArray.get(LayerNumber + 1); i++) {
-                    WeigthArray.add(-1d + Math.random() * (1d - -1d));
+                    WeigthArray.add((float) (-1f + Math.random() * (1f - -1f)));
                 }
             }
         }

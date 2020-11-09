@@ -39,7 +39,7 @@ public class Snakes {
     //Out of the Best
     public void selectParents() {
         Array<Snakes> tempArray = new Array<>(bestSnakesArray);
-        double max = 1;
+        float max = 1;
         for (int i = 0; i < tempArray.size; i++) {
             max += tempArray.get(i).fitness;
         }

@@ -18,9 +18,9 @@ public class Evolution {
     }
 
     //Crossover
-    public double mutation1(int connectedTolayerNumber, int NodeNumber, int WeigthNumber, Snakes parent1, Snakes parent2) {
-        double weigth1 = parent1.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
-        double weigth2 = parent2.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
+    public float mutation1(int connectedTolayerNumber, int NodeNumber, int WeigthNumber, Snakes parent1, Snakes parent2) {
+        float weigth1 = parent1.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
+        float weigth2 = parent2.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
 
         if (Math.random() * (1) == 0) {
             return weigth1;
@@ -30,11 +30,11 @@ public class Evolution {
     }
 
     //Crossover
-    public double mutation1_2(int connectedTolayerNumber, int NodeNumber, int WeigthNumber, Snakes parent1, Snakes parent2, int weigthNr) {
-        double weigth1 = parent1.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
-        double weigth2 = parent2.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
+    public float mutation1_2(int connectedTolayerNumber, int NodeNumber, int WeigthNumber, Snakes parent1, Snakes parent2, int weigthNr) {
+        float weigth1 = parent1.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
+        float weigth2 = parent2.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
 
-        double mutationAmount = mutationMin + Math.random() * (mutationMax - mutationMin);
+        float mutationAmount = (float) (mutationMin + Math.random() * (mutationMax - mutationMin));
         if (weigthNr == 1) {
             return weigth1 + mutationAmount;
         } else {
@@ -43,11 +43,11 @@ public class Evolution {
     }
 
     //Crossover with mutation
-    public double mutation2(int connectedTolayerNumber, int NodeNumber, int WeigthNumber, Snakes parent1, Snakes parent2) {
-        double weigth1 = parent1.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
-        double weigth2 = parent2.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
+    public float mutation2(int connectedTolayerNumber, int NodeNumber, int WeigthNumber, Snakes parent1, Snakes parent2) {
+        float weigth1 = parent1.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
+        float weigth2 = parent2.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
 
-        double mutationAmount = mutationMin + Math.random() * (mutationMax - mutationMin);
+        float mutationAmount = (float) (mutationMin + Math.random() * (mutationMax - mutationMin));
         if (Math.random() * (1) == 0) {
             return weigth1 + mutationAmount;
         } else {
@@ -56,11 +56,11 @@ public class Evolution {
     }
 
     //Crossover with mutation
-    public double mutation2_2(int connectedTolayerNumber, int NodeNumber, int WeigthNumber, Snakes parent1, Snakes parent2, int weigthNr) {
-        double weigth1 = parent1.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
-        double weigth2 = parent2.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
+    public float mutation2_2(int connectedTolayerNumber, int NodeNumber, int WeigthNumber, Snakes parent1, Snakes parent2, int weigthNr) {
+        float weigth1 = parent1.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
+        float weigth2 = parent2.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
 
-        double mutationAmount = mutationMin + Math.random() * (mutationMax - mutationMin);
+        float mutationAmount = (float) (mutationMin + Math.random() * (mutationMax - mutationMin));
         Random r = new Random();
 
         if (r.nextInt(100) < mutationPropability) {
@@ -91,21 +91,21 @@ public class Evolution {
     }
 
     //Normal mutation
-    public double mutation3(int connectedTolayerNumber, int NodeNumber, int WeigthNumber, Snakes parent1, Snakes parent2, int weigthNr) {
-        double weigth1 = 0;
+    public float mutation3(int connectedTolayerNumber, int NodeNumber, int WeigthNumber, Snakes parent1, Snakes parent2, int weigthNr) {
+        float weigth1 = 0;
         try {
             weigth1 = parent1.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
         }catch (Exception ignored) {
 
         }
 
-        mutationMax = Math.pow(0.97,hiscoreArray.get(population));
+        mutationMax = (float) Math.pow(0.97,hiscoreArray.get(population));
         mutationMin = -mutationMax;
 
-        double mutationAmount = mutationMin + Math.random() * (mutationMax - mutationMin);
+        float mutationAmount = (float) (mutationMin + Math.random() * (mutationMax - mutationMin));
 
         Random r = new Random();
-        mutationPropability = Math.pow(0.93,hiscoreArray.get(population) - 30);
+        mutationPropability = (float) Math.pow(0.93,hiscoreArray.get(population) - 30);
         //mutationPropability = Math.pow(0.995,hiscoreArray.get(population) - 400);
         if (r.nextInt(100) < mutationPropability) {
             //With Mutation

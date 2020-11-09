@@ -267,7 +267,7 @@ public class Snake implements Runnable {
             System.out.println("\n");
         }
 
-        double highest = 0;
+        float highest = 0;
         int id = 0;
         for (int i = 0; i < currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.size; i++) {
             if (currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(i).value > highest) {

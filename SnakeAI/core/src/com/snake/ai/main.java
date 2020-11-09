@@ -74,12 +74,12 @@ public class main extends Game {
     public static BestSnakeEver bestSnakeEver = new BestSnakeEver();
 
     //Neuronales Netzwerk Eigenschaften
-    public static double bias = 0d;
-    public static double biasOutput = -0.4;
+    public static float bias = 0f;
+    public static float biasOutput = -0.4f;
 
-    public static double mutationPropability = 3;//%
-    public static double mutationMin = -0.5f;
-    public static double mutationMax = 0.5f;
+    public static float mutationPropability = 3;//%
+    public static float mutationMin = -0.5f;
+    public static float mutationMax = 0.5f;
     public static int bestSnakesArraySize = 5;
 
     //Neuronales Netzwerk Aussehen
@@ -345,12 +345,12 @@ public class main extends Game {
 
     public void berechneLayer(int Layernumber) {
         for (int NodeLayer2 = 0; NodeLayer2 < currentSnake.layerArray.get(Layernumber + 1).NodeArray.size; NodeLayer2++) {
-            double sum = 0;
+            float sum = 0;
             for (int NodeLayer1 = 0; NodeLayer1 < currentSnake.layerArray.get(Layernumber).NodeArray.size; NodeLayer1++) {
                 //weigth
-                double weigth = currentSnake.layerArray.get(Layernumber).NodeArray.get(NodeLayer1).WeigthArray.get(NodeLayer2);
+                float weigth = currentSnake.layerArray.get(Layernumber).NodeArray.get(NodeLayer1).WeigthArray.get(NodeLayer2);
                 //value
-                double value = currentSnake.layerArray.get(Layernumber).NodeArray.get(NodeLayer1).value;
+                float value = currentSnake.layerArray.get(Layernumber).NodeArray.get(NodeLayer1).value;
                 sum += weigth * value;
             }
 
@@ -363,11 +363,11 @@ public class main extends Game {
         }
     }
 
-    public double activationFunction(double x) {
+    public float activationFunction(float x) {
         x += bias;
 
         //Sigmoid
-        return 1 / (1 + Math.exp(-x));
+        return (float) (1 / (1 + Math.exp(-x)));
 
         //Tanh
         //return Math.tanh(x);
@@ -383,7 +383,7 @@ public class main extends Game {
         //}
     }
 
-    public double outputActivationFunction(double x) {
+    public float outputActivationFunction(float x) {
         x += biasOutput;
 
         //Sigmoid
