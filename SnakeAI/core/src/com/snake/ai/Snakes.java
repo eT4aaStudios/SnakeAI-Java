@@ -21,7 +21,6 @@ public class Snakes {
 
     public Snakes() {
         if (population > 0 && !loadFromSavedSnake && !loadBestSnakeEver) {
-            //TODO
             selectParents2();
         }
         layerArray = new Array<>();
@@ -91,7 +90,6 @@ public class Snakes {
 
         Random r = new Random();
         int choosenId = r.nextInt(maxFitness);
-
 
         int zahlZumChecken = 0;
         for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {

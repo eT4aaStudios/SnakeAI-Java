@@ -1,6 +1,7 @@
 package com.snake.ai;
 
 import static com.snake.ai.Snake.snake;
+import static com.snake.ai.Snake.startlength;
 import static com.snake.ai.main.SnakeHeadX;
 import static com.snake.ai.main.SnakeHeadY;
 import static com.snake.ai.main.currentSnake;
@@ -27,11 +28,13 @@ public class InputLayerDetection {
         foodDetectionGerade();          //(4) 12 Vision
         foodDetectionSchraeg();         //(4) 16 Vision
         wandDetectionGerade();          //(4) 20 Vision
-        wandDetectionSchreag();         //(4) 24 Visionx
+        wandDetectionSchreag();         //(4) 24 Vision
+        length();         //(1) 25 Vision
 
-        if (currentSnake.layerArray.get(0).NodeArray.size > 24) {
-            directionGoingHead();           //(4) 28 Head Direction
-            directionGoingTail();           //(4) 32 Tail Direction
+
+        if (currentSnake.layerArray.get(0).NodeArray.size > 25) {
+            directionGoingHead();           //(4) 29 Head Direction
+            directionGoingTail();           //(4) 33 Tail Direction
         }
 
         if (enableInputLayerLogging) {
@@ -278,19 +281,24 @@ public class InputLayerDetection {
         }
     }
 
+    public void length(){
+        float maxLength = (reihen - 2) * (spalten - 2) - startlength;
+        currentSnake.layerArray.get(0).NodeArray.get(24).value = snake.size() / maxLength;
+    }
+
     public void directionGoingHead() {
         switch (Snake.dir) {
             case up:
-                currentSnake.layerArray.get(0).NodeArray.get(24).value = 1;
-                break;
-            case down:
                 currentSnake.layerArray.get(0).NodeArray.get(25).value = 1;
                 break;
-            case right:
+            case down:
                 currentSnake.layerArray.get(0).NodeArray.get(26).value = 1;
                 break;
-            case left:
+            case right:
                 currentSnake.layerArray.get(0).NodeArray.get(27).value = 1;
+                break;
+            case left:
+                currentSnake.layerArray.get(0).NodeArray.get(28).value = 1;
                 break;
 
         }
@@ -304,19 +312,19 @@ public class InputLayerDetection {
 
         if (x == 0 && y == -1) {
             //Tail going up
-            currentSnake.layerArray.get(0).NodeArray.get(28).value = 1;
+            currentSnake.layerArray.get(0).NodeArray.get(29).value = 1;
         }
         if (x == 0 && y == 1) {
             //Tail going down
-            currentSnake.layerArray.get(0).NodeArray.get(29).value = 1;
+            currentSnake.layerArray.get(0).NodeArray.get(30).value = 1;
         }
         if (x == 1 && y == 0) {
             //Tail going right
-            currentSnake.layerArray.get(0).NodeArray.get(30).value = 1;
+            currentSnake.layerArray.get(0).NodeArray.get(31).value = 1;
         }
         if (x == -1 && y == 0) {
             //Tail going left
-            currentSnake.layerArray.get(0).NodeArray.get(31).value = 1;
+            currentSnake.layerArray.get(0).NodeArray.get(32).value = 1;
         }
     }
 }

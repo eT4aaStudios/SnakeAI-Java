@@ -65,9 +65,10 @@ public class main extends Game {
     public static Array<Integer> averageFitnessArray;
     public static Array<Integer> hiscoreArray;
     public static boolean graphmode1;
+    public static int populationsSinceLastSave;
 
     public static boolean loadFromSavedSnake, loadBestSnakeEver;
-    public static int gameNr;
+    public static int gameNr = -1;
     public static int SnakeNr;
     public static boolean replay, requestReplayStop;
 
@@ -83,7 +84,7 @@ public class main extends Game {
     public static int bestSnakesArraySize = 5;
 
     //Neuronales Netzwerk Aussehen
-    static int inputLayerNodes = 24;
+    static int inputLayerNodes = 25;
     static int Layer2Nodes = 20;
     static int Layer3Nodes = 12;
     static int Layer4Nodes = 0;

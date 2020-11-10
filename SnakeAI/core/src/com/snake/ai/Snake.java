@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
+import static com.snake.ai.SavedSnakes.prefs;
 import static com.snake.ai.main.FIRSTPOPULATIONSIZE;
 import static com.snake.ai.main.POPULATIONSIZE;
 import static com.snake.ai.main.allSnakesArrays;
@@ -17,8 +18,10 @@ import static com.snake.ai.main.bestSnakesArraySize;
 import static com.snake.ai.main.currentSnake;
 import static com.snake.ai.main.enableOutputLayerLogging;
 import static com.snake.ai.main.freeze;
+import static com.snake.ai.main.gameNr;
 import static com.snake.ai.main.hiscoreArray;
 import static com.snake.ai.main.loadFromSavedSnake;
+import static com.snake.ai.main.populationsSinceLastSave;
 import static com.snake.ai.main.reihen;
 import static com.snake.ai.main.replay;
 import static com.snake.ai.main.requestReplayStop;
@@ -92,7 +95,6 @@ public class Snake implements Runnable {
             System.out.println("_______________________\n");
 
             timePerPop = System.currentTimeMillis() - startTime;
-
             startTime = System.currentTimeMillis();
 
             //Umsortierung
@@ -134,6 +136,16 @@ public class Snake implements Runnable {
                 System.out.println("Nr.:" + i + " Snake Fitness: " + bestSnakesArray.get(i).fitness + " Score: " + bestSnakesArray.get(i).score);
             }
             snakeNr = 0;
+
+            if (populationsSinceLastSave == 499) {
+                SavedSnakes savedSnakes = new SavedSnakes();
+                savedSnakes.saveCurrentSnake(true);
+                if (gameNr > -1)
+                    savedSnakes.delete(gameNr);
+                gameNr = prefs.getInteger("GameMenge");
+                populationsSinceLastSave = 0;
+            } else
+                populationsSinceLastSave++;
         }
 
         if (!replay) {
