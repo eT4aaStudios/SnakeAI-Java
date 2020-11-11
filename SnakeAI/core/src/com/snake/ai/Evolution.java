@@ -99,16 +99,13 @@ public class Evolution {
 
         }
 
-        //mutationMax = (float) Math.pow(0.97,hiscoreArray.get(population));
-        mutationMax = (float) Math.pow(0.992,hiscoreArray.get(population));
-        mutationMax = 0.1f;
+        mutationMax = (float) Math.pow(0.97,hiscoreArray.get(population));
         mutationMin = -mutationMax;
 
         float mutationAmount = (float) (mutationMin + Math.random() * (mutationMax - mutationMin));
 
         Random r = new Random();
-        mutationPropability = (float) Math.pow(0.93,hiscoreArray.get(population) - 30) +0.5f;
-        mutationPropability = 5;
+        mutationPropability = (float) Math.pow(0.93,hiscoreArray.get(population) - 30);
 
         if (r.nextInt(100) < mutationPropability) {
             //With Mutation

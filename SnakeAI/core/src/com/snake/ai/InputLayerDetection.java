@@ -38,6 +38,9 @@ public class InputLayerDetection {
             directionGoingTail();           //(4) 33 Tail Direction
         }
 
+        if (visionFieldSize > 1)
+            visionField();
+
         if (enableInputLayerLogging) {
             System.out.println("\nInputLayer Values: ");
             for (int i = 0; i < currentSnake.layerArray.get(0).NodeArray.size; i++) {
@@ -330,30 +333,26 @@ public class InputLayerDetection {
     }
 
     public void visionField() {
-        int headX = snake.get(0).x;
-        int headY = snake.get(0).y;
+        int i = 0;
+        int leftTopCornerX = Snake.snake.get(0).x - (visionFieldSize - 1) / 2;
+        int leftTopCornerY = Snake.snake.get(0).y - (visionFieldSize - 1) / 2 + 1;
 
-        int leftTopCornerX = 0;
-        if (snake.get(0).x - visionFieldSize >= 0)
-            leftTopCornerX = snake.get(0).x - visionFieldSize;
-
-        int leftTopCornerY = 0;
-        if (snake.get(0).y - visionFieldSize >= 0)
-            leftTopCornerY = snake.get(0).y - visionFieldSize;
-
-        int width = visionFieldSize * 2 + 1;
-
-
-        for (int x = leftTopCornerX; x < width; x++) {
-            for (int y = leftTopCornerY; y < width; y++) {
-                Point p = new Point(x, y);
-                if (snake.contains(p)) {
-                    currentSnake.layerArray.get(0).NodeArray.get(x + y).value = 1f;
-                } else if (treats.contains(p, false)) {
-                    currentSnake.layerArray.get(0).NodeArray.get(x + y).value = 0.5f;
-                } else {
-                    currentSnake.layerArray.get(0).NodeArray.get(x + y).value = 0f;
-                }
+        for (int x = leftTopCornerX; x < leftTopCornerX + visionFieldSize; x++) {
+            for (int y = leftTopCornerY; y < leftTopCornerY + visionFieldSize; y++) {
+                if (x > 0 && x < reihen - 1)
+                    if (y > 1 && y < spalten) {
+                        for (int j = 0; j < snake.size(); j++) {
+                            if (snake.get(j).x == x && snake.get(j).y == y) {
+                                currentSnake.layerArray.get(0).NodeArray.get(i).value = 1f;
+                            }
+                        }
+                        for (int j = 0; j < treats.size; j++) {
+                            if (treats.get(j).x == x && treats.get(j).y == y) {
+                                currentSnake.layerArray.get(0).NodeArray.get(i).value = 0.5f;
+                            }
+                        }
+                        i++;
+                    }
             }
         }
     }

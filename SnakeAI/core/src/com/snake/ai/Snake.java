@@ -429,6 +429,7 @@ public class Snake implements Runnable {
             treats.add(bestSnakeEver.bestSnakeTreats.get(treats.size));
         } else {
             int x, y;
+            here:
             while (true) {
                 x = rand.nextInt(reihen - 2) + 1;
                 y = rand.nextInt(spalten - 2) + 1;
@@ -437,8 +438,13 @@ public class Snake implements Runnable {
                 main.foodpositionX = x;
                 main.foodpositionY = y;
                 Point p = new Point(x, y);
-                if (treats.contains(p, false) || (snake != null && snake.contains(p)))
+                if (treats.contains(p, false))
                     continue;
+                if (snake != null)
+                    for (int i = 0; i < snake.size(); i++) {
+                        if (snake.get(i).x == x && snake.get(i).y == y)
+                            continue here;
+                    }
                 treats.add(p);
                 break;
             }

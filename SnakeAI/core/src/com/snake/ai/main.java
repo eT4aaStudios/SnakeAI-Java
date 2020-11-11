@@ -92,7 +92,7 @@ public class main extends Game {
     static int outputLayerNodes = 4;
     static int LayerMenge = 4;
 
-    static int visionFieldSize;
+    static int visionFieldSize = 0 + 1;
 
     //Debugging Eigenschaften
     public static boolean enableNodeLogging = false;
@@ -105,7 +105,7 @@ public class main extends Game {
     public static int POPULATIONSIZE = 500;
     public static int FIRSTPOPULATIONSIZE = 500;
 
-    public static int reihen =  22;
+    public static int reihen = 22;
     public static int spalten = 22;
 
     Snake snake = new Snake();
@@ -115,7 +115,7 @@ public class main extends Game {
 
     @Override
     public void create() {
-        if(visionFieldSize > 0){
+        if (visionFieldSize > 1) {
             int width = visionFieldSize * 2 + 1;
             inputLayerNodes = width * width;
         }
@@ -306,6 +306,8 @@ public class main extends Game {
         shapeRenderer.end();
 
         drawGame();
+        if (visionFieldSize > 1 && Snake.snake != null)
+            drawVisionField();
 
         if (this.getScreen() != SavedSnakes) {
             if (!currentScreen) {
@@ -510,7 +512,7 @@ public class main extends Game {
         font.draw(batch, "Population: " + population, w / 3.35f, h / 1.28f);
         font.setColor(1f, 0.3f, 0.3f, 1);
         int maxLength = (reihen - 2) * (spalten - 2) - startlength;
-        font.draw(batch, "Highscore: " + hiScore +" (Max: " +maxLength+")", w / 3.35f, h / 1.34f);
+        font.draw(batch, "Highscore: " + hiScore + " (Max: " + maxLength + ")", w / 3.35f, h / 1.34f);
         font.draw(batch, "Best Fitness Ever: " + bestSnakeEver.bestSnakeEver.fitness, w / 3.35f, h / 1.4f);
         font.setColor(Color.WHITE);
         font.draw(batch, "______________________", w / 3.35f, h / 1.45f);
@@ -587,5 +589,33 @@ public class main extends Game {
                 }
             }
         shapeRenderer.end();
+    }
+
+    public void drawVisionField() {
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(0.9f, 0.9f, 0.9f, 0.3f);
+
+        try {
+            int leftTopCornerX = Snake.snake.get(0).x - (visionFieldSize - 1) / 2;
+            int leftTopCornerY = Snake.snake.get(0).y - (visionFieldSize - 1) / 2 + 1;
+
+            for (int x = leftTopCornerX; x < leftTopCornerX + visionFieldSize; x++) {
+                for (int y = leftTopCornerY; y < leftTopCornerY + visionFieldSize; y++) {
+                    if (x > 0 && x < reihen - 1)
+                        if (y > 1 && y < spalten)
+                            shapeRenderer.rect(w / 2 + x * w / 2 / reihen
+                                    , (reihen - y) * h / spalten
+                                    , w / 2 / reihen
+                                    , h / spalten);
+                }
+            }
+            shapeRenderer.end();
+            Gdx.gl.glDisable(GL20.GL_BLEND);
+        }catch (Exception e){
+            System.out.println(e);
+        }
+
     }
 }
