@@ -71,7 +71,6 @@ public class Snake implements Runnable {
     void startNewGame() {
         gameOver = false;
 
-        //TODO Save
         stop();
         initGrid();
         treats = new Array<>();
@@ -88,64 +87,7 @@ public class Snake implements Runnable {
         timealaive = 0;
         steps = 0;
         if (!replay && ((snakeNr == POPULATIONSIZE && population > 0) || (snakeNr == FIRSTPOPULATIONSIZE && population == 0))) {
-            loadFromSavedSnake = false;
-            population++;
-            System.out.println("\n_______________________");
-            System.out.println("NEW POPULATION (Nr.: " + population + ")");
-            System.out.println("_______________________\n");
-
-            timePerPop = System.currentTimeMillis() - startTime;
-            startTime = System.currentTimeMillis();
-
-            //Umsortierung
-            allSnakes allSnakes = new allSnakes();
-            if (allSnakesArrays.size > 1) {
-                allSnakesArrays.set(0, allSnakesArrays.get(1));
-                allSnakesArrays.set(1, allSnakes);
-            } else
-                allSnakesArrays.add(allSnakes);
-
-            allSnakesArrays.get(0).allSnakesArray.sort(new FitnessComparator());
-
-            //Average Fitness
-            int maxFitness = 0;
-            for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
-                maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
-            }
-            if (population > 1) {
-                System.out.println("average Fitness: " + maxFitness / POPULATIONSIZE);
-                averageFitnessArray.add(maxFitness / POPULATIONSIZE);
-            } else {
-                System.out.println("average Fitness: " + maxFitness / FIRSTPOPULATIONSIZE);
-                averageFitnessArray.add(maxFitness / FIRSTPOPULATIONSIZE);
-            }
-
-            int maxHiscore = 0;
-            for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
-                if (maxHiscore <= allSnakesArrays.get(0).allSnakesArray.get(i).score) {
-                    maxHiscore = allSnakesArrays.get(0).allSnakesArray.get(i).score;
-                }
-            }
-            hiscoreArray.add(maxHiscore);
-
-
-            //Best Snakes System.out
-            bestSnakesArray.clear();
-            for (int i = 0; i < bestSnakesArraySize; i++) {
-                bestSnakesArray.add(allSnakesArrays.get(0).allSnakesArray.get(i));
-                System.out.println("Nr.:" + i + " Snake Fitness: " + bestSnakesArray.get(i).fitness + " Score: " + bestSnakesArray.get(i).score);
-            }
-            snakeNr = 0;
-
-            if (populationsSinceLastSave == 499) {
-                SavedSnakes savedSnakes = new SavedSnakes();
-                savedSnakes.saveCurrentSnake(true);
-                if (gameNr > -1)
-                    savedSnakes.delete(gameNr);
-                gameNr = prefs.getInteger("GameMenge");
-                populationsSinceLastSave = 0;
-            } else
-                populationsSinceLastSave++;
+            newPopulation();
         }
 
         if (!replay) {
@@ -157,6 +99,12 @@ public class Snake implements Runnable {
 
         snake = new ArrayList<>();
 
+        direction();
+
+        (gameThread = new Thread(this)).start();
+    }
+
+    public void direction(){
         if (replay) {
             dir = bestSnakeEver.startDir;
         } else {
@@ -201,8 +149,67 @@ public class Snake implements Runnable {
         startDir = dir;
         main.SnakeHeadX = snake.get(0).x;
         main.SnakeHeadY = snake.get(0).y;
+    }
 
-        (gameThread = new Thread(this)).start();
+    public void newPopulation() {
+        loadFromSavedSnake = false;
+        population++;
+        System.out.println("\n_______________________");
+        System.out.println("NEW POPULATION (Nr.: " + population + ")");
+        System.out.println("_______________________\n");
+
+        timePerPop = System.currentTimeMillis() - startTime;
+        startTime = System.currentTimeMillis();
+
+        //Umsortierung
+        allSnakes allSnakes = new allSnakes();
+        if (allSnakesArrays.size > 1) {
+            allSnakesArrays.set(0, allSnakesArrays.get(1));
+            allSnakesArrays.set(1, allSnakes);
+        } else
+            allSnakesArrays.add(allSnakes);
+
+        allSnakesArrays.get(0).allSnakesArray.sort(new FitnessComparator());
+
+        //Average Fitness
+        int maxFitness = 0;
+        for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
+            maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
+        }
+        if (population > 1) {
+            System.out.println("average Fitness: " + maxFitness / POPULATIONSIZE);
+            averageFitnessArray.add(maxFitness / POPULATIONSIZE);
+        } else {
+            System.out.println("average Fitness: " + maxFitness / FIRSTPOPULATIONSIZE);
+            averageFitnessArray.add(maxFitness / FIRSTPOPULATIONSIZE);
+        }
+
+        int maxHiscore = 0;
+        for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
+            if (maxHiscore <= allSnakesArrays.get(0).allSnakesArray.get(i).score) {
+                maxHiscore = allSnakesArrays.get(0).allSnakesArray.get(i).score;
+            }
+        }
+        hiscoreArray.add(maxHiscore);
+
+
+        //Best Snakes System.out
+        bestSnakesArray.clear();
+        for (int i = 0; i < bestSnakesArraySize; i++) {
+            bestSnakesArray.add(allSnakesArrays.get(0).allSnakesArray.get(i));
+            System.out.println("Nr.:" + i + " Snake Fitness: " + bestSnakesArray.get(i).fitness + " Score: " + bestSnakesArray.get(i).score);
+        }
+        snakeNr = 0;
+
+        if (populationsSinceLastSave == 499) {
+            SavedSnakes savedSnakes = new SavedSnakes();
+            savedSnakes.saveCurrentSnake(true);
+            if (gameNr > -1)
+                savedSnakes.delete(gameNr);
+            gameNr = prefs.getInteger("GameMenge");
+            populationsSinceLastSave = 0;
+        } else
+            populationsSinceLastSave++;
     }
 
     void stop() {

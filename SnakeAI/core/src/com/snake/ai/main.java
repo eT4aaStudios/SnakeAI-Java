@@ -24,6 +24,7 @@ import static com.snake.ai.Snake.hiScore;
 import static com.snake.ai.Snake.population;
 import static com.snake.ai.Snake.score;
 import static com.snake.ai.Snake.snakeNr;
+import static com.snake.ai.Snake.startlength;
 import static com.snake.ai.Snake.timePerPop;
 
 public class main extends Game {
@@ -101,8 +102,8 @@ public class main extends Game {
     public static int POPULATIONSIZE = 500;
     public static int FIRSTPOPULATIONSIZE = 500;
 
-    public static int reihen = 22;
-    public static int spalten = 22;
+    public static int reihen = 52;
+    public static int spalten = 52;
 
     Snake snake = new Snake();
 
@@ -426,8 +427,7 @@ public class main extends Game {
                 , h / 2.23f);
         shapeRenderer.end();
 
-        batch.begin();
-        font.getData().setScale(w / 1100);
+
         if (tmpArray.size > 1) {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             shapeRenderer.setColor(Color.WHITE);
@@ -448,9 +448,12 @@ public class main extends Game {
                     highest = i;
             }
 
-
+            batch.begin();
             for (int i = 0; i < tmpArray.get(highest) + 1; i++) {
                 if ((i % ((int) ((tmpArray.get(highest) / 5.0)) + 1)) == 0) {
+                    font.setUseIntegerPositions(false);
+                    font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
                     font.draw(batch, "" + i, w / 80, ((h / 1.08f - h / 1.75f) / tmpArray.get(highest)) * i + h / 1.75f);
                 }
             }
@@ -462,6 +465,7 @@ public class main extends Game {
                     }
                 }
             }
+            batch.end();
 
             for (int i = 0; i < tmpArray.size - 1; i++) {
                 shapeRenderer.line(
@@ -471,8 +475,6 @@ public class main extends Game {
                         , ((h / 1.08f - h / 1.82f) / tmpArray.get(highest)) * tmpArray.get(i + 1) + h / 1.82f);
             }
         }
-        batch.end();
-        font.getData().setScale(w / 1100);
 
         shapeRenderer.end();
     }
@@ -499,7 +501,8 @@ public class main extends Game {
         font.draw(batch, "Score: " + score, w / 3.35f, h / 1.23f);
         font.draw(batch, "Population: " + population, w / 3.35f, h / 1.28f);
         font.setColor(1f, 0.3f, 0.3f, 1);
-        font.draw(batch, "Highscore: " + hiScore, w / 3.35f, h / 1.34f);
+        int maxLength = (reihen - 2) * (spalten - 2) - startlength;
+        font.draw(batch, "Highscore: " + hiScore +" (Max: " +maxLength+")", w / 3.35f, h / 1.34f);
         font.draw(batch, "Best Fitness Ever: " + bestSnakeEver.bestSnakeEver.fitness, w / 3.35f, h / 1.4f);
         font.setColor(Color.WHITE);
         font.draw(batch, "______________________", w / 3.35f, h / 1.45f);

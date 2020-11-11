@@ -20,7 +20,6 @@ public class NodeVis implements Screen {
     @Override
     public void show() {
         font.setColor(0f, 0f, 0f, 1f);
-        font.getData().setScale(w / 1100);
     }
 
     @Override
