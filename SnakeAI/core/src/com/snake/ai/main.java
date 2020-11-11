@@ -92,18 +92,21 @@ public class main extends Game {
     static int outputLayerNodes = 4;
     static int LayerMenge = 4;
 
+    static int visionFieldSize;
+
     //Debugging Eigenschaften
     public static boolean enableNodeLogging = false;
     public static boolean enableSehrNahLogging = false;
     public static boolean enableOutputLayerLogging = false;
     public static boolean enableInputLayerLogging = false;
+    public static boolean enableNewPopulationLogging = false;
 
     //Evolutions Eigenschaften
     public static int POPULATIONSIZE = 500;
     public static int FIRSTPOPULATIONSIZE = 500;
 
-    public static int reihen = 52;
-    public static int spalten = 52;
+    public static int reihen =  22;
+    public static int spalten = 22;
 
     Snake snake = new Snake();
 
@@ -112,6 +115,11 @@ public class main extends Game {
 
     @Override
     public void create() {
+        if(visionFieldSize > 0){
+            int width = visionFieldSize * 2 + 1;
+            inputLayerNodes = width * width;
+        }
+
         layerNodeValueArray = new Array<>();
         layerNodeValueArray.add(inputLayerNodes);
         layerNodeValueArray.add(Layer2Nodes);

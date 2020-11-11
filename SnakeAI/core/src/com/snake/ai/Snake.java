@@ -16,6 +16,7 @@ import static com.snake.ai.main.bestSnakeEver;
 import static com.snake.ai.main.bestSnakesArray;
 import static com.snake.ai.main.bestSnakesArraySize;
 import static com.snake.ai.main.currentSnake;
+import static com.snake.ai.main.enableNewPopulationLogging;
 import static com.snake.ai.main.enableOutputLayerLogging;
 import static com.snake.ai.main.freeze;
 import static com.snake.ai.main.gameNr;
@@ -104,7 +105,7 @@ public class Snake implements Runnable {
         (gameThread = new Thread(this)).start();
     }
 
-    public void direction(){
+    public void direction() {
         if (replay) {
             dir = bestSnakeEver.startDir;
         } else {
@@ -154,9 +155,11 @@ public class Snake implements Runnable {
     public void newPopulation() {
         loadFromSavedSnake = false;
         population++;
-        System.out.println("\n_______________________");
-        System.out.println("NEW POPULATION (Nr.: " + population + ")");
-        System.out.println("_______________________\n");
+        if (enableNewPopulationLogging) {
+            System.out.println("\n_______________________");
+            System.out.println("NEW POPULATION (Nr.: " + population + ")");
+            System.out.println("_______________________\n");
+        }
 
         timePerPop = System.currentTimeMillis() - startTime;
         startTime = System.currentTimeMillis();
@@ -177,10 +180,13 @@ public class Snake implements Runnable {
             maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
         }
         if (population > 1) {
-            System.out.println("average Fitness: " + maxFitness / POPULATIONSIZE);
+            if (enableNewPopulationLogging)
+                System.out.println("average Fitness: " + maxFitness / POPULATIONSIZE);
             averageFitnessArray.add(maxFitness / POPULATIONSIZE);
         } else {
-            System.out.println("average Fitness: " + maxFitness / FIRSTPOPULATIONSIZE);
+            if (enableNewPopulationLogging)
+
+                System.out.println("average Fitness: " + maxFitness / FIRSTPOPULATIONSIZE);
             averageFitnessArray.add(maxFitness / FIRSTPOPULATIONSIZE);
         }
 
@@ -197,7 +203,9 @@ public class Snake implements Runnable {
         bestSnakesArray.clear();
         for (int i = 0; i < bestSnakesArraySize; i++) {
             bestSnakesArray.add(allSnakesArrays.get(0).allSnakesArray.get(i));
-            System.out.println("Nr.:" + i + " Snake Fitness: " + bestSnakesArray.get(i).fitness + " Score: " + bestSnakesArray.get(i).score);
+            if (enableNewPopulationLogging)
+
+                System.out.println("Nr.:" + i + " Snake Fitness: " + bestSnakesArray.get(i).fitness + " Score: " + bestSnakesArray.get(i).score);
         }
         snakeNr = 0;
 

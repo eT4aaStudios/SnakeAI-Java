@@ -2,6 +2,7 @@ package com.snake.ai;
 
 import static com.snake.ai.Snake.snake;
 import static com.snake.ai.Snake.startlength;
+import static com.snake.ai.Snake.treats;
 import static com.snake.ai.main.SnakeHeadX;
 import static com.snake.ai.main.SnakeHeadY;
 import static com.snake.ai.main.currentSnake;
@@ -11,6 +12,7 @@ import static com.snake.ai.main.foodpositionX;
 import static com.snake.ai.main.foodpositionY;
 import static com.snake.ai.main.reihen;
 import static com.snake.ai.main.spalten;
+import static com.snake.ai.main.visionFieldSize;
 
 public class InputLayerDetection {
 
@@ -30,7 +32,6 @@ public class InputLayerDetection {
         wandDetectionGerade();          //(4) 20 Vision
         wandDetectionSchreag();         //(4) 24 Vision
         length();         //(1) 25 Vision
-
 
         if (currentSnake.layerArray.get(0).NodeArray.size > 25) {
             directionGoingHead();           //(4) 29 Head Direction
@@ -281,7 +282,7 @@ public class InputLayerDetection {
         }
     }
 
-    public void length(){
+    public void length() {
         float maxLength = (reihen - 2) * (spalten - 2) - startlength;
         currentSnake.layerArray.get(0).NodeArray.get(24).value = snake.size() / maxLength;
     }
@@ -325,6 +326,35 @@ public class InputLayerDetection {
         if (x == -1 && y == 0) {
             //Tail going left
             currentSnake.layerArray.get(0).NodeArray.get(32).value = 1;
+        }
+    }
+
+    public void visionField() {
+        int headX = snake.get(0).x;
+        int headY = snake.get(0).y;
+
+        int leftTopCornerX = 0;
+        if (snake.get(0).x - visionFieldSize >= 0)
+            leftTopCornerX = snake.get(0).x - visionFieldSize;
+
+        int leftTopCornerY = 0;
+        if (snake.get(0).y - visionFieldSize >= 0)
+            leftTopCornerY = snake.get(0).y - visionFieldSize;
+
+        int width = visionFieldSize * 2 + 1;
+
+
+        for (int x = leftTopCornerX; x < width; x++) {
+            for (int y = leftTopCornerY; y < width; y++) {
+                Point p = new Point(x, y);
+                if (snake.contains(p)) {
+                    currentSnake.layerArray.get(0).NodeArray.get(x + y).value = 1f;
+                } else if (treats.contains(p, false)) {
+                    currentSnake.layerArray.get(0).NodeArray.get(x + y).value = 0.5f;
+                } else {
+                    currentSnake.layerArray.get(0).NodeArray.get(x + y).value = 0f;
+                }
+            }
         }
     }
 }
