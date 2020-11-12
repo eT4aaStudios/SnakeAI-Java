@@ -267,7 +267,7 @@ public class Snake implements Runnable {
                 main2.berechneLayer();
                 doAction();
                 Evolution evo = new Evolution();
-                currentSnake.fitness = evo.FitnessFuntction(steps, score);
+                currentSnake.fitness = evo.FitnessFuntction2(steps, score);
             }
         }
     }
@@ -379,7 +379,7 @@ public class Snake implements Runnable {
         gameOver = true;
         stop();
         Evolution startFitness = new Evolution();
-        currentSnake.fitness = startFitness.FitnessFuntction(steps, score);
+        currentSnake.fitness = startFitness.FitnessFuntction2(steps, score);
 
         allSnakesArrays.get(allSnakesArrays.size - 1).allSnakesArray.add(currentSnake);
 

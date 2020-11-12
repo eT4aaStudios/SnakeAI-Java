@@ -14,7 +14,7 @@ public class Evolution {
     }
 
     public int FitnessFuntction2(int steps, int score) {
-        return (int) (steps + 0.8d * Math.pow(score,6d));
+        return (int) ((Math.pow(1.1d, score) + Math.pow(score, 2.1d) * 500) - Math.pow(score, 1.2d));
     }
 
     //Crossover
@@ -107,7 +107,7 @@ public class Evolution {
         Random r = new Random();
         mutationPropability = (float) Math.pow(0.93,hiscoreArray.get(population) - 30);
 
-        if (r.nextInt(100) < mutationPropability) {
+        if (r.nextFloat() * 100 < mutationPropability) {
             //With Mutation
             if (weigth1 + mutationAmount > -1 && weigth1 + mutationAmount < 1)
                 return weigth1 + mutationAmount;
