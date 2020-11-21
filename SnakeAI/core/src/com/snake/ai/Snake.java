@@ -7,7 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
-import static com.snake.ai.SavedSnakes.prefs;
+import static com.snake.ai.SavedSnakes.getInteger;
 import static com.snake.ai.main.FIRSTPOPULATIONSIZE;
 import static com.snake.ai.main.POPULATIONSIZE;
 import static com.snake.ai.main.allSnakesArrays;
@@ -208,16 +208,21 @@ public class Snake implements Runnable {
                 System.out.println("Nr.:" + i + " Snake Fitness: " + bestSnakesArray.get(i).fitness + " Score: " + bestSnakesArray.get(i).score);
         }
         snakeNr = 0;
+        if (gameNr != 0) {
+            if (populationsSinceLastSave == 499) {
+                SavedSnakes savedSnakes = new SavedSnakes();
+                savedSnakes.saveCurrentSnake(true);
+                if (gameNr > -1) {
+                    savedSnakes.delete(gameNr);
+                    gameNr = getInteger("GameMenge");
+                } else {
+                    gameNr = getInteger("GameMenge") + 1;
+                }
+                populationsSinceLastSave = 0;
 
-        if (populationsSinceLastSave == 499) {
-            SavedSnakes savedSnakes = new SavedSnakes();
-            savedSnakes.saveCurrentSnake(true);
-            if (gameNr > -1)
-                savedSnakes.delete(gameNr);
-            gameNr = prefs.getInteger("GameMenge");
-            populationsSinceLastSave = 0;
-        } else
-            populationsSinceLastSave++;
+            } else
+                populationsSinceLastSave++;
+        }
     }
 
     void stop() {

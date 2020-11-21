@@ -4,7 +4,7 @@ import com.badlogic.gdx.utils.Array;
 
 import java.util.Random;
 
-import static com.snake.ai.SavedSnakes.prefs;
+import static com.snake.ai.SavedSnakes.getFloat;
 import static com.snake.ai.main.LayerMenge;
 import static com.snake.ai.main.SnakeNr;
 import static com.snake.ai.main.gameNr;
@@ -33,7 +33,7 @@ public class Node {
                 if (loadBestSnakeEver) {
                     for (int m = 0; m < layerNodeValueArray.get(LayerNumber + 1); m++) {
                         WeigthArray.add(
-                                prefs.getFloat("gameNr " + gameNr +
+                                getFloat("gameNr " + 0 +
                                         " bestSnakeEver.bestSnakeEver " +
                                         " LayerNr " + LayerNumber +
                                         " NodeNr " + NodeNumber +
@@ -43,7 +43,7 @@ public class Node {
                 } else if (loadFromSavedSnake) {
                     for (int m = 0; m < layerNodeValueArray.get(LayerNumber + 1); m++) {
                         WeigthArray.add(
-                                prefs.getFloat("gameNr " + gameNr +
+                                getFloat("gameNr " + gameNr +
                                         " SnakeNr " + SnakeNr +
                                         " LayerNr " + LayerNumber +
                                         " NodeNr " + NodeNumber +
@@ -82,7 +82,6 @@ public class Node {
             WeigthArray.add(evo.mutation3(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2, 2));
             WeigthNumber++;
         }
-        //System.out.println("WeigthNumber: " + WeigthNumber);
     }
 
     public void multiplePoint(int NodeNumber, int LayerNumber, Snakes parent1, Snakes parent2) {

@@ -8,6 +8,7 @@ import static com.snake.ai.Snake.population;
 import static com.snake.ai.main.LayerMenge;
 import static com.snake.ai.main.allSnakesArrays;
 import static com.snake.ai.main.bestSnakesArray;
+import static com.snake.ai.main.bestSnakesArraySize;
 import static com.snake.ai.main.loadBestSnakeEver;
 import static com.snake.ai.main.loadFromSavedSnake;
 
@@ -38,53 +39,20 @@ public class Snakes {
     //Out of the Best
     public void selectParents() {
         Array<Snakes> tempArray = new Array<>(bestSnakesArray);
-        float max = 1;
-        for (int i = 0; i < tempArray.size; i++) {
-            max += tempArray.get(i).fitness;
-        }
+        float max = 0;
 
-        int choosenNumber = (int) ((1d + Math.random() * (max - 1d)));
-
-        int fitnesschecked = 0;
-        int choosenId = 0;
-        for (int j = 0; j < tempArray.size; ) {
-            for (int k = 0; k < tempArray.get(j).fitness; k++) {
-                fitnesschecked++;
-                if (choosenNumber == fitnesschecked) {
-                    choosenId = j;
-                    parent1Snake = bestSnakesArray.get(choosenId);
-                }
-            }
-            j++;
-        }
-
-        tempArray.removeIndex(choosenId);
-        max = 1;
-        for (int i = 0; i < tempArray.size; i++) {
-            max += tempArray.get(i).fitness;
-        }
-
-        choosenNumber = (int) ((1d + Math.random() * (max - 1d)));
-
-        fitnesschecked = 0;
-        choosenId = 0;
-        for (int j = 0; j < tempArray.size; ) {
-            for (int k = 0; k < tempArray.get(j).fitness; k++) {
-                fitnesschecked++;
-                if (choosenNumber == fitnesschecked) {
-                    choosenId = j;
-                    parent2Snake = bestSnakesArray.get(choosenId);
-                }
-            }
-            j++;
-        }
+        int choosenNumber = (int) ((1 + Math.random() * (bestSnakesArraySize - 1)));
+        parent1Snake = bestSnakesArray.get(choosenNumber);
+        tempArray.removeIndex(choosenNumber);
+        choosenNumber = (int) ((1 + Math.random() * (bestSnakesArraySize - 2)));
+        parent2Snake = bestSnakesArray.get(choosenNumber);
     }
 
     //Roulette
     public void selectParents2() {
         //Parent 1
         int maxFitness = 0;
-        for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
+        for (int i = 0; i < bestSnakesArray.size; i++) {
             maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
         }
 
@@ -118,6 +86,48 @@ public class Snakes {
                 i = allSnakesArrays.get(0).allSnakesArray.size;
             } else {
                 zahlZumChecken += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
+            }
+        }
+    }
+
+    //Roulette out of Bests
+    public void selectParents3() {
+        //Parent 1
+        int maxFitness = 0;
+        for (int i = 0; i < bestSnakesArray.size; i++) {
+            maxFitness += bestSnakesArray.get(i).fitness;
+        }
+
+        Random r = new Random();
+        int choosenId = r.nextInt(maxFitness);
+
+        int zahlZumChecken = 0;
+        for (int i = 0; i < bestSnakesArray.size; i++) {
+            if (choosenId >= zahlZumChecken && choosenId <= zahlZumChecken + bestSnakesArray.get(i).fitness) {
+                parent1Snake = bestSnakesArray.get(i);
+                i = bestSnakesArray.size;
+            } else {
+                zahlZumChecken += bestSnakesArray.get(i).fitness;
+            }
+        }
+
+        //Parent 2
+        maxFitness = 0;
+        for (int i = 0; i < bestSnakesArray.size; i++) {
+            maxFitness += bestSnakesArray.get(i).fitness;
+        }
+
+        r = new Random();
+        choosenId = r.nextInt(maxFitness);
+
+
+        zahlZumChecken = 0;
+        for (int i = 0; i < bestSnakesArray.size; i++) {
+            if (choosenId >= zahlZumChecken && choosenId <= zahlZumChecken + bestSnakesArray.get(i).fitness) {
+                parent2Snake = bestSnakesArray.get(i);
+                i = bestSnakesArray.size;
+            } else {
+                zahlZumChecken += bestSnakesArray.get(i).fitness;
             }
         }
     }
