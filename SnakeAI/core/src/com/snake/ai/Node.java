@@ -17,6 +17,8 @@ public class Node {
     public float value;
     Evolution evo;
 
+    int x,y;
+
     public Node(int NodeNumber, int LayerNumber, boolean populationGreaterZero, Snakes parent1, Snakes parent2) {
         if (LayerNumber + 1 < LayerMenge) {
 

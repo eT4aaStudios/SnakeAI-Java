@@ -67,6 +67,8 @@ public class main extends Game {
     public static Array<Integer> hiscoreArray;
     public static boolean graphmode1;
     public static int populationsSinceLastSave;
+    public static Array<Point> snakeVisionArray;
+    public boolean disableFreezeButton;
 
     public static boolean loadFromSavedSnake, loadBestSnakeEver;
     public static int gameNr = -1;
@@ -113,6 +115,8 @@ public class main extends Game {
     NodeVis NodeVis;
     SavedSnakes SavedSnakes;
 
+    float time;
+
     @Override
     public void create() {
         if (visionFieldSize > 1) {
@@ -154,8 +158,10 @@ public class main extends Game {
             public void clicked(InputEvent event, float x, float y) {
                 if (gameOver) {
                     snake.startNewGame();
-                } else {
+                } else if(!disableFreezeButton){
                     freeze = !freeze;
+                }else {
+                    disableFreezeButton = false;
                 }
             }
         });
@@ -305,7 +311,8 @@ public class main extends Game {
         shapeRenderer.line(w / 2, h, w / 2, 0);
         shapeRenderer.end();
 
-        drawGame();
+
+
         if (visionFieldSize > 1 && Snake.snake != null)
             drawVisionField();
 
@@ -316,6 +323,16 @@ public class main extends Game {
             }
             stage.draw();
         }
+        if (buttonStart.isPressed() && snakeVisionArray != null) {
+            time += Gdx.graphics.getDeltaTime();
+            if(time >= 0.5) {
+                drawSnakeVision();
+                disableFreezeButton = true;
+            }
+        } else {
+            time = 0;
+        }
+        drawGame();
         batch.begin();
         font.draw(batch, "Paused: " + freeze, w / 1.12f, h / 1.075f);
         batch.end();
@@ -613,9 +630,47 @@ public class main extends Game {
             }
             shapeRenderer.end();
             Gdx.gl.glDisable(GL20.GL_BLEND);
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e);
         }
 
+    }
+
+    private void drawSnakeVision() {
+        //Feld
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(0.2f, 0.2f, 0.2f, 1);
+        for (int i = 0; i < reihen; i++) {
+            for (int j = 0; j < spalten; j++) {
+                shapeRenderer.rect(i * w / 2 / reihen
+                        , j * h / spalten
+                        , w / 2 / reihen
+                        , h / spalten);
+            }
+        }
+        //Rest
+        for (int i = 0; i < snakeVisionArray.size; i++) {
+            Point point = snakeVisionArray.get(i);
+            if (point.sort == 0) {
+                shapeRenderer.setColor(Color.GRAY);
+                shapeRenderer.rect(point.x * w / 2 / reihen
+                        , (spalten - 1 - point.y) * h / spalten
+                        , w / 2 / reihen
+                        , h / spalten);
+            } else if (point.sort == 1) {
+                shapeRenderer.setColor(0.3f, 0.7f, 0.3f,1);
+                shapeRenderer.rect(point.x * w / 2 / reihen
+                        , (spalten - 1 - point.y) * h / spalten
+                        , w / 2 / reihen
+                        , h / spalten);
+            } else if (point.sort == 2) {
+                shapeRenderer.setColor(1f, 0.3f, 0.3f, 1);
+                shapeRenderer.rect(point.x * w / 2 / reihen
+                        , (spalten - 1 - point.y) * h / spalten
+                        , w / 2 / reihen
+                        , h / spalten);
+            }
+        }
+        shapeRenderer.end();
     }
 }
