@@ -69,6 +69,7 @@ public class main extends Game {
     public static int populationsSinceLastSave;
     public static Array<Point> snakeVisionArray;
     public boolean disableFreezeButton;
+    public int sleepTimeVorher;
 
     public static boolean loadFromSavedSnake, loadBestSnakeEver;
     public static int gameNr = -1;
@@ -87,7 +88,7 @@ public class main extends Game {
     public static int bestSnakesArraySize = 5;
 
     //Neuronales Netzwerk Aussehen
-    static int inputLayerNodes = 25;
+    static int inputLayerNodes = 24;
     static int Layer2Nodes = 20;
     static int Layer3Nodes = 12;
     static int Layer4Nodes = 0;
@@ -158,9 +159,14 @@ public class main extends Game {
             public void clicked(InputEvent event, float x, float y) {
                 if (gameOver) {
                     snake.startNewGame();
-                } else if(!disableFreezeButton){
+                } else if (!disableFreezeButton) {
                     freeze = !freeze;
-                }else {
+                    if (freeze) {
+                        sleepTimeVorher = Sleep_Time;
+                        Sleep_Time = 1;
+                    } else
+                        Sleep_Time = sleepTimeVorher;
+                } else {
                     disableFreezeButton = false;
                 }
             }
@@ -182,6 +188,7 @@ public class main extends Game {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Sleep_Time += 40;
+                sleepTimeVorher = Sleep_Time;
             }
         });
         buttonSchneller = new TextButton("Faster", skin);
@@ -191,8 +198,10 @@ public class main extends Game {
         buttonSchneller.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (Sleep_Time > 30)
+                if (Sleep_Time > 30) {
                     Sleep_Time -= 30;
+                }
+                sleepTimeVorher = Sleep_Time;
             }
         });
         buttonMax = new TextButton("Max Speed", skin);
@@ -312,7 +321,6 @@ public class main extends Game {
         shapeRenderer.end();
 
 
-
         if (visionFieldSize > 1 && Snake.snake != null)
             drawVisionField();
 
@@ -325,7 +333,7 @@ public class main extends Game {
         }
         if (buttonStart.isPressed() && snakeVisionArray != null) {
             time += Gdx.graphics.getDeltaTime();
-            if(time >= 0.5) {
+            if (time >= 0.5) {
                 drawSnakeVision();
                 disableFreezeButton = true;
             }
@@ -631,7 +639,6 @@ public class main extends Game {
             shapeRenderer.end();
             Gdx.gl.glDisable(GL20.GL_BLEND);
         } catch (Exception e) {
-            System.out.println(e);
         }
 
     }
@@ -658,7 +665,7 @@ public class main extends Game {
                         , w / 2 / reihen
                         , h / spalten);
             } else if (point.sort == 1) {
-                shapeRenderer.setColor(0.3f, 0.7f, 0.3f,1);
+                shapeRenderer.setColor(0.3f, 0.7f, 0.3f, 1);
                 shapeRenderer.rect(point.x * w / 2 / reihen
                         , (spalten - 1 - point.y) * h / spalten
                         , w / 2 / reihen

@@ -18,14 +18,15 @@ public class Snakes {
     protected Array<Layer> layerArray;
     protected int score;
     protected int fitness;
-    protected Snakes parent1Snake, parent2Snake;
+    public Snakes parent1Snake, parent2Snake;
+    Random r = new Random();
+    int maxFitness = 0;
 
     public Snakes() {
         if (population > 0 && !loadFromSavedSnake && !loadBestSnakeEver) {
             selectParents2();
         }
         layerArray = new Array<>();
-
         for (int i = 0; i < LayerMenge; i++) {
             Layer layer;
             if (population > 0) {
@@ -51,12 +52,12 @@ public class Snakes {
     //Roulette
     public void selectParents2() {
         //Parent 1
-        int maxFitness = 0;
+        maxFitness = 0;
         for (int i = 0; i < bestSnakesArray.size; i++) {
             maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
         }
 
-        Random r = new Random();
+        r = new Random();
         int choosenId = r.nextInt(maxFitness);
 
         int zahlZumChecken = 0;
@@ -68,16 +69,13 @@ public class Snakes {
                 zahlZumChecken += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
             }
         }
-
         //Parent 2
         maxFitness = 0;
         for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
             maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
         }
 
-        r = new Random();
         choosenId = r.nextInt(maxFitness);
-
 
         zahlZumChecken = 0;
         for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
@@ -93,7 +91,7 @@ public class Snakes {
     //Roulette out of Bests
     public void selectParents3() {
         //Parent 1
-        int maxFitness = 0;
+        maxFitness = 0;
         for (int i = 0; i < bestSnakesArray.size; i++) {
             maxFitness += bestSnakesArray.get(i).fitness;
         }

@@ -1,5 +1,6 @@
 package com.snake.ai;
 
+import java.math.BigInteger;
 import java.util.Random;
 
 import static com.snake.ai.Snake.population;
@@ -9,12 +10,25 @@ import static com.snake.ai.main.mutationMin;
 import static com.snake.ai.main.mutationPropability;
 
 public class Evolution {
-    public int FitnessFuntction(int steps, int score) {
-        return (int) (steps + (Math.pow(1.1d, score) + Math.pow(score, 2.1d) * 500) - (Math.pow(score, 1.2d) * Math.pow((0.25d * steps), 1.3d)));
+    public BigInteger FitnessFuntction(int steps, int score) {
+        return new BigInteger(String.valueOf(steps + (Math.pow(1.1d, score) + Math.pow(score, 2.1d) * 500) - (Math.pow(score, 1.2d) * Math.pow((0.25d * steps), 1.3d))));
     }
 
     public int FitnessFuntction2(int steps, int score) {
         return (int) ((Math.pow(1.1d, score) + Math.pow(score, 2.1d) * 500) - Math.pow(score, 1.2d));
+    }
+
+    //Best
+    public int FitnessFuntction3(int steps, int score) {
+        return (int) (Math.pow(score,3) * 0.5 + (steps * score * 0.5));
+    }
+
+    public int FitnessFuntction4(int steps, int score) {
+        return (int) ((-0.5 * Math.pow(score,2) + 1000) + (score * steps * 0.05));
+    }
+
+    public int FitnessFuntction5(int steps, int score) {
+        return (int) (steps * steps - (score * score) / Math.pow(steps / (150f + score * 2f) + 1,2));
     }
 
     //Crossover

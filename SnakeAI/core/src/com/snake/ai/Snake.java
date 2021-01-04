@@ -7,9 +7,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
+import static com.snake.ai.SavedSnakes.getFloat;
 import static com.snake.ai.SavedSnakes.getInteger;
 import static com.snake.ai.main.FIRSTPOPULATIONSIZE;
 import static com.snake.ai.main.POPULATIONSIZE;
+import static com.snake.ai.main.SnakeNr;
 import static com.snake.ai.main.allSnakesArrays;
 import static com.snake.ai.main.averageFitnessArray;
 import static com.snake.ai.main.bestSnakeEver;
@@ -21,6 +23,8 @@ import static com.snake.ai.main.enableOutputLayerLogging;
 import static com.snake.ai.main.freeze;
 import static com.snake.ai.main.gameNr;
 import static com.snake.ai.main.hiscoreArray;
+import static com.snake.ai.main.layerNodeValueArray;
+import static com.snake.ai.main.loadBestSnakeEver;
 import static com.snake.ai.main.loadFromSavedSnake;
 import static com.snake.ai.main.populationsSinceLastSave;
 import static com.snake.ai.main.reihen;
@@ -52,6 +56,7 @@ public class Snake implements Runnable {
     static Dir dir, startDir;
     static int energy;
     static int timealaive;
+    Evolution evo;
 
     int[][] grid;
     static List<Point> snake;
@@ -67,12 +72,12 @@ public class Snake implements Runnable {
 
     public Snake() {
         initGrid();
+        evo = new Evolution();
     }
 
     void startNewGame() {
         gameOver = false;
 
-        stop();
         initGrid();
         treats = new Array<>();
         addTreat();
@@ -102,7 +107,8 @@ public class Snake implements Runnable {
 
         direction();
 
-        (gameThread = new Thread(this)).start();
+        if (gameThread == null)
+            (gameThread = new Thread(this)).start();
     }
 
     public void direction() {
@@ -225,14 +231,6 @@ public class Snake implements Runnable {
         }
     }
 
-    void stop() {
-        if (gameThread != null) {
-            Thread tmp = gameThread;
-            gameThread = null;
-            tmp.interrupt();
-        }
-    }
-
     void initGrid() {
         grid = new int[spalten][reihen];
         for (int r = 0; r < spalten; r++) {
@@ -253,7 +251,6 @@ public class Snake implements Runnable {
                     return;
                 }
             if (!freeze) {
-
                 if (energyUsed() || hitsWall() || hitsSnake()) {
                     gameOver();
                 } else {
@@ -267,12 +264,11 @@ public class Snake implements Runnable {
                     main.SnakeHeadX = snake.get(0).x;
                     main.SnakeHeadY = snake.get(0).y;
                 }
-
                 main main2 = new main();
                 main2.berechneLayer();
                 doAction();
                 Evolution evo = new Evolution();
-                currentSnake.fitness = evo.FitnessFuntction2(steps, score);
+                currentSnake.fitness = evo.FitnessFuntction5(steps, score);
             }
         }
     }
@@ -382,12 +378,10 @@ public class Snake implements Runnable {
     public void gameOver() {
         currentSnake.score = score;
         gameOver = true;
-        stop();
         Evolution startFitness = new Evolution();
-        currentSnake.fitness = startFitness.FitnessFuntction2(steps, score);
+        currentSnake.fitness = startFitness.FitnessFuntction5(steps, score);
 
         allSnakesArrays.get(allSnakesArrays.size - 1).allSnakesArray.add(currentSnake);
-
         if (!replay && (currentSnake.fitness >= bestSnakeEver.bestSnakeEver.fitness)) {
             bestSnakeEver.bestSnakeEver = null;
             bestSnakeEver.bestSnakeTreats = null;
@@ -404,7 +398,6 @@ public class Snake implements Runnable {
             requestReplayStop = false;
             replay = false;
         }
-
         // Muss unten sein
         startNewGame();
     }

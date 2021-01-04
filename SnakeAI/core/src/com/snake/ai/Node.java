@@ -17,21 +17,12 @@ public class Node {
     public float value;
     Evolution evo;
 
-    int x,y;
-
     public Node(int NodeNumber, int LayerNumber, boolean populationGreaterZero, Snakes parent1, Snakes parent2) {
         if (LayerNumber + 1 < LayerMenge) {
-
             evo = new Evolution();
             WeigthArray = new Array<>();
             if (populationGreaterZero) {
                 Random r = new Random();
-                int i = r.nextInt(1);
-                /*if (i == 1) {
-                    singlePoint(NodeNumber, LayerNumber, parent1, parent2);
-                } else {
-                    multiplePoint(NodeNumber, LayerNumber, parent1, parent2);
-                }*/
                 if (loadBestSnakeEver) {
                     for (int m = 0; m < layerNodeValueArray.get(LayerNumber + 1); m++) {
                         WeigthArray.add(
