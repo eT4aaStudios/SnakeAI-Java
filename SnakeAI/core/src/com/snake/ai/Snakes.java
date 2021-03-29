@@ -17,7 +17,7 @@ public class Snakes {
 
     protected Array<Layer> layerArray;
     protected int score;
-    protected int fitness;
+    protected double fitness;
     protected Snakes parent1Snake, parent2Snake;
 
     public Snakes() {

@@ -79,15 +79,15 @@ public class main extends Game {
     public static float bias = 0f;
     public static float biasOutput = -0.4f;
 
-    public static float mutationPropability = 3;//%
-    public static float mutationMin = -0.5f;
-    public static float mutationMax = 0.5f;
+    public static float mutationPropability = 1;//%
+    public static float mutationMin = -1f;
+    public static float mutationMax = 1f;
     public static int bestSnakesArraySize = 5;
 
     //Neuronales Netzwerk Aussehen
     static int inputLayerNodes = 25;
-    static int Layer2Nodes = 20;
-    static int Layer3Nodes = 12;
+    static int Layer2Nodes = 18;
+    static int Layer3Nodes = 18;
     static int Layer4Nodes = 0;
     static int outputLayerNodes = 4;
     static int LayerMenge = 4;
@@ -102,8 +102,8 @@ public class main extends Game {
     public static boolean enableNewPopulationLogging = false;
 
     //Evolutions Eigenschaften
-    public static int POPULATIONSIZE = 500;
-    public static int FIRSTPOPULATIONSIZE = 500;
+    public static int POPULATIONSIZE = 1000;
+    public static int FIRSTPOPULATIONSIZE = 1000;
 
     public static int reihen = 22;
     public static int spalten = 22;

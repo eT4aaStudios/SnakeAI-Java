@@ -9,8 +9,8 @@ import static com.snake.ai.main.mutationMin;
 import static com.snake.ai.main.mutationPropability;
 
 public class Evolution {
-    public int FitnessFuntction(int steps, int score) {
-        return (int) (steps + (Math.pow(1.1d, score) + Math.pow(score, 2.1d) * 500) - (Math.pow(score, 1.2d) * Math.pow((0.25d * steps), 1.3d)));
+    public double FitnessFuntction(int steps, int score) {
+        return steps + (Math.pow(1.1d, score) + Math.pow(score, 2.1d) * 500) - (Math.pow(score, 1.2d) * Math.pow((0.25d * steps), 1.3d));
     }
 
     public int FitnessFuntction2(int steps, int score) {
@@ -63,7 +63,7 @@ public class Evolution {
         float mutationAmount = (float) (mutationMin + Math.random() * (mutationMax - mutationMin));
         Random r = new Random();
 
-        if (r.nextInt(100) < mutationPropability) {
+        if (r.nextFloat() * 100 < mutationPropability) {
             //With Mutation
             if (weigthNr == 1) {
                 if (weigth1 + mutationAmount >= -1 && weigth1 + mutationAmount <= 1)
@@ -99,13 +99,13 @@ public class Evolution {
 
         }
 
-        mutationMax = (float) Math.pow(0.97,hiscoreArray.get(population));
+        //mutationMax = (float) Math.pow(0.97,hiscoreArray.get(population));
         mutationMin = -mutationMax;
 
         float mutationAmount = (float) (mutationMin + Math.random() * (mutationMax - mutationMin));
 
         Random r = new Random();
-        mutationPropability = (float) Math.pow(0.93,hiscoreArray.get(population) - 30);
+        //mutationPropability = (float) Math.pow(0.93,hiscoreArray.get(population) - 30);
 
         if (r.nextFloat() * 100 < mutationPropability) {
             //With Mutation

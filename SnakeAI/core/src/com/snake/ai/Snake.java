@@ -272,7 +272,7 @@ public class Snake implements Runnable {
                 main2.berechneLayer();
                 doAction();
                 Evolution evo = new Evolution();
-                currentSnake.fitness = evo.FitnessFuntction2(steps, score);
+                currentSnake.fitness = evo.FitnessFuntction(steps, score);
             }
         }
     }
@@ -384,7 +384,7 @@ public class Snake implements Runnable {
         gameOver = true;
         stop();
         Evolution startFitness = new Evolution();
-        currentSnake.fitness = startFitness.FitnessFuntction2(steps, score);
+        currentSnake.fitness = startFitness.FitnessFuntction(steps, score);
 
         allSnakesArrays.get(allSnakesArrays.size - 1).allSnakesArray.add(currentSnake);
 
@@ -461,6 +461,6 @@ class FitnessComparator implements Comparator<Snakes> {
     @SuppressWarnings("NewApi")
     @Override
     public int compare(Snakes snakes, Snakes t1) {
-        return Integer.compare(t1.fitness, snakes.fitness);
+        return Double.compare(t1.fitness, snakes.fitness);
     }
 }
