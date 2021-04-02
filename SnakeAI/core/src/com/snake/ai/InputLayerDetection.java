@@ -205,10 +205,10 @@ public class InputLayerDetection {
     }
 
     public void schwanzDetectionGerade() {
-        float nearest1 = 99999;
-        float nearest2 = 99999;
-        float nearest3 = -99999;
-        float nearest4 = -99999;
+        double nearest1 = 99999;
+        double nearest2 = 99999;
+        double nearest3 = -99999;
+        double nearest4 = -99999;
         for (int i = 0; i < snake.size(); i++) {
             if (snake.get(i).x < SnakeHeadX && SnakeHeadY == snake.get(i).y) {
                 //System.out.println("Schwanz im Weg (Links)");

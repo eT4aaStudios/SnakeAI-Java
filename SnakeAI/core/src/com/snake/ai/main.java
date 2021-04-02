@@ -78,11 +78,11 @@ public class main extends Game {
     //Neuronales Netzwerk Eigenschaften
     public static float bias = 0f;
     public static float biasOutput = -0.4f;
+    public static int bestSnakesArraySize = 50;
 
-    public static float mutationPropability = 1;//%
+    public static float mutationPropability = 0.1f;//%
     public static float mutationMin = -1f;
     public static float mutationMax = 1f;
-    public static int bestSnakesArraySize = 5;
 
     //Neuronales Netzwerk Aussehen
     static int inputLayerNodes = 25;
@@ -102,11 +102,11 @@ public class main extends Game {
     public static boolean enableNewPopulationLogging = false;
 
     //Evolutions Eigenschaften
-    public static int POPULATIONSIZE = 1000;
-    public static int FIRSTPOPULATIONSIZE = 1000;
+    public static int POPULATIONSIZE = 1500;
+    public static int FIRSTPOPULATIONSIZE = 1500;
 
-    public static int reihen = 22;
-    public static int spalten = 22;
+    public static int reihen = 12;
+    public static int spalten = 12;
 
     Snake snake = new Snake();
 
@@ -362,11 +362,11 @@ public class main extends Game {
                 //weigth
                 float weigth = currentSnake.layerArray.get(Layernumber).NodeArray.get(NodeLayer1).WeigthArray.get(NodeLayer2);
                 //value
-                float value = currentSnake.layerArray.get(Layernumber).NodeArray.get(NodeLayer1).value;
+                double value = currentSnake.layerArray.get(Layernumber).NodeArray.get(NodeLayer1).value;
                 sum += weigth * value;
             }
 
-            //Node Deren Value geschrieben werden soll
+            //Node deren Value geschrieben werden soll
             if (Layernumber == LayerMenge - 2)
                 currentSnake.layerArray.get(Layernumber + 1).NodeArray.get(NodeLayer2).value = outputActivationFunction(sum);
             else

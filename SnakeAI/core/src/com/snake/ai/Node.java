@@ -14,7 +14,7 @@ import static com.snake.ai.main.loadFromSavedSnake;
 
 public class Node {
     public Array<Float> WeigthArray;
-    public float value;
+    public double value;
     Evolution evo;
 
     public Node(int NodeNumber, int LayerNumber, boolean populationGreaterZero, Snakes parent1, Snakes parent2) {

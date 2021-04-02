@@ -102,9 +102,9 @@ public class Evolution {
         //mutationMax = (float) Math.pow(0.97,hiscoreArray.get(population));
         mutationMin = -mutationMax;
 
-        float mutationAmount = (float) (mutationMin + Math.random() * (mutationMax - mutationMin));
-
         Random r = new Random();
+        float mutationAmount = (float) r.nextGaussian();
+
         //mutationPropability = (float) Math.pow(0.93,hiscoreArray.get(population) - 30);
 
         if (r.nextFloat() * 100 < mutationPropability) {

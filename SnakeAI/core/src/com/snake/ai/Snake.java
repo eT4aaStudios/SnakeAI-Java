@@ -64,6 +64,7 @@ public class Snake implements Runnable {
     public static int steps;
     long startTime;
     static long timePerPop;
+    main main2;
 
     public Snake() {
         initGrid();
@@ -71,7 +72,7 @@ public class Snake implements Runnable {
 
     void startNewGame() {
         gameOver = false;
-
+        main2 = new main();
         stop();
         initGrid();
         treats = new Array<>();
@@ -209,6 +210,8 @@ public class Snake implements Runnable {
         }
         snakeNr = 0;
         if (gameNr != 0) {
+            if(populationsSinceLastSave % 100 == 0)
+                System.gc();
             if (populationsSinceLastSave == 499) {
                 SavedSnakes savedSnakes = new SavedSnakes();
                 savedSnakes.saveCurrentSnake(true);
@@ -219,7 +222,6 @@ public class Snake implements Runnable {
                     gameNr = getInteger("GameMenge") + 1;
                 }
                 populationsSinceLastSave = 0;
-
             } else
                 populationsSinceLastSave++;
         }
@@ -268,7 +270,6 @@ public class Snake implements Runnable {
                     main.SnakeHeadY = snake.get(0).y;
                 }
 
-                main main2 = new main();
                 main2.berechneLayer();
                 doAction();
                 Evolution evo = new Evolution();
@@ -299,7 +300,7 @@ public class Snake implements Runnable {
             System.out.println("\n");
         }
 
-        float highest = 0;
+        double highest = 0;
         int id = 0;
         for (int i = 0; i < currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.size; i++) {
             if (currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(i).value > highest) {
