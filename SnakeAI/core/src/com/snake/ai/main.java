@@ -105,8 +105,8 @@ public class main extends Game {
     public static int POPULATIONSIZE = 1500;
     public static int FIRSTPOPULATIONSIZE = 1500;
 
-    public static int reihen = 12;
-    public static int spalten = 12;
+    public static int reihen = 22;
+    public static int spalten = 22;
 
     Snake snake = new Snake();
 
