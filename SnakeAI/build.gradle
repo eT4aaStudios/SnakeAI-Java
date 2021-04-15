@@ -1,5 +1,4 @@
 buildscript {
-    
 
     repositories {
         mavenLocal()
@@ -24,7 +23,7 @@ allprojects {
     version = '1.0'
     ext {
         appName = "Snake Ai"
-        gdxVersion = '1.9.12'
+        gdxVersion = '1.9.14'
         roboVMVersion = '2.3.8'
         box2DLightsVersion = '1.4'
         ashleyVersion = '1.7.0'
@@ -106,6 +105,5 @@ project(":core") {
 
     dependencies {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
-        
     }
 }
