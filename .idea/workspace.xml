@@ -19,7 +19,15 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b13cd485-78ed-408e-b9bd-d0aa1ae22c00" name="Default Changelist" comment="" />
+    <list default="true" id="b13cd485-78ed-408e-b9bd-d0aa1ae22c00" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/SnakeAI/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/SnakeAI/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SnakeAI/core/src/com/snake/ai/Evolution.java" beforeDir="false" afterPath="$PROJECT_DIR$/SnakeAI/core/src/com/snake/ai/Evolution.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SnakeAI/core/src/com/snake/ai/InputLayerDetection.java" beforeDir="false" afterPath="$PROJECT_DIR$/SnakeAI/core/src/com/snake/ai/InputLayerDetection.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SnakeAI/core/src/com/snake/ai/SavedSnakes.java" beforeDir="false" afterPath="$PROJECT_DIR$/SnakeAI/core/src/com/snake/ai/SavedSnakes.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SnakeAI/core/src/com/snake/ai/Snake.java" beforeDir="false" afterPath="$PROJECT_DIR$/SnakeAI/core/src/com/snake/ai/Snake.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SnakeAI/core/src/com/snake/ai/main.java" beforeDir="false" afterPath="$PROJECT_DIR$/SnakeAI/core/src/com/snake/ai/main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SnakeAI/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/SnakeAI/gradle.properties" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -118,6 +126,7 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="WindowStateProjectService">
     <state x="1092" y="144" key="#Unnamed" timestamp="1618410621504">
@@ -132,10 +141,10 @@
       <screen x="0" y="0" width="2752" height="1112" />
     </state>
     <state x="1106" y="346" key="#com.intellij.ide.util.TreeClassChooserDialog/0.0.2752.1112@0.0.2752.1112" timestamp="1618411204495" />
-    <state x="1157" y="311" key="FileChooserDialogImpl" timestamp="1618411216422">
+    <state x="1157" y="311" key="FileChooserDialogImpl" timestamp="1619455372644">
       <screen x="0" y="0" width="2752" height="1112" />
     </state>
-    <state x="1157" y="311" key="FileChooserDialogImpl/0.0.2752.1112@0.0.2752.1112" timestamp="1618411216422" />
+    <state x="1157" y="311" key="FileChooserDialogImpl/0.0.2752.1112@0.0.2752.1112" timestamp="1619455372644" />
     <state x="885" y="201" key="SettingsEditor" timestamp="1618411154128">
       <screen x="0" y="0" width="2752" height="1112" />
     </state>

@@ -15,15 +15,14 @@ import static com.snake.ai.main.loadFromSavedSnake;
 public class Node {
     public Array<Float> WeigthArray;
     public double value;
-    Evolution evo;
+    Evolution evo = new Evolution();
+    Random r = new Random();
 
     public Node(int NodeNumber, int LayerNumber, boolean populationGreaterZero, Snakes parent1, Snakes parent2) {
         if (LayerNumber + 1 < LayerMenge) {
-
-            evo = new Evolution();
+            WeigthArray = null;
             WeigthArray = new Array<>();
             if (populationGreaterZero) {
-                Random r = new Random();
                 int i = r.nextInt(1);
                 /*if (i == 1) {
                     singlePoint(NodeNumber, LayerNumber, parent1, parent2);
@@ -55,7 +54,7 @@ public class Node {
                 }
             } else {
                 for (int i = 0; i < layerNodeValueArray.get(LayerNumber + 1); i++) {
-                    WeigthArray.add((float) (-1f + Math.random() * (1f - -1f)));
+                    WeigthArray.add(-1f + r.nextFloat() * (1f - -1f));
                 }
             }
         }
@@ -79,6 +78,7 @@ public class Node {
         }
         for (int k = WeigthNumber; k < layerNodeValueArray.get(LayerNumber + 1); k++) {
             //Weight 2
+            //TODO Memory Leak
             WeigthArray.add(evo.mutation3(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2, 2));
             WeigthNumber++;
         }

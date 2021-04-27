@@ -6,6 +6,7 @@ public class allSnakes {
     public Array<Snakes> allSnakesArray;
 
     public allSnakes() {
+        allSnakesArray = null;
         allSnakesArray = new Array<>();
     }
 }

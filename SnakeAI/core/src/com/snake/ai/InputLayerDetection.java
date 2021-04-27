@@ -12,7 +12,6 @@ import static com.snake.ai.main.foodpositionX;
 import static com.snake.ai.main.foodpositionY;
 import static com.snake.ai.main.reihen;
 import static com.snake.ai.main.spalten;
-import static com.snake.ai.main.visionFieldSize;
 
 public class InputLayerDetection {
 
@@ -38,8 +37,6 @@ public class InputLayerDetection {
             directionGoingTail();           //(4) 33 Tail Direction
         }
 
-        if (visionFieldSize > 1)
-            visionField();
 
         if (enableInputLayerLogging) {
             System.out.println("\nInputLayer Values: ");
@@ -329,31 +326,6 @@ public class InputLayerDetection {
         if (x == -1 && y == 0) {
             //Tail going left
             currentSnake.layerArray.get(0).NodeArray.get(32).value = 1;
-        }
-    }
-
-    public void visionField() {
-        int i = 0;
-        int leftTopCornerX = Snake.snake.get(0).x - (visionFieldSize - 1) / 2;
-        int leftTopCornerY = Snake.snake.get(0).y - (visionFieldSize - 1) / 2 + 1;
-
-        for (int x = leftTopCornerX; x < leftTopCornerX + visionFieldSize; x++) {
-            for (int y = leftTopCornerY; y < leftTopCornerY + visionFieldSize; y++) {
-                if (x > 0 && x < reihen - 1)
-                    if (y > 1 && y < spalten) {
-                        for (int j = 0; j < snake.size(); j++) {
-                            if (snake.get(j).x == x && snake.get(j).y == y) {
-                                currentSnake.layerArray.get(0).NodeArray.get(i).value = 1f;
-                            }
-                        }
-                        for (int j = 0; j < treats.size; j++) {
-                            if (treats.get(j).x == x && treats.get(j).y == y) {
-                                currentSnake.layerArray.get(0).NodeArray.get(i).value = 0.5f;
-                            }
-                        }
-                        i++;
-                    }
-            }
         }
     }
 }

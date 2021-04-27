@@ -76,10 +76,12 @@ public class SavedSnakes implements Screen {
     Skin skin;
     FileHandle file;
     private static Properties properties;
+    main main;
 
-    public SavedSnakes() {
+    public SavedSnakes(main main) {
         prefs = Gdx.app.getPreferences("SnakeAi");
         file = Gdx.files.internal("BestSnake.txt");
+        properties = null;
         properties = new Properties();
         InputStream in = null;
         try {
@@ -90,15 +92,19 @@ public class SavedSnakes implements Screen {
         } finally {
             StreamUtils.closeQuietly(in);
         }
+        this.main = main;
     }
 
     @Override
     public void show() {
+        skin = null;
         skin = new Skin(Gdx.files.internal("uiskin.json"));
+        savedStage = null;
         savedStage = new Stage();
         Gdx.input.setInputProcessor(savedStage);
         prefs = Gdx.app.getPreferences("SnakeAi");
 
+        saveCurrentSnake = null;
         saveCurrentSnake = new TextButton("Save Current Snake", skin);
         saveCurrentSnake.setSize(savedSnakesScreenbutton.getWidth(), savedSnakesScreenbutton.getHeight());
         saveCurrentSnake.setPosition(buttonshownodes.getX(), savedSnakesScreenbutton.getY());
@@ -128,6 +134,7 @@ public class SavedSnakes implements Screen {
 
         }
 
+        atlas = null;
         atlas = new TextureAtlas("scrollpane/textures.atlas");
         pixel10 = new BitmapFont(Gdx.files.internal("scrollpane/pixel.fnt"), atlas.findRegion("pixel"), false);
         skin2 = new Skin(atlas);
@@ -146,18 +153,11 @@ public class SavedSnakes implements Screen {
 
         for (int i = 0; i < getInteger("GameMenge") + 1; i++) {
             Group g = new Group();
-            if (i == 0)
-                loadSavedSnake = new TextButton("Load Game Nr.: " + i +
-                        "\nAverage Fitness: " + getFloat("gameNr " + i + "average Fitness") +
-                        "\nBest Fitness Ever: " + getFloat("gameNr " + i + "bestSnakeEver.fitness") +
-                        "\nHighScore: " + getInteger("gameNr " + i + "hiScore") +
-                        "\nPoulation: " + getInteger("gameNr " + i + "population"), skin);
-            else
-                loadSavedSnake = new TextButton("Load Game Nr.: " + i +
-                        "\nAverage Fitness: " + getFloat("gameNr " + i + "average Fitness") +
-                        "\nBest Fitness Ever: " + getFloat("gameNr " + i + "bestSnakeEver.fitness") +
-                        "\nHighScore: " + getInteger("gameNr " + i + "hiScore") +
-                        "\nPoulation: " + getInteger("gameNr " + i + "population"), skin);
+            loadSavedSnake = new TextButton("Load Game Nr.: " + i +
+                    "\nAverage Fitness: " + getFloat("gameNr " + i + "average Fitness") +
+                    "\nBest Fitness Ever: " + getFloat("gameNr " + i + "bestSnakeEver.fitness") +
+                    "\nHighScore: " + getInteger("gameNr " + i + "hiScore") +
+                    "\nPoulation: " + getInteger("gameNr " + i + "population"), skin);
 
             loadSavedSnake.setSize(w / 2 / 2f, h / 5);
             loadSavedSnake.setPosition(w / 2 / -6f, 0);
@@ -171,7 +171,7 @@ public class SavedSnakes implements Screen {
                         loadBestArraySnake(finalI);
                     } else {
                         if (gameOver) {
-                            Snake snake = new Snake();
+                            Snake snake = new Snake(main);
                             snake.startNewGame();
                             System.out.print("\033[H\033[2J");
                             System.out.flush();

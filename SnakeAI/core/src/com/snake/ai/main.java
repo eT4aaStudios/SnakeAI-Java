@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -17,6 +18,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
+
+import java.util.Date;
 
 import static com.snake.ai.Snake.Sleep_Time;
 import static com.snake.ai.Snake.gameOver;
@@ -55,7 +58,7 @@ public class main extends Game {
     public static int foodpositionX, foodpositionY;
     public static int SnakeHeadX, SnakeHeadY;
     Array<Integer> felderarray;
-    public static boolean freeze;
+    public static boolean freeze = true;
     public static Snakes currentSnake;
     public static Array<Integer> layerNodeValueArray;
     public static boolean currentScreen;
@@ -67,6 +70,8 @@ public class main extends Game {
     public static Array<Integer> hiscoreArray;
     public static boolean graphmode1;
     public static int populationsSinceLastSave;
+    public static Date startDate;
+    public static Array<String> fontStringArray = new Array<>();
 
     public static boolean loadFromSavedSnake, loadBestSnakeEver;
     public static int gameNr = -1;
@@ -80,7 +85,7 @@ public class main extends Game {
     public static float biasOutput = -0.4f;
     public static int bestSnakesArraySize = 50;
 
-    public static float mutationPropability = 0.1f;//%
+    public static float mutationPropability = 5f;//%
     public static float mutationMin = -1f;
     public static float mutationMax = 1f;
 
@@ -92,8 +97,6 @@ public class main extends Game {
     static int outputLayerNodes = 4;
     static int LayerMenge = 4;
 
-    static int visionFieldSize = 0 + 1;
-
     //Debugging Eigenschaften
     public static boolean enableNodeLogging = false;
     public static boolean enableSehrNahLogging = false;
@@ -102,24 +105,20 @@ public class main extends Game {
     public static boolean enableNewPopulationLogging = false;
 
     //Evolutions Eigenschaften
-    public static int POPULATIONSIZE = 1500;
-    public static int FIRSTPOPULATIONSIZE = 1500;
+    public static int POPULATIONSIZE = 1000;
+    public static int FIRSTPOPULATIONSIZE = 1000;
 
     public static int reihen = 22;
     public static int spalten = 22;
 
-    Snake snake = new Snake();
+    Snake snake;
 
     NodeVis NodeVis;
     SavedSnakes SavedSnakes;
 
     @Override
     public void create() {
-        if (visionFieldSize > 1) {
-            int width = visionFieldSize * 2 + 1;
-            inputLayerNodes = width * width;
-        }
-
+        snake = new Snake(this);
         layerNodeValueArray = new Array<>();
         layerNodeValueArray.add(inputLayerNodes);
         layerNodeValueArray.add(Layer2Nodes);
@@ -146,6 +145,7 @@ public class main extends Game {
         font = new BitmapFont();
         font.getData().setScale(w / 1100);
 
+
         buttonStart = new Button(new TextureRegionDrawable(new TextureRegion(new Texture("transparent2.png"))));
         buttonStart.setSize(w / 2, h);
         buttonStart.setPosition(w / 2, 0);
@@ -154,6 +154,7 @@ public class main extends Game {
             public void clicked(InputEvent event, float x, float y) {
                 if (gameOver) {
                     snake.startNewGame();
+                    freeze = false;
                 } else {
                     freeze = !freeze;
                 }
@@ -292,7 +293,8 @@ public class main extends Game {
         bestSnakeEver.bestSnakeEver = currentSnake;
 
         NodeVis = new NodeVis();
-        SavedSnakes = new SavedSnakes();
+        SavedSnakes = new SavedSnakes(this);
+        initializeFontStringArray();
     }
 
     @Override
@@ -306,8 +308,6 @@ public class main extends Game {
         shapeRenderer.end();
 
         drawGame();
-        if (visionFieldSize > 1 && Snake.snake != null)
-            drawVisionField();
 
         if (this.getScreen() != SavedSnakes) {
             if (!currentScreen) {
@@ -325,6 +325,7 @@ public class main extends Game {
     @Override
     public void dispose() {
         batch.dispose();
+        font.dispose();
     }
 
     public void ResetLayers() {
@@ -504,36 +505,15 @@ public class main extends Game {
         shapeRenderer.end();
 
         batch.begin();
-        font.draw(batch, "Settings", w / 3.35f, h / 1.07f);
-        font.draw(batch, "______________________", w / 3.35f, h / 1.08f);
-        font.draw(batch, "Game Nr: " + gameNr, w / 3.35f, h / 1.13f);
-        font.draw(batch, "Snake Nr: " + snakeNr, w / 3.35f, h / 1.18f);
-        font.draw(batch, "Score: " + score, w / 3.35f, h / 1.23f);
-        font.draw(batch, "Population: " + population, w / 3.35f, h / 1.28f);
-        font.setColor(1f, 0.3f, 0.3f, 1);
-        int maxLength = (reihen - 2) * (spalten - 2) - startlength;
-        font.draw(batch, "Highscore: " + hiScore + " (Max: " + maxLength + ")", w / 3.35f, h / 1.34f);
-        font.draw(batch, "Best Fitness Ever: " + bestSnakeEver.bestSnakeEver.fitness, w / 3.35f, h / 1.4f);
-        font.setColor(Color.WHITE);
-        font.draw(batch, "______________________", w / 3.35f, h / 1.45f);
-        font.draw(batch, "Bias: " + (float) bias, w / 3.35f, h / 1.55f);
-        font.draw(batch, "Output Bias: " + (float) biasOutput, w / 3.35f, h / 1.63f);
-        font.draw(batch, "Input Layer Nodes: " + inputLayerNodes, w / 3.35f, h / 1.72f);
-        font.draw(batch, "Layer 2 Nodes: " + Layer2Nodes, w / 3.35f, h / 1.82f);
-        font.draw(batch, "Layer 3 Nodes: " + Layer3Nodes, w / 3.35f, h / 1.93f);
-        font.draw(batch, "Layer 4 Nodes: " + Layer4Nodes, w / 3.35f, h / 2.05f);
-        font.draw(batch, "Output Layer Nodes: " + outputLayerNodes, w / 3.35f, h / 2.18f);
-        font.draw(batch, "______________________", w / 3.35f, h / 2.34f);
-        font.draw(batch, "Mutation Probability: " + (float) mutationPropability, w / 3.35f, h / 2.55f);
-        font.draw(batch, "Mutation Min: " + (float) mutationMin, w / 3.35f, h / 2.8f);
-        font.draw(batch, "Mutation Max: " + (float) mutationMax, w / 3.35f, h / 3.1f);
-        font.draw(batch, "Population Size: " + POPULATIONSIZE, w / 3.35f, h / 3.4f);
-        font.draw(batch, "First Population Size: " + FIRSTPOPULATIONSIZE, w / 3.35f, h / 3.8f);
-        font.draw(batch, "______________________", w / 3.35f, h / 4.5f);
-        font.draw(batch, "Rows: " + reihen, w / 3.35f, h / 5.5f);
-        font.draw(batch, "Columns: " + spalten, w / 3.35f, h / 6.5f);
-        font.draw(batch, "______________________", w / 3.35f, h / 7.5f);
-        font.draw(batch, "Time Per Population: " + timePerPop, w / 3.35f, h / 12f);
+
+        refreshFontStringArray();
+        for (int i = 0; i < 27; i++) {
+            if (i >= 6 && i < 8)
+                font.setColor(1f, 0.3f, 0.3f, 1);
+            else
+                font.setColor(Color.WHITE);
+            font.draw(batch, fontStringArray.get(i), w / 3.35f, (h / 1.07f - h / 12f) / 27 * (27 - i) + h / 12f);
+        }
         batch.end();
     }
 
@@ -569,53 +549,92 @@ public class main extends Game {
             }
         }
         //Schlange
-        if (Snake.snake != null && Snake.snake.size() > 0)
-            for (int i = 0; i < Snake.snake.size(); i++) {
-                try {
-                    shapeRenderer.setColor(0.3f, 0.7f, 0.3f, 1);
-                    shapeRenderer.rect(Snake.snake.get(i).x * w / 2 / reihen + w / 2
-                            , (spalten - 1 - Snake.snake.get(i).y) * h / spalten
-                            , w / 2 / reihen
-                            , h / spalten);
-                    if (i == 0) {
-                        shapeRenderer.setColor(1f, 0.3f, 0.3f, 1);
+        try {
+            if (Snake.snake != null && Snake.snake.size() > 0) {
+                for (int i = 0; i < Snake.snake.size(); i++) {
+                    try {
+                        shapeRenderer.setColor(0.3f, 0.7f, 0.3f, 1);
                         shapeRenderer.rect(Snake.snake.get(i).x * w / 2 / reihen + w / 2
                                 , (spalten - 1 - Snake.snake.get(i).y) * h / spalten
                                 , w / 2 / reihen
                                 , h / spalten);
-                    }
-                } catch (Exception ignored) {
+                        if (i == 0) {
+                            shapeRenderer.setColor(1f, 0.3f, 0.3f, 1);
+                            shapeRenderer.rect(Snake.snake.get(i).x * w / 2 / reihen + w / 2
+                                    , (spalten - 1 - Snake.snake.get(i).y) * h / spalten
+                                    , w / 2 / reihen
+                                    , h / spalten);
+                        }
+                    } catch (Exception ignored) {
 
+                    }
                 }
             }
+        } catch (Exception ignored) {
+
+        }
         shapeRenderer.end();
     }
 
-    public void drawVisionField() {
-        Gdx.gl.glEnable(GL20.GL_BLEND);
-        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(0.9f, 0.9f, 0.9f, 0.3f);
+    public void initializeFontStringArray() {
+        fontStringArray.add("Settings");
+        fontStringArray.add("-----------------------------------");
+        fontStringArray.add("Game Nr: " + gameNr);
+        fontStringArray.add("Snake Nr: " + snakeNr);
+        fontStringArray.add("Score: " + score);
+        fontStringArray.add("Population: " + population);
+        int maxLength = (reihen - 2) * (spalten - 2) - startlength;
+        fontStringArray.add("Highscore: " + hiScore + " (Max: " + maxLength + ")");
+        fontStringArray.add("Best Fitness Ever: " + bestSnakeEver.bestSnakeEver.fitness);
+        fontStringArray.add("-----------------------------------");
+        fontStringArray.add("Bias: " + (float) bias);
+        fontStringArray.add("Output Bias: " + (float) biasOutput);
+        fontStringArray.add("Input Layer Nodes: " + inputLayerNodes);
+        fontStringArray.add("Layer 2 Nodes: " + Layer2Nodes);
+        fontStringArray.add("Layer 3 Nodes: " + Layer3Nodes);
+        fontStringArray.add("Layer 4 Nodes: " + Layer4Nodes);
+        fontStringArray.add("Output Layer Nodes: " + outputLayerNodes);
+        fontStringArray.add("-----------------------------------");
+        fontStringArray.add("Mutation Probability: " + (float) mutationPropability);
+        fontStringArray.add("Mutation Min: " + (float) mutationMin);
+        fontStringArray.add("Mutation Max: " + (float) mutationMax);
+        fontStringArray.add("Population Size: " + POPULATIONSIZE);
+        fontStringArray.add("First Population Size: " + FIRSTPOPULATIONSIZE);
+        fontStringArray.add("-----------------------------------");
+        fontStringArray.add("Rows: " + reihen);
+        fontStringArray.add("Columns: " + spalten);
+        fontStringArray.add("-----------------------------------");
+        fontStringArray.add("Time Per Population: " + timePerPop);
+    }
 
-        try {
-            int leftTopCornerX = Snake.snake.get(0).x - (visionFieldSize - 1) / 2;
-            int leftTopCornerY = Snake.snake.get(0).y - (visionFieldSize - 1) / 2 + 1;
-
-            for (int x = leftTopCornerX; x < leftTopCornerX + visionFieldSize; x++) {
-                for (int y = leftTopCornerY; y < leftTopCornerY + visionFieldSize; y++) {
-                    if (x > 0 && x < reihen - 1)
-                        if (y > 1 && y < spalten)
-                            shapeRenderer.rect(w / 2 + x * w / 2 / reihen
-                                    , (reihen - y) * h / spalten
-                                    , w / 2 / reihen
-                                    , h / spalten);
-                }
-            }
-            shapeRenderer.end();
-            Gdx.gl.glDisable(GL20.GL_BLEND);
-        }catch (Exception e){
-            System.out.println(e);
-        }
-
+    public void refreshFontStringArray() {
+        fontStringArray.set(0,"Settings");
+        fontStringArray.set(1,"-----------------------------------");
+        fontStringArray.set(2,"Game Nr: " + gameNr);
+        fontStringArray.set(3,"Snake Nr: " + snakeNr);
+        fontStringArray.set(4,"Score: " + score);
+        fontStringArray.set(5,"Population: " + population);
+        int maxLength = (reihen - 2) * (spalten - 2) - startlength;
+        fontStringArray.set(6,"Highscore: " + hiScore + " (Max: " + maxLength + ")");
+        fontStringArray.set(7,"Best Fitness Ever: " + bestSnakeEver.bestSnakeEver.fitness);
+        fontStringArray.set(8,"-----------------------------------");
+        fontStringArray.set(9,"Bias: " + (float) bias);
+        fontStringArray.set(10,"Output Bias: " + (float) biasOutput);
+        fontStringArray.set(11,"Input Layer Nodes: " + inputLayerNodes);
+        fontStringArray.set(12,"Layer 2 Nodes: " + Layer2Nodes);
+        fontStringArray.set(13,"Layer 3 Nodes: " + Layer3Nodes);
+        fontStringArray.set(14,"Layer 4 Nodes: " + Layer4Nodes);
+        fontStringArray.set(15,"Output Layer Nodes: " + outputLayerNodes);
+        fontStringArray.set(16,"-----------------------------------");
+        fontStringArray.set(17,"Mutation Probability: " + (float) mutationPropability);
+        fontStringArray.set(18,"Mutation Min: " + (float) mutationMin);
+        fontStringArray.set(19,"Mutation Max: " + (float) mutationMax);
+        fontStringArray.set(20,"Population Size: " + POPULATIONSIZE);
+        fontStringArray.set(21,"First Population Size: " + FIRSTPOPULATIONSIZE);
+        fontStringArray.set(22,"-----------------------------------");
+        fontStringArray.set(23,"Rows: " + reihen);
+        fontStringArray.set(24,"Columns: " + spalten);
+        fontStringArray.set(25,"-----------------------------------");
+        fontStringArray.set(26,"Time Per Population: " + timePerPop);
     }
 }

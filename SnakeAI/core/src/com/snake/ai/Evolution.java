@@ -7,14 +7,24 @@ import static com.snake.ai.main.hiscoreArray;
 import static com.snake.ai.main.mutationMax;
 import static com.snake.ai.main.mutationMin;
 import static com.snake.ai.main.mutationPropability;
+import static com.snake.ai.main.reihen;
+import static com.snake.ai.main.spalten;
 
 public class Evolution {
     public double FitnessFuntction(int steps, int score) {
         return steps + (Math.pow(1.1d, score) + Math.pow(score, 2.1d) * 500) - (Math.pow(score, 1.2d) * Math.pow((0.25d * steps), 1.3d));
     }
 
-    public int FitnessFuntction2(int steps, int score) {
-        return (int) ((Math.pow(1.1d, score) + Math.pow(score, 2.1d) * 500) - Math.pow(score, 1.2d));
+    public double Score(int score) {
+        return (1 - Math.pow(0.987,score)) * reihen * spalten;
+    }
+
+    public double Steps(int steps) {
+        return 0.0005 * Math.pow(steps - 50, 3) - steps + 50;
+    }
+
+    public double FitnessFuntction2(int steps, int score) {
+        return Score(score) + Steps(steps);
     }
 
     //Crossover

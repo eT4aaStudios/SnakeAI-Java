@@ -10,6 +10,7 @@ public class Layer {
     Array<Node> NodeArray;
 
     public Layer(int LayerNumber, boolean populationGreaterZero, Snakes parent1, Snakes parent2) {
+        NodeArray = null;
         NodeArray = new Array<>();
 
         for (int i = 0; i < layerNodeValueArray.get(LayerNumber); i++) {

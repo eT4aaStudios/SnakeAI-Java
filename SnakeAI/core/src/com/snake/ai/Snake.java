@@ -2,12 +2,29 @@ package com.snake.ai;
 
 import com.badlogic.gdx.utils.Array;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 import static com.snake.ai.SavedSnakes.getInteger;
+import static com.snake.ai.SavedSnakes.prefs;
 import static com.snake.ai.main.FIRSTPOPULATIONSIZE;
 import static com.snake.ai.main.POPULATIONSIZE;
 import static com.snake.ai.main.allSnakesArrays;
@@ -27,6 +44,7 @@ import static com.snake.ai.main.reihen;
 import static com.snake.ai.main.replay;
 import static com.snake.ai.main.requestReplayStop;
 import static com.snake.ai.main.spalten;
+import static com.snake.ai.main.startDate;
 
 public class Snake implements Runnable {
     enum Dir {
@@ -46,12 +64,14 @@ public class Snake implements Runnable {
     static volatile boolean gameOver = true;
 
     Thread gameThread;
+    boolean pauseThread = true;
     static int score;
     static int hiScore;
     static final int startlength = 3;
     static Dir dir, startDir;
     static int energy;
     static int timealaive;
+    public FitnessComparator fitnessComparator;
 
     int[][] grid;
     static List<Point> snake;
@@ -66,15 +86,19 @@ public class Snake implements Runnable {
     static long timePerPop;
     main main2;
 
-    public Snake() {
+    public Snake(main main2) {
         initGrid();
+        fitnessComparator = new FitnessComparator();
+        this.main2 = main2;
+        gameThread = null;
+        (gameThread = new Thread(this)).start();
     }
 
     void startNewGame() {
         gameOver = false;
-        main2 = new main();
         stop();
         initGrid();
+        treats = null;
         treats = new Array<>();
         addTreat();
 
@@ -93,17 +117,18 @@ public class Snake implements Runnable {
         }
 
         if (!replay) {
+            currentSnake = null;
             currentSnake = new Snakes();
             snakeNr++;
         } else
             currentSnake = bestSnakeEver.bestSnakeEver;
 
-
+        snake = null;
         snake = new ArrayList<>();
 
         direction();
 
-        (gameThread = new Thread(this)).start();
+        pauseThread = true;
     }
 
     public void direction() {
@@ -129,23 +154,31 @@ public class Snake implements Runnable {
         switch (dir) {
             case up:
                 NodeVis.highest = 0;
-                for (int x = 0; x < startlength; x++)
-                    snake.add(new Point(reihen / 2 + x, spalten / 2));
+                for (int x = 0; x < startlength; x++) {
+                    Point point = new Point(reihen / 2 + x, spalten / 2);
+                    snake.add(point);
+                }
                 break;
             case down:
                 NodeVis.highest = 1;
-                for (int x = startlength; x > 0; x--)
-                    snake.add(new Point(reihen / 2 + x, spalten / 2));
+                for (int x = startlength; x > 0; x--) {
+                    Point point = new Point(reihen / 2 + x, spalten / 2);
+                    snake.add(point);
+                }
                 break;
             case left:
                 NodeVis.highest = 2;
-                for (int x = 0; x < startlength; x++)
-                    snake.add(new Point(reihen / 2, spalten / 2 + x));
+                for (int x = 0; x < startlength; x++) {
+                    Point point = new Point(reihen / 2, spalten / 2 + x);
+                    snake.add(point);
+                }
                 break;
             case right:
                 NodeVis.highest = 3;
-                for (int x = startlength; x > 0; x--)
-                    snake.add(new Point(reihen / 2, spalten / 2 + x));
+                for (int x = startlength; x > 0; x--) {
+                    Point point = new Point(reihen / 2, spalten / 2 + x);
+                    snake.add(point);
+                }
                 break;
         }
         startDir = dir;
@@ -154,6 +187,24 @@ public class Snake implements Runnable {
     }
 
     public void newPopulation() {
+        DateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.GERMANY);
+        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream("snakeAiData.txt"), StandardCharsets.UTF_8))) {
+
+            if (prefs.getString("startDate").equals("")) {
+                startDate = null;
+                startDate = new Date();
+
+                prefs.putString("startDate", format.format(startDate));
+                prefs.flush();
+            }
+
+            writer.write("Population" + population + "\n");
+            writer.write("Highscore" + hiScore + "\n");
+            writer.write("startDate" + prefs.getString("startDate"));
+        } catch (Exception ignored) {
+        }
+
         loadFromSavedSnake = false;
         population++;
         if (enableNewPopulationLogging) {
@@ -173,7 +224,7 @@ public class Snake implements Runnable {
         } else
             allSnakesArrays.add(allSnakes);
 
-        allSnakesArrays.get(0).allSnakesArray.sort(new FitnessComparator());
+        allSnakesArrays.get(0).allSnakesArray.sort(fitnessComparator);
 
         //Average Fitness
         int maxFitness = 0;
@@ -210,10 +261,10 @@ public class Snake implements Runnable {
         }
         snakeNr = 0;
         if (gameNr != 0) {
-            if(populationsSinceLastSave % 100 == 0)
+            if (populationsSinceLastSave % 100 == 0)
                 System.gc();
             if (populationsSinceLastSave == 499) {
-                SavedSnakes savedSnakes = new SavedSnakes();
+                SavedSnakes savedSnakes = new SavedSnakes(main2);
                 savedSnakes.saveCurrentSnake(true);
                 if (gameNr > -1) {
                     savedSnakes.delete(gameNr);
@@ -228,11 +279,7 @@ public class Snake implements Runnable {
     }
 
     void stop() {
-        if (gameThread != null) {
-            Thread tmp = gameThread;
-            gameThread = null;
-            tmp.interrupt();
-        }
+        pauseThread = true;
     }
 
     void initGrid() {
@@ -247,15 +294,14 @@ public class Snake implements Runnable {
 
     @Override
     public void run() {
-        while (Thread.currentThread() == gameThread) {
+        while (true) {
             if (Sleep_Time > 0)
                 try {
                     Thread.sleep(Sleep_Time);
-                } catch (InterruptedException e) {
-                    return;
-                }
-            if (!freeze) {
+                } catch (InterruptedException ignored) {
 
+                }
+            if (!freeze && currentSnake != null) {
                 if (energyUsed() || hitsWall() || hitsSnake()) {
                     gameOver();
                 } else {
