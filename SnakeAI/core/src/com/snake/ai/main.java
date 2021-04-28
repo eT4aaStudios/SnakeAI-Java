@@ -20,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 
 import java.util.Date;
+import java.util.Random;
 
 import static com.snake.ai.Snake.Sleep_Time;
 import static com.snake.ai.Snake.gameOver;
@@ -83,7 +84,7 @@ public class main extends Game {
     //Neuronales Netzwerk Eigenschaften
     public static float bias = 0f;
     public static float biasOutput = -0.4f;
-    public static int bestSnakesArraySize = 50;
+    public static int bestSnakesArraySize = 5;
 
     public static float mutationPropability = 5f;//%
     public static float mutationMin = -1f;
@@ -294,7 +295,6 @@ public class main extends Game {
 
         NodeVis = new NodeVis();
         SavedSnakes = new SavedSnakes(this);
-        initializeFontStringArray();
     }
 
     @Override
@@ -505,15 +505,36 @@ public class main extends Game {
         shapeRenderer.end();
 
         batch.begin();
-
-        refreshFontStringArray();
-        for (int i = 0; i < 27; i++) {
-            if (i >= 6 && i < 8)
-                font.setColor(1f, 0.3f, 0.3f, 1);
-            else
-                font.setColor(Color.WHITE);
-            font.draw(batch, fontStringArray.get(i), w / 3.35f, (h / 1.07f - h / 12f) / 27 * (27 - i) + h / 12f);
-        }
+        font.draw(batch, "Settings", w / 3.35f, h / 1.07f);
+        font.draw(batch, "______________________", w / 3.35f, h / 1.08f);
+        font.draw(batch, "Game Nr: " + gameNr, w / 3.35f, h / 1.13f);
+        font.draw(batch, "Snake Nr: " + snakeNr, w / 3.35f, h / 1.18f);
+        font.draw(batch, "Score: " + score, w / 3.35f, h / 1.23f);
+        font.draw(batch, "Population: " + population, w / 3.35f, h / 1.28f);
+        font.setColor(1f, 0.3f, 0.3f, 1);
+        int maxLength = (reihen - 2) * (spalten - 2) - startlength;
+        font.draw(batch, "Highscore: " + hiScore + " (Max: " + maxLength + ")", w / 3.35f, h / 1.34f);
+        font.draw(batch, "Best Fitness Ever: " + bestSnakeEver.bestSnakeEver.fitness, w / 3.35f, h / 1.4f);
+        font.setColor(Color.WHITE);
+        font.draw(batch, "______________________", w / 3.35f, h / 1.45f);
+        font.draw(batch, "Bias: " + (float) bias, w / 3.35f, h / 1.55f);
+        font.draw(batch, "Output Bias: " + (float) biasOutput, w / 3.35f, h / 1.63f);
+        font.draw(batch, "Input Layer Nodes: " + inputLayerNodes, w / 3.35f, h / 1.72f);
+        font.draw(batch, "Layer 2 Nodes: " + Layer2Nodes, w / 3.35f, h / 1.82f);
+        font.draw(batch, "Layer 3 Nodes: " + Layer3Nodes, w / 3.35f, h / 1.93f);
+        font.draw(batch, "Layer 4 Nodes: " + Layer4Nodes, w / 3.35f, h / 2.05f);
+        font.draw(batch, "Output Layer Nodes: " + outputLayerNodes, w / 3.35f, h / 2.18f);
+        font.draw(batch, "______________________", w / 3.35f, h / 2.34f);
+        font.draw(batch, "Mutation Probability: " + (float) mutationPropability, w / 3.35f, h / 2.55f);
+        font.draw(batch, "Mutation Min: " + (float) mutationMin, w / 3.35f, h / 2.8f);
+        font.draw(batch, "Mutation Max: " + (float) mutationMax, w / 3.35f, h / 3.1f);
+        font.draw(batch, "Population Size: " + POPULATIONSIZE, w / 3.35f, h / 3.4f);
+        font.draw(batch, "First Population Size: " + FIRSTPOPULATIONSIZE, w / 3.35f, h / 3.8f);
+        font.draw(batch, "______________________", w / 3.35f, h / 4.5f);
+        font.draw(batch, "Rows: " + reihen, w / 3.35f, h / 5.5f);
+        font.draw(batch, "Columns: " + spalten, w / 3.35f, h / 6.5f);
+        font.draw(batch, "______________________", w / 3.35f, h / 7.5f);
+        font.draw(batch, "Time Per Population: " + timePerPop, w / 3.35f, h / 12f);
         batch.end();
     }
 
@@ -576,65 +597,10 @@ public class main extends Game {
         shapeRenderer.end();
     }
 
-    public void initializeFontStringArray() {
-        fontStringArray.add("Settings");
-        fontStringArray.add("-----------------------------------");
-        fontStringArray.add("Game Nr: " + gameNr);
-        fontStringArray.add("Snake Nr: " + snakeNr);
-        fontStringArray.add("Score: " + score);
-        fontStringArray.add("Population: " + population);
-        int maxLength = (reihen - 2) * (spalten - 2) - startlength;
-        fontStringArray.add("Highscore: " + hiScore + " (Max: " + maxLength + ")");
-        fontStringArray.add("Best Fitness Ever: " + bestSnakeEver.bestSnakeEver.fitness);
-        fontStringArray.add("-----------------------------------");
-        fontStringArray.add("Bias: " + (float) bias);
-        fontStringArray.add("Output Bias: " + (float) biasOutput);
-        fontStringArray.add("Input Layer Nodes: " + inputLayerNodes);
-        fontStringArray.add("Layer 2 Nodes: " + Layer2Nodes);
-        fontStringArray.add("Layer 3 Nodes: " + Layer3Nodes);
-        fontStringArray.add("Layer 4 Nodes: " + Layer4Nodes);
-        fontStringArray.add("Output Layer Nodes: " + outputLayerNodes);
-        fontStringArray.add("-----------------------------------");
-        fontStringArray.add("Mutation Probability: " + (float) mutationPropability);
-        fontStringArray.add("Mutation Min: " + (float) mutationMin);
-        fontStringArray.add("Mutation Max: " + (float) mutationMax);
-        fontStringArray.add("Population Size: " + POPULATIONSIZE);
-        fontStringArray.add("First Population Size: " + FIRSTPOPULATIONSIZE);
-        fontStringArray.add("-----------------------------------");
-        fontStringArray.add("Rows: " + reihen);
-        fontStringArray.add("Columns: " + spalten);
-        fontStringArray.add("-----------------------------------");
-        fontStringArray.add("Time Per Population: " + timePerPop);
-    }
-
-    public void refreshFontStringArray() {
-        fontStringArray.set(0,"Settings");
-        fontStringArray.set(1,"-----------------------------------");
-        fontStringArray.set(2,"Game Nr: " + gameNr);
-        fontStringArray.set(3,"Snake Nr: " + snakeNr);
-        fontStringArray.set(4,"Score: " + score);
-        fontStringArray.set(5,"Population: " + population);
-        int maxLength = (reihen - 2) * (spalten - 2) - startlength;
-        fontStringArray.set(6,"Highscore: " + hiScore + " (Max: " + maxLength + ")");
-        fontStringArray.set(7,"Best Fitness Ever: " + bestSnakeEver.bestSnakeEver.fitness);
-        fontStringArray.set(8,"-----------------------------------");
-        fontStringArray.set(9,"Bias: " + (float) bias);
-        fontStringArray.set(10,"Output Bias: " + (float) biasOutput);
-        fontStringArray.set(11,"Input Layer Nodes: " + inputLayerNodes);
-        fontStringArray.set(12,"Layer 2 Nodes: " + Layer2Nodes);
-        fontStringArray.set(13,"Layer 3 Nodes: " + Layer3Nodes);
-        fontStringArray.set(14,"Layer 4 Nodes: " + Layer4Nodes);
-        fontStringArray.set(15,"Output Layer Nodes: " + outputLayerNodes);
-        fontStringArray.set(16,"-----------------------------------");
-        fontStringArray.set(17,"Mutation Probability: " + (float) mutationPropability);
-        fontStringArray.set(18,"Mutation Min: " + (float) mutationMin);
-        fontStringArray.set(19,"Mutation Max: " + (float) mutationMax);
-        fontStringArray.set(20,"Population Size: " + POPULATIONSIZE);
-        fontStringArray.set(21,"First Population Size: " + FIRSTPOPULATIONSIZE);
-        fontStringArray.set(22,"-----------------------------------");
-        fontStringArray.set(23,"Rows: " + reihen);
-        fontStringArray.set(24,"Columns: " + spalten);
-        fontStringArray.set(25,"-----------------------------------");
-        fontStringArray.set(26,"Time Per Population: " + timePerPop);
+    public static int nextInt(int max) {
+        max = max - 1;
+        int random = (int) Math.round(Math.random() * max);
+        System.out.println("Max: " + max + " returned: " + random);
+        return random;
     }
 }

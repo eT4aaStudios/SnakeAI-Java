@@ -11,6 +11,7 @@ import static com.snake.ai.main.bestSnakesArray;
 import static com.snake.ai.main.bestSnakesArraySize;
 import static com.snake.ai.main.loadBestSnakeEver;
 import static com.snake.ai.main.loadFromSavedSnake;
+import static com.snake.ai.main.nextInt;
 
 
 public class Snakes {
@@ -22,7 +23,7 @@ public class Snakes {
 
     public Snakes() {
         if (population > 0 && !loadFromSavedSnake && !loadBestSnakeEver) {
-            selectParents2();
+            selectParents();
         }
         layerArray = new Array<>();
 
@@ -39,13 +40,10 @@ public class Snakes {
     //Out of the Best
     public void selectParents() {
         Array<Snakes> tempArray = new Array<>(bestSnakesArray);
-        float max = 0;
 
-        int choosenNumber = (int) ((1 + Math.random() * (bestSnakesArraySize - 1)));
-        parent1Snake = bestSnakesArray.get(choosenNumber);
-        tempArray.removeIndex(choosenNumber);
-        choosenNumber = (int) ((1 + Math.random() * (bestSnakesArraySize - 2)));
-        parent2Snake = bestSnakesArray.get(choosenNumber);
+        parent1Snake = tempArray.random();
+        tempArray.removeValue(parent1Snake,true);
+        parent2Snake = tempArray.random();
     }
 
     //Roulette
@@ -56,8 +54,7 @@ public class Snakes {
             maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
         }
 
-        Random r = new Random();
-        int choosenId = r.nextInt(maxFitness);
+        int choosenId = nextInt(maxFitness);
 
         int zahlZumChecken = 0;
         for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
@@ -75,8 +72,7 @@ public class Snakes {
             maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
         }
 
-        r = new Random();
-        choosenId = r.nextInt(maxFitness);
+        choosenId = nextInt(maxFitness);
 
 
         zahlZumChecken = 0;

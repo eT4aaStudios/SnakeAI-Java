@@ -39,6 +39,7 @@ import static com.snake.ai.main.freeze;
 import static com.snake.ai.main.gameNr;
 import static com.snake.ai.main.hiscoreArray;
 import static com.snake.ai.main.loadFromSavedSnake;
+import static com.snake.ai.main.nextInt;
 import static com.snake.ai.main.populationsSinceLastSave;
 import static com.snake.ai.main.reihen;
 import static com.snake.ai.main.replay;
@@ -92,12 +93,13 @@ public class Snake implements Runnable {
         this.main2 = main2;
         gameThread = null;
         (gameThread = new Thread(this)).start();
+        gameThread.setName("SnakeAiCalculating");
+        gameThread.setPriority(Thread.MAX_PRIORITY);
     }
 
     void startNewGame() {
         gameOver = false;
         stop();
-        initGrid();
         treats = null;
         treats = new Array<>();
         addTreat();
@@ -116,12 +118,13 @@ public class Snake implements Runnable {
             newPopulation();
         }
 
-        if (!replay) {
+        if (replay) {
+            currentSnake = bestSnakeEver.bestSnakeEver;
+        } else {
             currentSnake = null;
             currentSnake = new Snakes();
             snakeNr++;
-        } else
-            currentSnake = bestSnakeEver.bestSnakeEver;
+        }
 
         snake = null;
         snake = new ArrayList<>();
@@ -135,8 +138,7 @@ public class Snake implements Runnable {
         if (replay) {
             dir = bestSnakeEver.startDir;
         } else {
-            Random r = new Random();
-            switch (r.nextInt(4)) {
+            switch (nextInt(4)) {
                 case 0:
                     dir = Dir.left;
                     break;
@@ -436,12 +438,10 @@ public class Snake implements Runnable {
         allSnakesArrays.get(allSnakesArrays.size - 1).allSnakesArray.add(currentSnake);
 
         if (!replay && (currentSnake.fitness >= bestSnakeEver.bestSnakeEver.fitness)) {
-            bestSnakeEver.bestSnakeEver = null;
-            bestSnakeEver.bestSnakeTreats = null;
-            bestSnakeEver.startDir = null;
-            bestSnakeEver.directionArray = null;
 
-            bestSnakeEver.bestSnakeEver = currentSnake;
+            bestSnakeEver.bestSnakeEver.layerArray = new Array<>(currentSnake.layerArray);
+            bestSnakeEver.bestSnakeEver.fitness = currentSnake.fitness;
+            bestSnakeEver.bestSnakeEver.score = currentSnake.score;
             bestSnakeEver.bestSnakeTreats = new Array<>(treats);
             bestSnakeEver.startDir = startDir;
             bestSnakeEver.directionArray = new Array<>(bestSnakeEver.directionTmpArray);

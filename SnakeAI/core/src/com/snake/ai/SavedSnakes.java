@@ -416,6 +416,7 @@ public class SavedSnakes implements Screen {
 
     private void loadBestSnakeEver(int gameNr) {
         loadBestSnakeEver = true;
+        currentSnake = null;
         currentSnake = new Snakes();
         bestSnakeEver.bestSnakeEver = currentSnake;
         bestSnakeEver.bestSnakeEver.fitness = getInteger("gameNr " + gameNr + "bestSnakeEver.fitness");

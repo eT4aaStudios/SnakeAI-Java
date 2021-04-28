@@ -12,7 +12,7 @@ import static com.snake.ai.main.spalten;
 
 public class Evolution {
     public double FitnessFuntction(int steps, int score) {
-        return steps + (Math.pow(1.1d, score) + Math.pow(score, 2.1d) * 500) - (Math.pow(score, 1.2d) * Math.pow((0.25d * steps), 1.3d));
+        return steps + (Math.pow(2.1d, score) + Math.pow(score, 2.1d) * 500) - (Math.pow(score, 1.2d) * Math.pow((0.25d * steps), 1.3d));
     }
 
     public double Score(int score) {
@@ -71,9 +71,8 @@ public class Evolution {
         float weigth2 = parent2.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
 
         float mutationAmount = (float) (mutationMin + Math.random() * (mutationMax - mutationMin));
-        Random r = new Random();
 
-        if (r.nextFloat() * 100 < mutationPropability) {
+        if (Math.random() * 100 < mutationPropability) {
             //With Mutation
             if (weigthNr == 1) {
                 if (weigth1 + mutationAmount >= -1 && weigth1 + mutationAmount <= 1)
@@ -112,12 +111,11 @@ public class Evolution {
         //mutationMax = (float) Math.pow(0.97,hiscoreArray.get(population));
         mutationMin = -mutationMax;
 
-        Random r = new Random();
-        float mutationAmount = (float) r.nextGaussian();
+        float mutationAmount = (float) Math.random();
 
         //mutationPropability = (float) Math.pow(0.93,hiscoreArray.get(population) - 30);
 
-        if (r.nextFloat() * 100 < mutationPropability) {
+        if (Math.random() * 100 < mutationPropability) {
             //With Mutation
             if (weigth1 + mutationAmount > -1 && weigth1 + mutationAmount < 1)
                 return weigth1 + mutationAmount;
