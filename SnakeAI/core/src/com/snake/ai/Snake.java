@@ -2,21 +2,14 @@ package com.snake.ai;
 
 import com.badlogic.gdx.utils.Array;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -39,8 +32,8 @@ import static com.snake.ai.main.freeze;
 import static com.snake.ai.main.gameNr;
 import static com.snake.ai.main.hiscoreArray;
 import static com.snake.ai.main.loadFromSavedSnake;
-import static com.snake.ai.main.nextInt;
 import static com.snake.ai.main.populationsSinceLastSave;
+import static com.snake.ai.main.r;
 import static com.snake.ai.main.reihen;
 import static com.snake.ai.main.replay;
 import static com.snake.ai.main.requestReplayStop;
@@ -94,7 +87,6 @@ public class Snake implements Runnable {
         gameThread = null;
         (gameThread = new Thread(this)).start();
         gameThread.setName("SnakeAiCalculating");
-        gameThread.setPriority(Thread.MAX_PRIORITY);
     }
 
     void startNewGame() {
@@ -138,7 +130,7 @@ public class Snake implements Runnable {
         if (replay) {
             dir = bestSnakeEver.startDir;
         } else {
-            switch (nextInt(4)) {
+            switch (r.nextInt(4)) {
                 case 0:
                     dir = Dir.left;
                     break;

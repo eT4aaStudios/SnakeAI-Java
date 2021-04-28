@@ -21,6 +21,7 @@ import com.badlogic.gdx.utils.Array;
 
 import java.util.Date;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static com.snake.ai.Snake.Sleep_Time;
 import static com.snake.ai.Snake.gameOver;
@@ -73,6 +74,7 @@ public class main extends Game {
     public static int populationsSinceLastSave;
     public static Date startDate;
     public static Array<String> fontStringArray = new Array<>();
+    public static Random r = ThreadLocalRandom.current();
 
     public static boolean loadFromSavedSnake, loadBestSnakeEver;
     public static int gameNr = -1;
@@ -84,7 +86,7 @@ public class main extends Game {
     //Neuronales Netzwerk Eigenschaften
     public static float bias = 0f;
     public static float biasOutput = -0.4f;
-    public static int bestSnakesArraySize = 5;
+    public static int bestSnakesArraySize = 20;
 
     public static float mutationPropability = 5f;//%
     public static float mutationMin = -1f;
@@ -595,12 +597,5 @@ public class main extends Game {
 
         }
         shapeRenderer.end();
-    }
-
-    public static int nextInt(int max) {
-        max = max - 1;
-        int random = (int) Math.round(Math.random() * max);
-        System.out.println("Max: " + max + " returned: " + random);
-        return random;
     }
 }

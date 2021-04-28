@@ -3,6 +3,7 @@ package com.snake.ai;
 import com.badlogic.gdx.utils.Array;
 
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static com.snake.ai.Snake.population;
 import static com.snake.ai.main.LayerMenge;
@@ -11,7 +12,7 @@ import static com.snake.ai.main.bestSnakesArray;
 import static com.snake.ai.main.bestSnakesArraySize;
 import static com.snake.ai.main.loadBestSnakeEver;
 import static com.snake.ai.main.loadFromSavedSnake;
-import static com.snake.ai.main.nextInt;
+import static com.snake.ai.main.r;
 
 
 public class Snakes {
@@ -23,7 +24,7 @@ public class Snakes {
 
     public Snakes() {
         if (population > 0 && !loadFromSavedSnake && !loadBestSnakeEver) {
-            selectParents();
+            selectParents2();
         }
         layerArray = new Array<>();
 
@@ -42,7 +43,7 @@ public class Snakes {
         Array<Snakes> tempArray = new Array<>(bestSnakesArray);
 
         parent1Snake = tempArray.random();
-        tempArray.removeValue(parent1Snake,true);
+        tempArray.removeValue(parent1Snake,false);
         parent2Snake = tempArray.random();
     }
 
@@ -53,8 +54,7 @@ public class Snakes {
         for (int i = 0; i < bestSnakesArray.size; i++) {
             maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
         }
-
-        int choosenId = nextInt(maxFitness);
+        int choosenId = r.nextInt(maxFitness);
 
         int zahlZumChecken = 0;
         for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
@@ -72,7 +72,7 @@ public class Snakes {
             maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
         }
 
-        choosenId = nextInt(maxFitness);
+        choosenId = r.nextInt(maxFitness);
 
 
         zahlZumChecken = 0;

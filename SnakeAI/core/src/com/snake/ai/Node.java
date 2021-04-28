@@ -2,8 +2,6 @@ package com.snake.ai;
 
 import com.badlogic.gdx.utils.Array;
 
-import java.util.Random;
-
 import static com.snake.ai.SavedSnakes.getFloat;
 import static com.snake.ai.main.LayerMenge;
 import static com.snake.ai.main.SnakeNr;
@@ -11,7 +9,7 @@ import static com.snake.ai.main.gameNr;
 import static com.snake.ai.main.layerNodeValueArray;
 import static com.snake.ai.main.loadBestSnakeEver;
 import static com.snake.ai.main.loadFromSavedSnake;
-import static com.snake.ai.main.nextInt;
+import static com.snake.ai.main.r;
 
 public class Node {
     public Array<Float> WeigthArray;
@@ -48,7 +46,7 @@ public class Node {
                 }
             } else {
                 for (int i = 0; i < layerNodeValueArray.get(LayerNumber + 1); i++) {
-                    WeigthArray.add((float) (-1f + Math.random() * (1f - -1f)));
+                    WeigthArray.add(-1f + r.nextFloat() * (1f - -1f));
                 }
             }
         }
@@ -56,7 +54,7 @@ public class Node {
 
     public void singlePoint(int NodeNumber, int LayerNumber, Snakes parent1, Snakes parent2) {
         int WeigthNumber = 0;
-        int i = nextInt(layerNodeValueArray.get(LayerNumber + 1));
+        int i = r.nextInt(layerNodeValueArray.get(LayerNumber + 1));
         for (int j = 0; j < i; j++) {
             //Weight 1
             WeigthArray.add(evo.mutation3(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2, 1));
@@ -64,10 +62,8 @@ public class Node {
         }
         for (int k = WeigthNumber; k < layerNodeValueArray.get(LayerNumber + 1); k++) {
             //Weight 2
-            //TODO Memory Leak
             WeigthArray.add(evo.mutation3(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2, 2));
             WeigthNumber++;
         }
     }
-
 }

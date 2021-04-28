@@ -1,12 +1,14 @@
 package com.snake.ai;
 
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static com.snake.ai.Snake.population;
 import static com.snake.ai.main.hiscoreArray;
 import static com.snake.ai.main.mutationMax;
 import static com.snake.ai.main.mutationMin;
 import static com.snake.ai.main.mutationPropability;
+import static com.snake.ai.main.r;
 import static com.snake.ai.main.reihen;
 import static com.snake.ai.main.spalten;
 
@@ -32,7 +34,7 @@ public class Evolution {
         float weigth1 = parent1.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
         float weigth2 = parent2.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
 
-        if (Math.random() * (1) == 0) {
+        if (r.nextDouble() * (1) == 0) {
             return weigth1;
         } else {
             return weigth2;
@@ -44,7 +46,7 @@ public class Evolution {
         float weigth1 = parent1.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
         float weigth2 = parent2.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
 
-        float mutationAmount = (float) (mutationMin + Math.random() * (mutationMax - mutationMin));
+        float mutationAmount = (float) (mutationMin + r.nextDouble() * (mutationMax - mutationMin));
         if (weigthNr == 1) {
             return weigth1 + mutationAmount;
         } else {
@@ -57,8 +59,8 @@ public class Evolution {
         float weigth1 = parent1.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
         float weigth2 = parent2.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
 
-        float mutationAmount = (float) (mutationMin + Math.random() * (mutationMax - mutationMin));
-        if (Math.random() * (1) == 0) {
+        float mutationAmount = (float) (mutationMin + r.nextDouble() * (mutationMax - mutationMin));
+        if (r.nextDouble() * (1) == 0) {
             return weigth1 + mutationAmount;
         } else {
             return weigth2 + mutationAmount;
@@ -70,9 +72,9 @@ public class Evolution {
         float weigth1 = parent1.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
         float weigth2 = parent2.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
 
-        float mutationAmount = (float) (mutationMin + Math.random() * (mutationMax - mutationMin));
+        float mutationAmount = (float) (mutationMin + r.nextFloat() * (mutationMax - mutationMin));
 
-        if (Math.random() * 100 < mutationPropability) {
+        if (r.nextDouble() * 100 < mutationPropability) {
             //With Mutation
             if (weigthNr == 1) {
                 if (weigth1 + mutationAmount >= -1 && weigth1 + mutationAmount <= 1)
@@ -111,11 +113,11 @@ public class Evolution {
         //mutationMax = (float) Math.pow(0.97,hiscoreArray.get(population));
         mutationMin = -mutationMax;
 
-        float mutationAmount = (float) Math.random();
+        float mutationAmount = r.nextFloat();
 
         //mutationPropability = (float) Math.pow(0.93,hiscoreArray.get(population) - 30);
 
-        if (Math.random() * 100 < mutationPropability) {
+        if (r.nextDouble() * 100 < mutationPropability) {
             //With Mutation
             if (weigth1 + mutationAmount > -1 && weigth1 + mutationAmount < 1)
                 return weigth1 + mutationAmount;
