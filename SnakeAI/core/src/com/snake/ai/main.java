@@ -82,7 +82,7 @@ public class main extends Game {
 
     //Neuronales Netzwerk Eigenschaften
     public static double bias = 0f;
-    public static double biasOutput = 0;
+    public static double biasOutput = -0.4d;
     public static int bestSnakesArraySize = 20;
 
     public static double mutationPropability = 5f;//%

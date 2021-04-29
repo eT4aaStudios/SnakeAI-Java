@@ -121,4 +121,48 @@ public class Snakes {
             }
         }
     }
+
+    //Roulette Optimized and New
+    public void selectParents4() {
+        //Parent 1
+        double maxFitness = 0d;
+        for (int i = 0; i <allSnakesArrays.get(0).allSnakesArray.size; i++) {
+            maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
+        }
+        System.out.println("maxFitness: "+maxFitness);
+
+        double choosenId = 0 + r.nextDouble() * (maxFitness - 0);
+        System.out.println("choosenId: "+choosenId);
+
+        double zahlZumChecken = 0;
+        for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
+            if (choosenId >= zahlZumChecken && choosenId <= zahlZumChecken + allSnakesArrays.get(0).allSnakesArray.get(i).fitness) {
+                parent1Snake = allSnakesArrays.get(0).allSnakesArray.get(i);
+                System.out.println("parent1Snake.fitness: "+parent1Snake.fitness);
+                System.out.println("100 / maxFitness * parent1Snake.fitness: "+100 / maxFitness * parent1Snake.fitness);
+                i = allSnakesArrays.get(0).allSnakesArray.size;
+            } else {
+                zahlZumChecken += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
+            }
+        }
+
+        //Parent 2
+        maxFitness = 0;
+        for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
+            maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
+        }
+
+        choosenId = 0 + r.nextDouble() * (maxFitness - 0);
+
+
+        zahlZumChecken = 0;
+        for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
+            if (choosenId >= zahlZumChecken && choosenId <= zahlZumChecken + allSnakesArrays.get(0).allSnakesArray.get(i).fitness) {
+                parent2Snake = allSnakesArrays.get(0).allSnakesArray.get(i);
+                i = allSnakesArrays.get(0).allSnakesArray.size;
+            } else {
+                zahlZumChecken += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
+            }
+        }
+    }
 }

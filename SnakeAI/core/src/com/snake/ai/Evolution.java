@@ -102,29 +102,22 @@ public class Evolution {
 
     //Normal mutation
     public double mutation3(int connectedTolayerNumber, int NodeNumber, int WeigthNumber, Snakes parent1, Snakes parent2, int weigthNr) {
-        double weigth1 = 0;
+        double weight1 = 0;
         try {
-            weigth1 = parent1.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
+            weight1 = parent1.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
         } catch (Exception ignored) {
 
         }
 
         //mutationMax = (float) Math.pow(0.97,hiscoreArray.get(population));
         mutationMin = -mutationMax;
+        double mutationAmount = mutationMin + r.nextDouble() * (mutationMax - mutationMin);
 
-        double mutationAmount = -1 + r.nextGaussian() * (1 - -1);
-
-
-        if (r.nextDouble() * 100 < mutationPropability) {
+        if (r.nextDouble() * 100 <= mutationPropability) {
             //With Mutation
-            if (weigth1 + mutationAmount > -1 && weigth1 + mutationAmount < 1)
-                return weigth1 + mutationAmount;
-            else if (weigth1 + mutationAmount < -1)
-                return -1;
-            else if (weigth1 + mutationAmount > 1)
-                return 1;
+            return Math.max(-1, Math.min(1, weight1 + mutationAmount));
         }
         //Without Mutation
-        return weigth1;
+        return weight1;
     }
 }
