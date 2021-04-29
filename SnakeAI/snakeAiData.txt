@@ -1,3 +1,4 @@
-Population943
-Highscore3
-startDate26.04.2021 09:24:13
+Population807
+Highscore6
+Time118.16620958480053
+TimePerPop83

@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -19,10 +18,10 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 
-import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static com.snake.ai.SavedSnakes.prefs;
 import static com.snake.ai.Snake.Sleep_Time;
 import static com.snake.ai.Snake.gameOver;
 import static com.snake.ai.Snake.hiScore;
@@ -72,8 +71,6 @@ public class main extends Game {
     public static Array<Integer> hiscoreArray;
     public static boolean graphmode1;
     public static int populationsSinceLastSave;
-    public static Date startDate;
-    public static Array<String> fontStringArray = new Array<>();
     public static Random r = ThreadLocalRandom.current();
 
     public static boolean loadFromSavedSnake, loadBestSnakeEver;
@@ -84,13 +81,13 @@ public class main extends Game {
     public static BestSnakeEver bestSnakeEver = new BestSnakeEver();
 
     //Neuronales Netzwerk Eigenschaften
-    public static float bias = 0f;
-    public static float biasOutput = -0.4f;
+    public static double bias = 0f;
+    public static double biasOutput = 0;
     public static int bestSnakesArraySize = 20;
 
-    public static float mutationPropability = 5f;//%
-    public static float mutationMin = -1f;
-    public static float mutationMax = 1f;
+    public static double mutationPropability = 5f;//%
+    public static double mutationMin = -1f;
+    public static double mutationMax = 1f;
 
     //Neuronales Netzwerk Aussehen
     static int inputLayerNodes = 25;
@@ -309,6 +306,13 @@ public class main extends Game {
         shapeRenderer.line(w / 2, h, w / 2, 0);
         shapeRenderer.end();
 
+        if (prefs.getString("time").equals("")) {
+            prefs.putString("time", String.valueOf(Gdx.graphics.getDeltaTime()));
+        } else {
+            prefs.putString("time", String.valueOf(Double.parseDouble(prefs.getString("time")) + Gdx.graphics.getDeltaTime()));
+        }
+        prefs.flush();
+
         drawGame();
 
         if (this.getScreen() != SavedSnakes) {
@@ -360,10 +364,10 @@ public class main extends Game {
 
     public void berechneLayer(int Layernumber) {
         for (int NodeLayer2 = 0; NodeLayer2 < currentSnake.layerArray.get(Layernumber + 1).NodeArray.size; NodeLayer2++) {
-            float sum = 0;
+            double sum = 0;
             for (int NodeLayer1 = 0; NodeLayer1 < currentSnake.layerArray.get(Layernumber).NodeArray.size; NodeLayer1++) {
                 //weigth
-                float weigth = currentSnake.layerArray.get(Layernumber).NodeArray.get(NodeLayer1).WeigthArray.get(NodeLayer2);
+                double weigth = currentSnake.layerArray.get(Layernumber).NodeArray.get(NodeLayer1).WeigthArray.get(NodeLayer2);
                 //value
                 double value = currentSnake.layerArray.get(Layernumber).NodeArray.get(NodeLayer1).value;
                 sum += weigth * value;
@@ -378,11 +382,11 @@ public class main extends Game {
         }
     }
 
-    public float activationFunction(float x) {
+    public double activationFunction(double x) {
         x += bias;
 
         //Sigmoid
-        return (float) (1 / (1 + Math.exp(-x)));
+        return 1 / (1 + Math.exp(-x));
 
         //Tanh
         //return Math.tanh(x);
@@ -398,7 +402,7 @@ public class main extends Game {
         //}
     }
 
-    public float outputActivationFunction(float x) {
+    public double outputActivationFunction(double x) {
         x += biasOutput;
 
         //Sigmoid

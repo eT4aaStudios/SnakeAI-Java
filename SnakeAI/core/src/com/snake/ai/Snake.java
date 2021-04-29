@@ -11,10 +11,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 import static com.snake.ai.SavedSnakes.getInteger;
 import static com.snake.ai.SavedSnakes.prefs;
@@ -32,13 +30,13 @@ import static com.snake.ai.main.freeze;
 import static com.snake.ai.main.gameNr;
 import static com.snake.ai.main.hiscoreArray;
 import static com.snake.ai.main.loadFromSavedSnake;
+import static com.snake.ai.main.mutationPropability;
 import static com.snake.ai.main.populationsSinceLastSave;
 import static com.snake.ai.main.r;
 import static com.snake.ai.main.reihen;
 import static com.snake.ai.main.replay;
 import static com.snake.ai.main.requestReplayStop;
 import static com.snake.ai.main.spalten;
-import static com.snake.ai.main.startDate;
 
 public class Snake implements Runnable {
     enum Dir {
@@ -52,7 +50,6 @@ public class Snake implements Runnable {
         final int x, y;
     }
 
-    static final Random rand = new Random();
     static final int WALL = -1;
 
     static volatile boolean gameOver = true;
@@ -98,7 +95,7 @@ public class Snake implements Runnable {
 
         bestSnakeEver.directionTmpArray.clear();
 
-        energy = 150 + score * 2;
+        energy = 400 + score * 500;
 
         if (score > hiScore) {
             hiScore = score;
@@ -181,21 +178,17 @@ public class Snake implements Runnable {
     }
 
     public void newPopulation() {
+        timePerPop = System.currentTimeMillis() - startTime;
+        startTime = System.currentTimeMillis();
+
         DateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.GERMANY);
         try (Writer writer = new BufferedWriter(new OutputStreamWriter(
                 new FileOutputStream("snakeAiData.txt"), StandardCharsets.UTF_8))) {
 
-            if (prefs.getString("startDate").equals("")) {
-                startDate = null;
-                startDate = new Date();
-
-                prefs.putString("startDate", format.format(startDate));
-                prefs.flush();
-            }
-
             writer.write("Population" + population + "\n");
             writer.write("Highscore" + hiScore + "\n");
-            writer.write("startDate" + prefs.getString("startDate"));
+            writer.write("Time" + prefs.getString("time") + "\n");
+            writer.write("TimePerPop" + timePerPop);
         } catch (Exception ignored) {
         }
 
@@ -207,8 +200,7 @@ public class Snake implements Runnable {
             System.out.println("_______________________\n");
         }
 
-        timePerPop = System.currentTimeMillis() - startTime;
-        startTime = System.currentTimeMillis();
+
 
         //Umsortierung
         allSnakes allSnakes = new allSnakes();
@@ -243,14 +235,13 @@ public class Snake implements Runnable {
             }
         }
         hiscoreArray.add(maxHiscore);
-
+        mutationPropability = Math.pow(0.996,hiscoreArray.get(population) - 400);
 
         //Best Snakes System.out
         bestSnakesArray.clear();
         for (int i = 0; i < bestSnakesArraySize; i++) {
             bestSnakesArray.add(allSnakesArrays.get(0).allSnakesArray.get(i));
             if (enableNewPopulationLogging)
-
                 System.out.println("Nr.:" + i + " Snake Fitness: " + bestSnakesArray.get(i).fitness + " Score: " + bestSnakesArray.get(i).score);
         }
         snakeNr = 0;
@@ -301,7 +292,7 @@ public class Snake implements Runnable {
                 } else {
                     if (eatsTreat()) {
                         score++;
-                        energy = 150 + score * 2;
+                        energy = 400 + score * 500;
                         growSnake();
                     }
                     moveSnake();
@@ -475,8 +466,8 @@ public class Snake implements Runnable {
             int x, y;
             here:
             while (true) {
-                x = rand.nextInt(reihen - 2) + 1;
-                y = rand.nextInt(spalten - 2) + 1;
+                x = r.nextInt(reihen - 2) + 1;
+                y = r.nextInt(spalten - 2) + 1;
                 if (grid[y][x] != 0)
                     continue;
                 main.foodpositionX = x;

@@ -2,7 +2,6 @@ package com.snake.ai;
 
 import static com.snake.ai.Snake.snake;
 import static com.snake.ai.Snake.startlength;
-import static com.snake.ai.Snake.treats;
 import static com.snake.ai.main.SnakeHeadX;
 import static com.snake.ai.main.SnakeHeadY;
 import static com.snake.ai.main.currentSnake;
@@ -283,7 +282,7 @@ public class InputLayerDetection {
     }
 
     public void length() {
-        float maxLength = (reihen - 2) * (spalten - 2) - startlength;
+        double maxLength = (reihen - 2) * (spalten - 2) - startlength;
         currentSnake.layerArray.get(0).NodeArray.get(24).value = snake.size() / maxLength;
     }
 

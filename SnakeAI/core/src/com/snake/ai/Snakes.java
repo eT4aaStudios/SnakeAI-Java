@@ -2,14 +2,10 @@ package com.snake.ai;
 
 import com.badlogic.gdx.utils.Array;
 
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
-
 import static com.snake.ai.Snake.population;
 import static com.snake.ai.main.LayerMenge;
 import static com.snake.ai.main.allSnakesArrays;
 import static com.snake.ai.main.bestSnakesArray;
-import static com.snake.ai.main.bestSnakesArraySize;
 import static com.snake.ai.main.loadBestSnakeEver;
 import static com.snake.ai.main.loadFromSavedSnake;
 import static com.snake.ai.main.r;
@@ -50,13 +46,13 @@ public class Snakes {
     //Roulette
     public void selectParents2() {
         //Parent 1
-        int maxFitness = 0;
-        for (int i = 0; i < bestSnakesArray.size; i++) {
+        double maxFitness = 0d;
+        for (int i = 0; i <allSnakesArrays.get(0).allSnakesArray.size; i++) {
             maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
         }
-        int choosenId = r.nextInt(maxFitness);
+        double choosenId = 0 + r.nextDouble() * (maxFitness - 0);
 
-        int zahlZumChecken = 0;
+        double zahlZumChecken = 0;
         for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
             if (choosenId >= zahlZumChecken && choosenId <= zahlZumChecken + allSnakesArrays.get(0).allSnakesArray.get(i).fitness) {
                 parent1Snake = allSnakesArrays.get(0).allSnakesArray.get(i);
@@ -72,7 +68,7 @@ public class Snakes {
             maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
         }
 
-        choosenId = r.nextInt(maxFitness);
+        choosenId = 0 + r.nextDouble() * (maxFitness - 0);
 
 
         zahlZumChecken = 0;
@@ -94,7 +90,6 @@ public class Snakes {
             maxFitness += bestSnakesArray.get(i).fitness;
         }
 
-        Random r = new Random();
         int choosenId = r.nextInt(maxFitness);
 
         int zahlZumChecken = 0;
@@ -113,7 +108,6 @@ public class Snakes {
             maxFitness += bestSnakesArray.get(i).fitness;
         }
 
-        r = new Random();
         choosenId = r.nextInt(maxFitness);
 
 

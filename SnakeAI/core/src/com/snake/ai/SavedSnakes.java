@@ -66,7 +66,6 @@ public class SavedSnakes implements Screen {
     public static ScrollPane WeckerscrollPane;
     private static TextButton.TextButtonStyle buttonSelected;
     private static Button loadSavedSnake, delete;
-    private float position;
     public static Skin skin2;
     public static TextureAtlas atlas;
     public static BitmapFont pixel10;
@@ -76,7 +75,7 @@ public class SavedSnakes implements Screen {
     Skin skin;
     FileHandle file;
     private static Properties properties;
-    main main;
+    main main2;
 
     public SavedSnakes(main main) {
         prefs = Gdx.app.getPreferences("SnakeAi");
@@ -92,7 +91,7 @@ public class SavedSnakes implements Screen {
         } finally {
             StreamUtils.closeQuietly(in);
         }
-        this.main = main;
+        this.main2 = main;
     }
 
     @Override
@@ -154,8 +153,8 @@ public class SavedSnakes implements Screen {
         for (int i = 0; i < getInteger("GameMenge") + 1; i++) {
             Group g = new Group();
             loadSavedSnake = new TextButton("Load Game Nr.: " + i +
-                    "\nAverage Fitness: " + getFloat("gameNr " + i + "average Fitness") +
-                    "\nBest Fitness Ever: " + getFloat("gameNr " + i + "bestSnakeEver.fitness") +
+                    "\nAverage Fitness: " + getDouble("gameNr " + i + "average Fitness") +
+                    "\nBest Fitness Ever: " + getDouble("gameNr " + i + "bestSnakeEver.fitness") +
                     "\nHighScore: " + getInteger("gameNr " + i + "hiScore") +
                     "\nPoulation: " + getInteger("gameNr " + i + "population"), skin);
 
@@ -171,7 +170,7 @@ public class SavedSnakes implements Screen {
                         loadBestArraySnake(finalI);
                     } else {
                         if (gameOver) {
-                            Snake snake = new Snake(main);
+                            Snake snake = new Snake(main2);
                             snake.startNewGame();
                             System.out.print("\033[H\033[2J");
                             System.out.flush();
@@ -208,7 +207,6 @@ public class SavedSnakes implements Screen {
         WeckerscrollPane.layout();
         WeckerscrollTable.add(WeckerscrollPane).size(w / 2, h / 1.3f).fill();
         WeckerscrollTable.setPosition(w / 4 - w / 2, h / 10 - WeckerscrollTable.getHeight() / 1.3f);
-        WeckerscrollPane.setScrollY(position);
         WeckerscrollPane.updateVisualScroll();
 
         Gdx.input.setInputProcessor(savedStage);
@@ -253,11 +251,11 @@ public class SavedSnakes implements Screen {
             for (int k = 0; k < bestSnakeEver.bestSnakeEver.layerArray.size - 1; k++) {
                 for (int l = 0; l < bestSnakeEver.bestSnakeEver.layerArray.get(k).NodeArray.size; l++) {
                     for (int m = 0; m < bestSnakeEver.bestSnakeEver.layerArray.get(k).NodeArray.get(l).WeigthArray.size; m++) {
-                        prefs.putFloat("gameNr " + gameNr +
+                        prefs.putString("gameNr " + gameNr +
                                 " bestSnakeEver.bestSnakeEver " +
                                 " LayerNr " + k +
                                 " NodeNr " + l +
-                                " WeightNr " + m, bestSnakeEver.bestSnakeEver.layerArray.get(k).NodeArray.get(l).WeigthArray.get(m));
+                                " WeightNr " + m, String.valueOf(bestSnakeEver.bestSnakeEver.layerArray.get(k).NodeArray.get(l).WeigthArray.get(m)));
                     }
                 }
             }
@@ -296,11 +294,11 @@ public class SavedSnakes implements Screen {
             for (int k = 0; k < bestSnakesArray.get(j).layerArray.size - 1; k++) {
                 for (int l = 0; l < bestSnakesArray.get(j).layerArray.get(k).NodeArray.size; l++) {
                     for (int m = 0; m < bestSnakesArray.get(j).layerArray.get(k).NodeArray.get(l).WeigthArray.size; m++) {
-                        prefs.putFloat("gameNr " + gameNr +
+                        prefs.putString("gameNr " + gameNr +
                                 " SnakeNr " + j +
                                 " LayerNr " + k +
                                 " NodeNr " + l +
-                                " WeightNr " + m, bestSnakesArray.get(j).layerArray.get(k).NodeArray.get(l).WeigthArray.get(m));
+                                " WeightNr " + m, String.valueOf(bestSnakesArray.get(j).layerArray.get(k).NodeArray.get(l).WeigthArray.get(m)));
                     }
                 }
             }
@@ -313,19 +311,19 @@ public class SavedSnakes implements Screen {
         for (int m = 0; m < allSnakesArrays.get(0).allSnakesArray.size; m++) {
             maxFitness += allSnakesArrays.get(0).allSnakesArray.get(m).fitness;
         }
-        prefs.putFloat("gameNr " + gameNr + "average Fitness", maxFitness / POPULATIONSIZE);
+        prefs.putString("gameNr " + gameNr + "average Fitness", String.valueOf(maxFitness / POPULATIONSIZE));
         prefs.putInteger("gameNr " + gameNr + "hiScore", hiScore);
         prefs.putInteger("gameNr " + gameNr + "bestSnakeEver.fitness", (int) bestSnakeEver.bestSnakeEver.fitness);
         prefs.putInteger("gameNr " + gameNr + "population", population);
 
         //Neuronales Netzwerk Eigenschaften
-        prefs.putFloat("gameNr " + gameNr + "bias", (float) main.bias);
-        prefs.putFloat("gameNr " + gameNr + "biasOutput", (float) main.biasOutput);
+        prefs.putString("gameNr " + gameNr + "bias", String.valueOf(main.bias));
+        prefs.putString("gameNr " + gameNr + "biasOutput", String.valueOf(main.biasOutput));
 
-        prefs.putFloat("gameNr " + gameNr + "mutationPropability", (float) main.mutationPropability);
-        prefs.putFloat("gameNr " + gameNr + "mutationMin", (float) main.mutationMin);
-        prefs.putFloat("gameNr " + gameNr + "mutationMax", (float) main.mutationMax);
-        prefs.putInteger("gameNr " + gameNr + "bestSnakesArraySize", main.bestSnakesArraySize);
+        prefs.putString("gameNr " + gameNr + "mutationPropability", String.valueOf(main.mutationPropability));
+        prefs.putString("gameNr " + gameNr + "mutationMin", String.valueOf(main.mutationMin));
+        prefs.putString("gameNr " + gameNr + "mutationMax", String.valueOf(main.mutationMax));
+        prefs.putInteger("gameNr " + gameNr + "bestSnakesArraySize", bestSnakesArraySize);
 
         //Neuronales Netzwerk Aussehen
         prefs.putInteger("gameNr " + gameNr + "inputLayerNodes", main.inputLayerNodes);
@@ -387,12 +385,12 @@ public class SavedSnakes implements Screen {
         population = getInteger("gameNr " + gameNr + "population");
         hiScore = getInteger("gameNr " + gameNr + "hiScore");
 
-        main.bias = getFloat("gameNr " + gameNr + "bias");
-        main.biasOutput = getFloat("gameNr " + gameNr + "biasOutput");
+        main.bias = getDouble("gameNr " + gameNr + "bias");
+        main.biasOutput = getDouble("gameNr " + gameNr + "biasOutput");
 
-        main.mutationPropability = getFloat("gameNr " + gameNr + "mutationPropability");
-        main.mutationMin = getFloat("gameNr " + gameNr + "mutationMin");
-        main.mutationMax = getFloat("gameNr " + gameNr + "mutationMax");
+        main.mutationPropability = getDouble("gameNr " + gameNr + "mutationPropability");
+        main.mutationMin = getDouble("gameNr " + gameNr + "mutationMin");
+        main.mutationMax = getDouble("gameNr " + gameNr + "mutationMax");
         bestSnakesArraySize = getInteger("gameNr " + gameNr + "bestSnakesArraySize");
 
         //Neuronales Netzwerk Aussehen
@@ -490,6 +488,14 @@ public class SavedSnakes implements Screen {
             return prefs.getFloat(key);
     }
 
+    public static double getDouble(String key) {
+        int defValue = 0;
+        if (key.toLowerCase().contains("gameNr 0".toLowerCase()))
+            return Double.parseDouble(properties.getProperty(key, Double.toString(defValue)));
+        else
+            return Double.parseDouble(prefs.getString(key));
+    }
+
     public static boolean getBoolean(String key) {
         if (key.toLowerCase().contains("gameNr 0".toLowerCase()))
             return Boolean.parseBoolean(properties.getProperty(key, Boolean.toString(false)));
@@ -515,12 +521,12 @@ public class SavedSnakes implements Screen {
         population = getInteger("gameNr " + 0 + "population");
         hiScore = getInteger("gameNr " + 0 + "hiScore");
 
-        bias = getFloat("gameNr " + 0 + "bias");
-        biasOutput = getFloat("gameNr " + 0 + "biasOutput");
+        bias = getDouble("gameNr " + 0 + "bias");
+        biasOutput = getDouble("gameNr " + 0 + "biasOutput");
 
-        mutationPropability = getFloat("gameNr " + 0 + "mutationPropability");
-        mutationMin = getFloat("gameNr " + 0 + "mutationMin");
-        mutationMax = getFloat("gameNr " + 0 + "mutationMax");
+        mutationPropability = getDouble("gameNr " + 0 + "mutationPropability");
+        mutationMin = getDouble("gameNr " + 0 + "mutationMin");
+        mutationMax = getDouble("gameNr " + 0 + "mutationMax");
         bestSnakesArraySize = getInteger("gameNr " + 0 + "bestSnakesArraySize");
 
         //Neuronales Netzwerk Aussehen
@@ -641,16 +647,16 @@ public class SavedSnakes implements Screen {
         for (int k = 0; k < bestSnakeEver.bestSnakeEver.layerArray.size - 1; k++) {
             for (int l = 0; l < bestSnakeEver.bestSnakeEver.layerArray.get(k).NodeArray.size; l++) {
                 for (int m = 0; m < bestSnakeEver.bestSnakeEver.layerArray.get(k).NodeArray.get(l).WeigthArray.size; m++) {
-                    prefs.putFloat("gameNr " + gameNr +
+                    prefs.putString("gameNr " + gameNr +
                                     " bestSnakeEver.bestSnakeEver " +
                                     " LayerNr " + k +
                                     " NodeNr " + l +
                                     " WeightNr " + m,
-                            getFloat("gameNr " + gameNr2 +
+                            String.valueOf(getDouble("gameNr " + gameNr2 +
                                     " bestSnakeEver.bestSnakeEver " +
                                     " LayerNr " + k +
                                     " NodeNr " + l +
-                                    " WeightNr " + m));
+                                    " WeightNr " + m)));
                 }
             }
         }
@@ -682,16 +688,16 @@ public class SavedSnakes implements Screen {
             for (int k = 0; k < bestSnakesArray.get(j).layerArray.size - 1; k++) {
                 for (int l = 0; l < bestSnakesArray.get(j).layerArray.get(k).NodeArray.size; l++) {
                     for (int m = 0; m < bestSnakesArray.get(j).layerArray.get(k).NodeArray.get(l).WeigthArray.size; m++) {
-                        prefs.putFloat("gameNr " + gameNr +
+                        prefs.putString("gameNr " + gameNr +
                                         " SnakeNr " + j +
                                         " LayerNr " + k +
                                         " NodeNr " + l +
                                         " WeightNr " + m,
-                                getFloat("gameNr " + gameNr2 +
+                                String.valueOf(getDouble("gameNr " + gameNr2 +
                                         " SnakeNr " + j +
                                         " LayerNr " + k +
                                         " NodeNr " + l +
-                                        " WeightNr " + m));
+                                        " WeightNr " + m)));
                     }
                 }
             }
@@ -702,18 +708,18 @@ public class SavedSnakes implements Screen {
     private void reWriteEinstellungen(int gameNr) {
         int gameNr2 = gameNr + 1;
 
-        prefs.putFloat("gameNr " + gameNr + "average Fitness", getFloat("gameNr " + gameNr2 + "average Fitness"));
+        prefs.putString("gameNr " + gameNr + "average Fitness", String.valueOf(getDouble("gameNr " + gameNr2 + "average Fitness")));
         prefs.putInteger("gameNr " + gameNr + "hiScore", getInteger("gameNr " + gameNr2 + "hiScore"));
         prefs.putInteger("gameNr " + gameNr + "bestSnakeEver.fitness", getInteger("gameNr " + gameNr2 + "bestSnakeEver.fitness"));
         prefs.putInteger("gameNr " + gameNr + "population", getInteger("gameNr " + gameNr2 + "population"));
 
         //Neuronales Netzwerk Eigenschaften
-        prefs.putFloat("gameNr " + gameNr + "bias", getFloat("gameNr " + gameNr2 + "bias"));
-        prefs.putFloat("gameNr " + gameNr + "biasOutput", getFloat("gameNr " + gameNr2 + "biasOutput"));
+        prefs.putString("gameNr " + gameNr + "bias", String.valueOf(getDouble("gameNr " + gameNr2 + "bias")));
+        prefs.putString("gameNr " + gameNr + "biasOutput", String.valueOf(getDouble("gameNr " + gameNr2 + "biasOutput")));
 
-        prefs.putFloat("gameNr " + gameNr + "mutationPropability", getFloat("gameNr " + gameNr2 + "mutationPropability"));
-        prefs.putFloat("gameNr " + gameNr + "mutationMin", getFloat("gameNr " + gameNr2 + "mutationMin"));
-        prefs.putFloat("gameNr " + gameNr + "mutationMax", getFloat("gameNr " + gameNr2 + "mutationMax"));
+        prefs.putString("gameNr " + gameNr + "mutationPropability", String.valueOf(getDouble("gameNr " + gameNr2 + "mutationPropability")));
+        prefs.putString("gameNr " + gameNr + "mutationMin", String.valueOf(getDouble("gameNr " + gameNr2 + "mutationMin")));
+        prefs.putString("gameNr " + gameNr + "mutationMax", String.valueOf(getDouble("gameNr " + gameNr2 + "mutationMax")));
         prefs.putInteger("gameNr " + gameNr + "bestSnakesArraySize", getInteger("gameNr " + gameNr2 + "bestSnakesArraySize"));
 
         //Neuronales Netzwerk Aussehen
