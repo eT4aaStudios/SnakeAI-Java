@@ -5,7 +5,6 @@ import static com.snake.ai.Snake.startlength;
 import static com.snake.ai.main.SnakeHeadX;
 import static com.snake.ai.main.SnakeHeadY;
 import static com.snake.ai.main.currentSnake;
-import static com.snake.ai.main.enableInputLayerLogging;
 import static com.snake.ai.main.enableSehrNahLogging;
 import static com.snake.ai.main.foodpositionX;
 import static com.snake.ai.main.foodpositionY;
@@ -14,35 +13,21 @@ import static com.snake.ai.main.spalten;
 
 public class InputLayerDetection {
 
-    public InputLayerDetection() {
-        if (enableInputLayerLogging) {
-            System.out.println("\nInputLayer Values: ");
-            for (int i = 0; i < currentSnake.layerArray.get(0).NodeArray.size; i++) {
-                currentSnake.layerArray.get(0).NodeArray.get(i).value = 0;
-            }
-            System.out.println("\n");
-        }
+    private int x,y;
 
+    public void start() {
         schwanzDetectionGerade();       //(4) 4  Vision
         schwanzDetectionSchraeg();      //(4) 8  Vision
         foodDetectionGerade();          //(4) 12 Vision
         foodDetectionSchraeg();         //(4) 16 Vision
         wandDetectionGerade();          //(4) 20 Vision
         wandDetectionSchreag();         //(4) 24 Vision
+        if(currentSnake.layerArray.get(0).NodeArray.size > 24)
         length();         //(1) 25 Vision
 
         if (currentSnake.layerArray.get(0).NodeArray.size > 25) {
             directionGoingHead();           //(4) 29 Head Direction
             directionGoingTail();           //(4) 33 Tail Direction
-        }
-
-
-        if (enableInputLayerLogging) {
-            System.out.println("\nInputLayer Values: ");
-            for (int i = 0; i < currentSnake.layerArray.get(0).NodeArray.size; i++) {
-                System.out.println(currentSnake.layerArray.get(0).NodeArray.get(i).value);
-            }
-            System.out.println("\n");
         }
     }
 
@@ -66,8 +51,8 @@ public class InputLayerDetection {
 
     public void wandDetectionSchreag() {
         //schräg
-        int x = SnakeHeadX;
-        int y = SnakeHeadY;
+        x = SnakeHeadX;
+        y = SnakeHeadY;
         for (int i = 0; i < reihen; i++) {
             //System.out.println("Schraeg links Oben");
             x--;
@@ -158,8 +143,8 @@ public class InputLayerDetection {
 
     public void foodDetectionSchraeg() {
         //schräg
-        int x = SnakeHeadX;
-        int y = SnakeHeadY;
+        x = SnakeHeadX;
+        y = SnakeHeadY;
         for (int i = 0; i < reihen; i++) {
             x--;
             y--;
@@ -239,8 +224,8 @@ public class InputLayerDetection {
 
     public void schwanzDetectionSchraeg() {
         //schräg
-        int x = SnakeHeadX;
-        int y = SnakeHeadY;
+        x = SnakeHeadX;
+        y = SnakeHeadY;
         for (int j = 0; j < snake.size(); j++) {
             x--;
             y--;
@@ -307,8 +292,8 @@ public class InputLayerDetection {
     public void directionGoingTail() {
         Point p1 = snake.get(snake.size() - 2);
         Point p2 = snake.get(snake.size() - 1);
-        int x = p1.x - p2.x;
-        int y = p1.y - p2.y;
+        x = p1.x - p2.x;
+        y = p1.y - p2.y;
 
         if (x == 0 && y == -1) {
             //Tail going up

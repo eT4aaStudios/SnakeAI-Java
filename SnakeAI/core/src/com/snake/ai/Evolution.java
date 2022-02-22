@@ -4,29 +4,17 @@ import static com.snake.ai.main.mutationMax;
 import static com.snake.ai.main.mutationMin;
 import static com.snake.ai.main.mutationPropability;
 import static com.snake.ai.main.r;
-import static com.snake.ai.main.reihen;
-import static com.snake.ai.main.spalten;
 
 public class Evolution {
     public double FitnessFuntction(int steps, int score) {
         return steps + (Math.pow(2d, score) + Math.pow(score, 2.1d) * 500) - (Math.pow(score, 1.2d) * Math.pow((0.25d * steps), 1.3d));
     }
 
-    public double Score(int score) {
-        return (1 - Math.pow(0.987, score)) * reihen * spalten;
-    }
-
-    public double Steps(int steps) {
-        return 0.0005 * Math.pow(steps - 50, 3) - steps + 50;
-    }
 
     public double FitnessFuntction2(int steps, int score) {
-        return Score(score) + Steps(steps);
+        return Math.pow(score,2d);
     }
 
-    public double FitnessFuntction3(int steps, int score) {
-        return score + steps / score * 2d;
-    }
 
     //Crossover
     public double mutation1(int connectedTolayerNumber, int NodeNumber, int WeigthNumber, Snakes parent1, Snakes parent2) {
@@ -101,23 +89,16 @@ public class Evolution {
     }
 
     //Normal mutation
-    public double mutation3(int connectedTolayerNumber, int NodeNumber, int WeigthNumber, Snakes parent1, Snakes parent2, int weigthNr) {
-        double weight1 = 0;
-        try {
-            weight1 = parent1.layerArray.get(connectedTolayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
-        } catch (Exception ignored) {
-
-        }
-
+    public double mutation3(double weight) {
         //mutationMax = (float) Math.pow(0.97,hiscoreArray.get(population));
         mutationMin = -mutationMax;
         double mutationAmount = mutationMin + r.nextDouble() * (mutationMax - mutationMin);
 
         if (r.nextDouble() * 100 <= mutationPropability) {
             //With Mutation
-            return Math.max(-1, Math.min(1, weight1 + mutationAmount));
+            return Math.max(-1, Math.min(1, weight + mutationAmount));
         }
         //Without Mutation
-        return weight1;
+        return weight;
     }
 }

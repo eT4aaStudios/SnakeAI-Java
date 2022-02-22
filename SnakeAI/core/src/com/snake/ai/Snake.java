@@ -1,19 +1,5 @@
 package com.snake.ai;
 
-import com.badlogic.gdx.utils.Array;
-
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-
 import static com.snake.ai.SavedSnakes.getInteger;
 import static com.snake.ai.SavedSnakes.prefs;
 import static com.snake.ai.main.FIRSTPOPULATIONSIZE;
@@ -26,6 +12,7 @@ import static com.snake.ai.main.bestSnakesArraySize;
 import static com.snake.ai.main.currentSnake;
 import static com.snake.ai.main.enableNewPopulationLogging;
 import static com.snake.ai.main.enableOutputLayerLogging;
+import static com.snake.ai.main.evo;
 import static com.snake.ai.main.freeze;
 import static com.snake.ai.main.gameNr;
 import static com.snake.ai.main.hiscoreArray;
@@ -37,6 +24,17 @@ import static com.snake.ai.main.reihen;
 import static com.snake.ai.main.replay;
 import static com.snake.ai.main.requestReplayStop;
 import static com.snake.ai.main.spalten;
+
+import com.badlogic.gdx.utils.Array;
+
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class Snake implements Runnable {
     enum Dir {
@@ -81,7 +79,6 @@ public class Snake implements Runnable {
         initGrid();
         fitnessComparator = new FitnessComparator();
         this.main2 = main2;
-        gameThread = null;
         (gameThread = new Thread(this)).start();
         gameThread.setName("SnakeAiCalculating");
     }
@@ -89,13 +86,12 @@ public class Snake implements Runnable {
     void startNewGame() {
         gameOver = false;
         stop();
-        treats = null;
         treats = new Array<>();
         addTreat();
 
         bestSnakeEver.directionTmpArray.clear();
 
-        energy = 400 + score * 500;
+        energy = 400;
 
         if (score > hiScore) {
             hiScore = score;
@@ -181,7 +177,6 @@ public class Snake implements Runnable {
         timePerPop = System.currentTimeMillis() - startTime;
         startTime = System.currentTimeMillis();
 
-        DateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.GERMANY);
         try (Writer writer = new BufferedWriter(new OutputStreamWriter(
                 new FileOutputStream("snakeAiData.txt"), StandardCharsets.UTF_8))) {
 
@@ -203,12 +198,17 @@ public class Snake implements Runnable {
 
 
         //Umsortierung
-        allSnakes allSnakes = new allSnakes();
         if (allSnakesArrays.size > 1) {
-            allSnakesArrays.set(0, allSnakesArrays.get(1));
-            allSnakesArrays.set(1, allSnakes);
-        } else
+            allSnakesArrays.get(0).allSnakesArray.clear();
+            for (int i = 0;i < allSnakesArrays.get(1).allSnakesArray.size;i++) {
+                allSnakesArrays.get(0).allSnakesArray.add(allSnakesArrays.get(1).allSnakesArray.get(i));
+            }
+            allSnakesArrays.get(1).allSnakesArray.clear();
+        } else {
+            allSnakes allSnakes = new allSnakes();
             allSnakesArrays.add(allSnakes);
+        }
+
 
         allSnakesArrays.get(0).allSnakesArray.sort(fitnessComparator);
 
@@ -242,7 +242,7 @@ public class Snake implements Runnable {
         for (int i = 0; i < bestSnakesArraySize; i++) {
             bestSnakesArray.add(allSnakesArrays.get(0).allSnakesArray.get(i));
             if (enableNewPopulationLogging)
-                System.out.println("Nr.:" + i + " Snake Fitness: " + bestSnakesArray.get(i).fitness + " Score: " + bestSnakesArray.get(i).score);
+                System.out.println("Nr.:" + i + " SnakeGame Fitness: " + bestSnakesArray.get(i).fitness + " Score: " + bestSnakesArray.get(i).score);
         }
         snakeNr = 0;
         if (gameNr != 0) {
@@ -292,7 +292,7 @@ public class Snake implements Runnable {
                 } else {
                     if (eatsTreat()) {
                         score++;
-                        energy = 400 + score * 500;
+                        energy = 400;
                         growSnake();
                     }
                     moveSnake();
@@ -303,8 +303,7 @@ public class Snake implements Runnable {
 
                 main2.berechneLayer();
                 doAction();
-                Evolution evo = new Evolution();
-                currentSnake.fitness = evo.FitnessFuntction(steps, score);
+                //currentSnake.fitness = evo.FitnessFuntction(steps, score);
             }
         }
     }
@@ -415,8 +414,7 @@ public class Snake implements Runnable {
         currentSnake.score = score;
         gameOver = true;
         stop();
-        Evolution startFitness = new Evolution();
-        currentSnake.fitness = startFitness.FitnessFuntction(steps, score);
+        currentSnake.fitness = evo.FitnessFuntction2(steps, score);
 
         allSnakesArrays.get(allSnakesArrays.size - 1).allSnakesArray.add(currentSnake);
 

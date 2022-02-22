@@ -1,5 +1,15 @@
 package com.snake.ai;
 
+import static com.snake.ai.Snake.Sleep_Time;
+import static com.snake.ai.Snake.energy;
+import static com.snake.ai.Snake.gameOver;
+import static com.snake.ai.Snake.hiScore;
+import static com.snake.ai.Snake.population;
+import static com.snake.ai.Snake.score;
+import static com.snake.ai.Snake.snakeNr;
+import static com.snake.ai.Snake.startlength;
+import static com.snake.ai.Snake.timePerPop;
+
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -20,16 +30,6 @@ import com.badlogic.gdx.utils.Array;
 
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
-
-import static com.snake.ai.SavedSnakes.prefs;
-import static com.snake.ai.Snake.Sleep_Time;
-import static com.snake.ai.Snake.gameOver;
-import static com.snake.ai.Snake.hiScore;
-import static com.snake.ai.Snake.population;
-import static com.snake.ai.Snake.score;
-import static com.snake.ai.Snake.snakeNr;
-import static com.snake.ai.Snake.startlength;
-import static com.snake.ai.Snake.timePerPop;
 
 public class main extends Game {
     //Best :
@@ -72,6 +72,8 @@ public class main extends Game {
     public static boolean graphmode1;
     public static int populationsSinceLastSave;
     public static Random r = ThreadLocalRandom.current();
+    public static Evolution evo;
+    InputLayerDetection newDetection;
 
     public static boolean loadFromSavedSnake, loadBestSnakeEver;
     public static int gameNr = -1;
@@ -82,15 +84,15 @@ public class main extends Game {
 
     //Neuronales Netzwerk Eigenschaften
     public static double bias = 0f;
-    public static double biasOutput = -0.4d;
-    public static int bestSnakesArraySize = 20;
+    public static double biasOutput = 0;
+    public static int bestSnakesArraySize = 100;
 
     public static double mutationPropability = 5f;//%
     public static double mutationMin = -1f;
     public static double mutationMax = 1f;
 
     //Neuronales Netzwerk Aussehen
-    static int inputLayerNodes = 25;
+    static int inputLayerNodes = 24;
     static int Layer2Nodes = 18;
     static int Layer3Nodes = 18;
     static int Layer4Nodes = 0;
@@ -144,7 +146,7 @@ public class main extends Game {
         shapeRenderer = new ShapeRenderer();
         font = new BitmapFont();
         font.getData().setScale(w / 1100);
-
+        evo = new Evolution();
 
         buttonStart = new Button(new TextureRegionDrawable(new TextureRegion(new Texture("transparent2.png"))));
         buttonStart.setSize(w / 2, h);
@@ -200,7 +202,7 @@ public class main extends Game {
                 Sleep_Time = 0;
             }
         });
-        buttonreplay = new TextButton(" Replay Best Snake\n(Active: " + replay + ")", skin);
+        buttonreplay = new TextButton(" Replay Best SnakeGame\n(Active: " + replay + ")", skin);
         buttonreplay.setSize(buttonLangsamer.getWidth(), buttonLangsamer.getHeight());
         buttonreplay.setPosition(buttonMax.getX(), buttonSchneller.getY());
         buttonreplay.getLabel().setFontScale(buttonLangsamer.getLabel().getFontScaleX());
@@ -209,10 +211,10 @@ public class main extends Game {
             public void clicked(InputEvent event, float x, float y) {
                 if (replay) {
                     requestReplayStop = true;
-                    buttonreplay.setText(" Replay Best Snake\n(Active: false)");
+                    buttonreplay.setText(" Replay Best SnakeGame\n(Active: false)");
                 } else {
                     replay = true;
-                    buttonreplay.setText(" Replay Best Snake\n(Active: true)");
+                    buttonreplay.setText(" Replay Best SnakeGame\n(Active: true)");
                 }
                 gameOver = true;
                 currentSnake = bestSnakeEver.bestSnakeEver;
@@ -285,15 +287,15 @@ public class main extends Game {
         for (int i = 0; i < bestSnakesArraySize; i++) {
             bestSnakesArray.add(currentSnake);
         }
+        bestSnakeEver.bestSnakeEver = currentSnake;
 
         allSnakes allSnakes = new allSnakes();
         allSnakesArrays.add(allSnakes);
         allSnakes.allSnakesArray.add(currentSnake);
 
-        bestSnakeEver.bestSnakeEver = currentSnake;
-
         NodeVis = new NodeVis();
         SavedSnakes = new SavedSnakes(this);
+        newDetection = new InputLayerDetection();
     }
 
     @Override
@@ -305,13 +307,6 @@ public class main extends Game {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.line(w / 2, h, w / 2, 0);
         shapeRenderer.end();
-
-        if (prefs.getString("time").equals("")) {
-            prefs.putString("time", String.valueOf(Gdx.graphics.getDeltaTime()));
-        } else {
-            prefs.putString("time", String.valueOf(Double.parseDouble(prefs.getString("time")) + Gdx.graphics.getDeltaTime()));
-        }
-        prefs.flush();
 
         drawGame();
 
@@ -344,21 +339,9 @@ public class main extends Game {
 
     public void berechneLayer() {
         ResetLayers();
-        InputLayerDetection newDetection = new InputLayerDetection();
+        newDetection.start();
         for (int i = 0; i < LayerMenge - 1; i++) {
             berechneLayer(i);
-        }
-
-        for (int Layernumber = 0; Layernumber < LayerMenge; Layernumber++) {
-            //Logging
-            for (int k = 0; k < currentSnake.layerArray.get(Layernumber).NodeArray.size; k++) {
-                if (enableNodeLogging) {
-                    System.out.println("Layer NR.: " + Layernumber + " Node NR.: " + k + " ERGEBNIS: " + currentSnake.layerArray.get(Layernumber).NodeArray.get(k).value);
-                }
-            }
-            if (enableNodeLogging) {
-                System.out.println("\n");
-            }
         }
     }
 
@@ -378,7 +361,6 @@ public class main extends Game {
                 currentSnake.layerArray.get(Layernumber + 1).NodeArray.get(NodeLayer2).value = outputActivationFunction(sum);
             else
                 currentSnake.layerArray.get(Layernumber + 1).NodeArray.get(NodeLayer2).value = activationFunction(sum);
-
         }
     }
 
@@ -386,7 +368,7 @@ public class main extends Game {
         x += bias;
 
         //Sigmoid
-        return 1 / (1 + Math.exp(-x));
+        return 1d / (1d + Math.exp(-x));
 
         //Tanh
         //return Math.tanh(x);
@@ -514,7 +496,7 @@ public class main extends Game {
         font.draw(batch, "Settings", w / 3.35f, h / 1.07f);
         font.draw(batch, "______________________", w / 3.35f, h / 1.08f);
         font.draw(batch, "Game Nr: " + gameNr, w / 3.35f, h / 1.13f);
-        font.draw(batch, "Snake Nr: " + snakeNr, w / 3.35f, h / 1.18f);
+        font.draw(batch, "SnakeGame Nr: " + snakeNr, w / 3.35f, h / 1.18f);
         font.draw(batch, "Score: " + score, w / 3.35f, h / 1.23f);
         font.draw(batch, "Population: " + population, w / 3.35f, h / 1.28f);
         font.setColor(1f, 0.3f, 0.3f, 1);
@@ -564,16 +546,14 @@ public class main extends Game {
             }
         }
         //Treats
-        if (Snake.treats != null && Snake.treats.size > 0) {
-            try {
-                shapeRenderer.setColor(1, 1, 1, 1);
-                shapeRenderer.rect(Snake.treats.get(Snake.treats.size - 1).x * w / 2 / reihen + w / 2
-                        , (spalten - 1 - Snake.treats.get(Snake.treats.size - 1).y) * h / spalten
-                        , w / 2 / reihen
-                        , h / spalten);
-            } catch (Exception ignored) {
+        try {
+            shapeRenderer.setColor(1, 1, 1, 1);
+            shapeRenderer.rect(Snake.treats.get(Snake.treats.size - 1).x * w / 2 / reihen + w / 2
+                    , (spalten - 1 - Snake.treats.get(Snake.treats.size - 1).y) * h / spalten
+                    , w / 2 / reihen
+                    , h / spalten);
+        } catch (Exception ignored) {
 
-            }
         }
         //Schlange
         try {
@@ -586,7 +566,7 @@ public class main extends Game {
                                 , w / 2 / reihen
                                 , h / spalten);
                         if (i == 0) {
-                            shapeRenderer.setColor(1f, 0.3f, 0.3f, 1);
+                            shapeRenderer.setColor(1f + ((energy) / 400f - 1), 0.3f + ((energy) / 400f - 1), 0.3f + ((energy) / 400f - 1), 1);
                             shapeRenderer.rect(Snake.snake.get(i).x * w / 2 / reihen + w / 2
                                     , (spalten - 1 - Snake.snake.get(i).y) * h / spalten
                                     , w / 2 / reihen

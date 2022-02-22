@@ -51,13 +51,12 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.StreamUtils;
-import com.google.gson.Gson;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.util.Properties;
 
-public class SavedSnakes implements Screen {
+public class SaveAsJson implements Screen {
     public static Preferences prefs;
 
     Stage savedStage;
@@ -78,10 +77,9 @@ public class SavedSnakes implements Screen {
     private static Properties properties;
     main main2;
 
-    public SavedSnakes(main main) {
+    public SaveAsJson(main main) {
         prefs = Gdx.app.getPreferences("SnakeAi");
         file = Gdx.files.internal("BestSnake.txt");
-        properties = null;
         properties = new Properties();
         InputStream in = null;
         try {
@@ -123,11 +121,6 @@ public class SavedSnakes implements Screen {
         savedStage.addActor(main.savedSnakesScreenbutton);
 
         loadSavedSnakeScrollPane();
-    }
-
-    public void saveAsJson(Snakes snake) {
-        Gson gson = new Gson();
-        String json = gson.toJson(snake);
     }
 
     public void loadSavedSnakeScrollPane() {

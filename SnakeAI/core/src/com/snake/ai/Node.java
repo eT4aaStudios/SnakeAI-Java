@@ -1,20 +1,20 @@
 package com.snake.ai;
 
-import com.badlogic.gdx.utils.Array;
-
 import static com.snake.ai.SavedSnakes.getDouble;
 import static com.snake.ai.main.LayerMenge;
 import static com.snake.ai.main.SnakeNr;
+import static com.snake.ai.main.evo;
 import static com.snake.ai.main.gameNr;
 import static com.snake.ai.main.layerNodeValueArray;
 import static com.snake.ai.main.loadBestSnakeEver;
 import static com.snake.ai.main.loadFromSavedSnake;
 import static com.snake.ai.main.r;
 
+import com.badlogic.gdx.utils.Array;
+
 public class Node {
     public Array<Double> WeigthArray;
     public double value;
-    Evolution evo = new Evolution();
 
     public Node(int NodeNumber, int LayerNumber, boolean populationGreaterZero, Snakes parent1, Snakes parent2) {
         if (LayerNumber + 1 < LayerMenge) {
@@ -55,14 +55,17 @@ public class Node {
     public void singlePoint(int NodeNumber, int LayerNumber, Snakes parent1, Snakes parent2) {
         int WeigthNumber = 0;
         int i = r.nextInt(layerNodeValueArray.get(LayerNumber + 1));
+
         for (int j = 0; j < i; j++) {
-            //Weight 1
-            WeigthArray.add(evo.mutation3(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2, 1));
+            double weight = parent1.layerArray.get(LayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
+            weight = evo.mutation3(weight);
+            WeigthArray.add(weight);
             WeigthNumber++;
         }
         for (int k = WeigthNumber; k < layerNodeValueArray.get(LayerNumber + 1); k++) {
-            //Weight 2
-            WeigthArray.add(evo.mutation3(LayerNumber, NodeNumber, WeigthNumber, parent1, parent2, 2));
+            double weight = parent2.layerArray.get(LayerNumber).NodeArray.get(NodeNumber).WeigthArray.get(WeigthNumber);
+            weight = evo.mutation3(weight);
+            WeigthArray.add(weight);
             WeigthNumber++;
         }
     }
