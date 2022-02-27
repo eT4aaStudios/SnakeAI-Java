@@ -1,16 +1,15 @@
 package com.snake.ai;
 
 
-import com.badlogic.gdx.utils.Array;
-
 import static com.snake.ai.main.layerNodeValueArray;
+
+import com.badlogic.gdx.utils.Array;
 
 public class Layer {
 
     Array<Node> NodeArray;
 
     public Layer(int LayerNumber, boolean populationGreaterZero, Snake parent1, Snake parent2) {
-        NodeArray = null;
         NodeArray = new Array<>();
 
         for (int i = 0; i < layerNodeValueArray.get(LayerNumber); i++) {

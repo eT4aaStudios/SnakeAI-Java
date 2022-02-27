@@ -383,7 +383,6 @@ public class SavedSnakes implements Screen {
 
         //Evolutions Eigenschaften
         prefs.putInteger("gameNr " + gameNr + "POPULATIONSIZE", main.POPULATIONSIZE);
-        prefs.putInteger("gameNr " + gameNr + "FIRSTPOPULATIONSIZE", main.FIRSTPOPULATIONSIZE);
         prefs.flush();
     }
 
@@ -453,7 +452,6 @@ public class SavedSnakes implements Screen {
 
         //Evolutions Eigenschaften
         main.POPULATIONSIZE = getInteger("gameNr " + gameNr + "POPULATIONSIZE");
-        main.FIRSTPOPULATIONSIZE = getInteger("gameNr " + gameNr + "FIRSTPOPULATIONSIZE");
     }
 
     private void loadBestSnakeEver(int gameNr) {
@@ -593,7 +591,6 @@ public class SavedSnakes implements Screen {
 
         //Evolutions Eigenschaften
         main.POPULATIONSIZE = getInteger("gameNr " + 0 + "POPULATIONSIZE");
-        main.FIRSTPOPULATIONSIZE = getInteger("gameNr " + 0 + "FIRSTPOPULATIONSIZE");
     }
 
     private void loadBestSnakeEver0() {

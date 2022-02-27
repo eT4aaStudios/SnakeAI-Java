@@ -1,7 +1,6 @@
 package com.snake.ai;
 
 import static com.snake.ai.SavedSnakes.prefs;
-import static com.snake.ai.main.FIRSTPOPULATIONSIZE;
 import static com.snake.ai.main.POPULATIONSIZE;
 import static com.snake.ai.main.allSnakesArrays;
 import static com.snake.ai.main.averageFitnessArray;
@@ -103,7 +102,7 @@ public class SnakeGame implements Runnable {
         score = 0;
         timealaive = 0;
         steps = 0;
-        if (!replay && ((snakeNr == POPULATIONSIZE && population > 0) || (snakeNr == FIRSTPOPULATIONSIZE && population == 0))) {
+        if (!replay && snakeNr == POPULATIONSIZE) {
             newPopulation();
         }
 
@@ -229,16 +228,9 @@ public class SnakeGame implements Runnable {
         for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
             maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
         }
-        if (population > 1) {
-            if (enableNewPopulationLogging)
-                System.out.println("average Fitness: " + maxFitness / POPULATIONSIZE);
-            averageFitnessArray.add(maxFitness / POPULATIONSIZE);
-        } else {
-            if (enableNewPopulationLogging)
-
-                System.out.println("average Fitness: " + maxFitness / FIRSTPOPULATIONSIZE);
-            averageFitnessArray.add(maxFitness / FIRSTPOPULATIONSIZE);
-        }
+        if (enableNewPopulationLogging)
+            System.out.println("average Fitness: " + maxFitness / POPULATIONSIZE);
+        averageFitnessArray.add(maxFitness / POPULATIONSIZE);
 
         int maxHiscore = 0;
         for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
@@ -426,7 +418,7 @@ public class SnakeGame implements Runnable {
         gameOver = true;
         stop();
         averageSteps += steps;
-        currentSnake.fitness = evo.FitnessFuntction2(steps, score);
+        currentSnake.fitness = evo.FitnessFuntction(steps, score);
 
         allSnakesArrays.get(allSnakesArrays.size - 1).allSnakesArray.add(currentSnake);
 

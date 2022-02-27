@@ -84,16 +84,16 @@ public class main extends Game {
     public static BestSnakeEver bestSnakeEver = new BestSnakeEver();
 
     //Neuronales Netzwerk Eigenschaften
-    public static double bias = 0f;
+    public static double bias = 0;
     public static double biasOutput = 0;
     public static int bestSnakesArraySize = 10;
 
-    public static double mutationPropability = 5f;//%
+    public static double mutationPropability = 1f;//%
     public static double mutationMin = -1f;
     public static double mutationMax = 1f;
 
     //Neuronales Netzwerk Aussehen
-    static int inputLayerNodes = 33;
+    static int inputLayerNodes = 24;
     static int Layer2Nodes = 18;
     static int Layer3Nodes = 18;
     static int Layer4Nodes = 0;
@@ -109,7 +109,6 @@ public class main extends Game {
 
     //Evolutions Eigenschaften
     public static int POPULATIONSIZE = 1000;
-    public static int FIRSTPOPULATIONSIZE = 1000;
 
     public static int reihen = 21;
     public static int spalten = 21;
@@ -524,7 +523,6 @@ public class main extends Game {
         font.draw(batch, "Mutation Min: " + (float) mutationMin, w / 3.35f, h / 2.8f);
         font.draw(batch, "Mutation Max: " + (float) mutationMax, w / 3.35f, h / 3.1f);
         font.draw(batch, "Population Size: " + POPULATIONSIZE, w / 3.35f, h / 3.4f);
-        font.draw(batch, "First Population Size: " + FIRSTPOPULATIONSIZE, w / 3.35f, h / 3.8f);
         font.draw(batch, "______________________", w / 3.35f, h / 4.5f);
         font.draw(batch, "Rows: " + reihen, w / 3.35f, h / 5.5f);
         font.draw(batch, "Columns: " + spalten, w / 3.35f, h / 6.5f);

@@ -18,7 +18,6 @@ public class Node {
 
     public Node(int NodeNumber, int LayerNumber, boolean populationGreaterZero, Snake parent1, Snake parent2) {
         if (LayerNumber + 1 < LayerMenge) {
-            WeigthArray = null;
             WeigthArray = new Array<>();
             if (populationGreaterZero) {
                 if (loadBestSnakeEver) {

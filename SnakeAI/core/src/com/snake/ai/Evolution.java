@@ -7,7 +7,7 @@ import static com.snake.ai.main.r;
 
 public class Evolution {
     public double FitnessFuntction(int steps, int score) {
-        return steps + (Math.pow(2d, score) + Math.pow(score, 2.1d) * 500) - (Math.pow(score, 1.2d) * Math.pow((0.25d * steps), 1.3d));
+        return steps + (Math.pow(2, score) + Math.pow(score, 2.1) * 500) - (Math.pow(score, 1.2) * Math.pow((0.25 * steps), 1.3));
     }
 
 
@@ -91,8 +91,9 @@ public class Evolution {
     //Normal mutation
     public double mutation3(double weight) {
         //mutationMax = (float) Math.pow(0.97,hiscoreArray.get(population));
-        //mutationMin = -mutationMax;
-        double mutationAmount = r.nextGaussian();
+        mutationMin = -mutationMax;
+
+        float mutationAmount = (float) (mutationMin + Math.random() * (mutationMax - mutationMin));
 
         if (r.nextDouble() * 100 <= mutationPropability) {
             //With Mutation
