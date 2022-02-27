@@ -1,12 +1,12 @@
 package com.snake.ai;
 
 import com.badlogic.gdx.utils.Array;
-import com.snake.ai.Snake.Dir;
+import com.snake.ai.SnakeGame.Dir;
 
 public class BestSnakeEver {
     public Dir startDir;
     public Array<Point> bestSnakeTreats;
-    public Snakes bestSnakeEver;
+    public Snake bestSnakeEver;
     public Array<Dir> directionArray;
     public Array<Dir> directionTmpArray;
 

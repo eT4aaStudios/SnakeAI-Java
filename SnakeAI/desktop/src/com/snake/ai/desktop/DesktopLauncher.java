@@ -10,7 +10,7 @@ public class DesktopLauncher {
     public static void main(String[] arg) {
         Lwjgl3ApplicationConfiguration cfg = new Lwjgl3ApplicationConfiguration();
 
-        cfg.setTitle("Snake Ai by eT4aa");
+        cfg.setTitle("SnakeGame Ai by eT4aa");
         cfg.setIdleFPS(1);
         cfg.setWindowIcon("ic_launcher.png");
         cfg.useVsync(true);

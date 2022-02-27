@@ -1,14 +1,14 @@
 package com.snake.ai;
 
-import static com.snake.ai.Snake.Sleep_Time;
-import static com.snake.ai.Snake.energy;
-import static com.snake.ai.Snake.gameOver;
-import static com.snake.ai.Snake.hiScore;
-import static com.snake.ai.Snake.population;
-import static com.snake.ai.Snake.score;
-import static com.snake.ai.Snake.snakeNr;
-import static com.snake.ai.Snake.startlength;
-import static com.snake.ai.Snake.timePerPop;
+import static com.snake.ai.SnakeGame.Sleep_Time;
+import static com.snake.ai.SnakeGame.energy;
+import static com.snake.ai.SnakeGame.gameOver;
+import static com.snake.ai.SnakeGame.hiScore;
+import static com.snake.ai.SnakeGame.population;
+import static com.snake.ai.SnakeGame.score;
+import static com.snake.ai.SnakeGame.snakeNr;
+import static com.snake.ai.SnakeGame.startlength;
+import static com.snake.ai.SnakeGame.timePerPop;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -60,11 +60,11 @@ public class main extends Game {
     public static int SnakeHeadX, SnakeHeadY;
     Array<Integer> felderarray;
     public static boolean freeze = true;
-    public static Snakes currentSnake;
+    public static Snake currentSnake;
     public static Array<Integer> layerNodeValueArray;
     public static boolean currentScreen;
     public static Array<allSnakes> allSnakesArrays;
-    public static Array<Snakes> bestSnakesArray;
+    public static Array<Snake> bestSnakesArray;
     static ShapeRenderer shapeRenderer;
     BitmapFont font;
     public static Array<Integer> averageFitnessArray;
@@ -74,6 +74,7 @@ public class main extends Game {
     public static Random r = ThreadLocalRandom.current();
     public static Evolution evo;
     InputLayerDetection newDetection;
+    public static int averageSteps;
 
     public static boolean loadFromSavedSnake, loadBestSnakeEver;
     public static int gameNr = -1;
@@ -85,14 +86,14 @@ public class main extends Game {
     //Neuronales Netzwerk Eigenschaften
     public static double bias = 0f;
     public static double biasOutput = 0;
-    public static int bestSnakesArraySize = 100;
+    public static int bestSnakesArraySize = 10;
 
     public static double mutationPropability = 5f;//%
     public static double mutationMin = -1f;
     public static double mutationMax = 1f;
 
     //Neuronales Netzwerk Aussehen
-    static int inputLayerNodes = 24;
+    static int inputLayerNodes = 33;
     static int Layer2Nodes = 18;
     static int Layer3Nodes = 18;
     static int Layer4Nodes = 0;
@@ -110,17 +111,20 @@ public class main extends Game {
     public static int POPULATIONSIZE = 1000;
     public static int FIRSTPOPULATIONSIZE = 1000;
 
-    public static int reihen = 22;
-    public static int spalten = 22;
+    public static int reihen = 21;
+    public static int spalten = 21;
 
-    Snake snake;
+    public static int reihenVis = reihen + 2;
+    public static int spaltenVis = spalten + 2;
+
+    SnakeGame snakeGame;
 
     NodeVis NodeVis;
     SavedSnakes SavedSnakes;
 
     @Override
     public void create() {
-        snake = new Snake(this);
+        snakeGame = new SnakeGame(this);
         layerNodeValueArray = new Array<>();
         layerNodeValueArray.add(inputLayerNodes);
         layerNodeValueArray.add(Layer2Nodes);
@@ -155,7 +159,7 @@ public class main extends Game {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (gameOver) {
-                    snake.startNewGame();
+                    snakeGame.startNewGame();
                     freeze = false;
                 } else {
                     freeze = !freeze;
@@ -248,7 +252,7 @@ public class main extends Game {
                 currentScreen = !currentScreen;
             }
         });
-        savedSnakesScreenbutton = new TextButton("Show Saved Snakes", skin);
+        savedSnakesScreenbutton = new TextButton("Show Saved Snake", skin);
         savedSnakesScreenbutton.setSize(buttonLangsamer.getWidth(), h / 8);
         savedSnakesScreenbutton.setPosition(buttonLangsamer.getX(), buttonshownodes.getY());
         savedSnakesScreenbutton.getLabel().setFontScale(buttonLangsamer.getLabel().getFontScaleX());
@@ -283,7 +287,7 @@ public class main extends Game {
         stage.addActor(buttonMax);
         stage.addActor(buttonreplay);
 
-        currentSnake = new Snakes();
+        currentSnake = new Snake();
         for (int i = 0; i < bestSnakesArraySize; i++) {
             bestSnakesArray.add(currentSnake);
         }
@@ -320,6 +324,9 @@ public class main extends Game {
         batch.begin();
         font.draw(batch, "Paused: " + freeze, w / 1.12f, h / 1.075f);
         batch.end();
+
+        //if (treats != null)
+        //    System.out.println(treats.size);
     }
 
 
@@ -500,7 +507,7 @@ public class main extends Game {
         font.draw(batch, "Score: " + score, w / 3.35f, h / 1.23f);
         font.draw(batch, "Population: " + population, w / 3.35f, h / 1.28f);
         font.setColor(1f, 0.3f, 0.3f, 1);
-        int maxLength = (reihen - 2) * (spalten - 2) - startlength;
+        int maxLength = reihen * spalten - startlength;
         font.draw(batch, "Highscore: " + hiScore + " (Max: " + maxLength + ")", w / 3.35f, h / 1.34f);
         font.draw(batch, "Best Fitness Ever: " + bestSnakeEver.bestSnakeEver.fitness, w / 3.35f, h / 1.4f);
         font.setColor(Color.WHITE);
@@ -529,9 +536,9 @@ public class main extends Game {
     public void drawGame() {
         //Feld
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        for (int i = 0; i < reihen; i++) {
-            for (int j = 0; j < spalten; j++) {
-                if (i == 0 || j == 0 || i == reihen - 1 || j == spalten - 1) {
+        for (int i = 0; i < reihenVis; i++) {
+            for (int j = 0; j < spaltenVis; j++) {
+                if (i == 0 || j == 0 || i == reihenVis - 1 || j == spaltenVis - 1) {
                     shapeRenderer.setColor(Color.GRAY);
                 } else {
                     if ((i + j) % 2 == 0)
@@ -539,38 +546,38 @@ public class main extends Game {
                     else
                         shapeRenderer.setColor(0.25f, 0.25f, 0.25f, 1);
                 }
-                shapeRenderer.rect(w / 2 + i * w / 2 / reihen
-                        , j * h / spalten
-                        , w / 2 / reihen
-                        , h / spalten);
+                shapeRenderer.rect(w / 2 + i * w / 2 / reihenVis
+                        , j * h / spaltenVis
+                        , w / 2 / reihenVis
+                        , h / spaltenVis);
             }
         }
         //Treats
         try {
             shapeRenderer.setColor(1, 1, 1, 1);
-            shapeRenderer.rect(Snake.treats.get(Snake.treats.size - 1).x * w / 2 / reihen + w / 2
-                    , (spalten - 1 - Snake.treats.get(Snake.treats.size - 1).y) * h / spalten
-                    , w / 2 / reihen
-                    , h / spalten);
+            shapeRenderer.rect(SnakeGame.treats.get(SnakeGame.treats.size - 1).x * w / 2 / reihenVis + w / 2
+                    , (spaltenVis - 1 - SnakeGame.treats.get(SnakeGame.treats.size - 1).y) * h / spaltenVis
+                    , w / 2 / reihenVis
+                    , h / spaltenVis);
         } catch (Exception ignored) {
 
         }
         //Schlange
         try {
-            if (Snake.snake != null && Snake.snake.size() > 0) {
-                for (int i = 0; i < Snake.snake.size(); i++) {
+            if (SnakeGame.snake != null && SnakeGame.snake.size() > 0) {
+                for (int i = 0; i < SnakeGame.snake.size(); i++) {
                     try {
                         shapeRenderer.setColor(0.3f, 0.7f, 0.3f, 1);
-                        shapeRenderer.rect(Snake.snake.get(i).x * w / 2 / reihen + w / 2
-                                , (spalten - 1 - Snake.snake.get(i).y) * h / spalten
-                                , w / 2 / reihen
-                                , h / spalten);
+                        shapeRenderer.rect(SnakeGame.snake.get(i).x * w / 2 / reihenVis + w / 2
+                                , (spaltenVis - 1 - SnakeGame.snake.get(i).y) * h / spaltenVis
+                                , w / 2 / reihenVis
+                                , h / spaltenVis);
                         if (i == 0) {
                             shapeRenderer.setColor(1f + ((energy) / 400f - 1), 0.3f + ((energy) / 400f - 1), 0.3f + ((energy) / 400f - 1), 1);
-                            shapeRenderer.rect(Snake.snake.get(i).x * w / 2 / reihen + w / 2
-                                    , (spalten - 1 - Snake.snake.get(i).y) * h / spalten
-                                    , w / 2 / reihen
-                                    , h / spalten);
+                            shapeRenderer.rect(SnakeGame.snake.get(i).x * w / 2 / reihenVis + w / 2
+                                    , (spaltenVis - 1 - SnakeGame.snake.get(i).y) * h / spaltenVis
+                                    , w / 2 / reihenVis
+                                    , h / spaltenVis);
                         }
                     } catch (Exception ignored) {
 

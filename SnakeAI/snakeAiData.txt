@@ -1,4 +1,4 @@
-Population62
-Highscore5
+Population596
+Highscore18
 Time
-TimePerPop58
+TimePerPop197

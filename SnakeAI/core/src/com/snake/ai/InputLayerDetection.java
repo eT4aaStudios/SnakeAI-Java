@@ -1,114 +1,120 @@
 package com.snake.ai;
 
-import static com.snake.ai.Snake.snake;
-import static com.snake.ai.Snake.startlength;
-import static com.snake.ai.main.SnakeHeadX;
-import static com.snake.ai.main.SnakeHeadY;
+import static com.snake.ai.SnakeGame.dir;
+import static com.snake.ai.SnakeGame.energy;
+import static com.snake.ai.SnakeGame.maxEnergy;
+import static com.snake.ai.SnakeGame.snake;
 import static com.snake.ai.main.currentSnake;
-import static com.snake.ai.main.enableSehrNahLogging;
-import static com.snake.ai.main.foodpositionX;
-import static com.snake.ai.main.foodpositionY;
-import static com.snake.ai.main.reihen;
-import static com.snake.ai.main.spalten;
 
 public class InputLayerDetection {
 
-    private int x,y;
+    private int x, y;
+    private final double reihen, spalten;
+    private int SnakeHeadX, SnakeHeadY;
+    private int foodpositionX, foodpositionY;
+    private final double diagonalLength;
+
+    public InputLayerDetection() {
+        reihen = main.reihen - 1;
+        spalten = main.spalten - 1;
+        diagonalLength = reihen <= spalten ? reihen * 2 : spalten * 2;
+    }
 
     public void start() {
-        schwanzDetectionGerade();       //(4) 4  Vision
-        schwanzDetectionSchraeg();      //(4) 8  Vision
-        foodDetectionGerade();          //(4) 12 Vision
-        foodDetectionSchraeg();         //(4) 16 Vision
-        wandDetectionGerade();          //(4) 20 Vision
-        wandDetectionSchreag();         //(4) 24 Vision
-        if(currentSnake.layerArray.get(0).NodeArray.size > 24)
-        length();         //(1) 25 Vision
+        SnakeHeadX = main.SnakeHeadX - 1;
+        SnakeHeadY = main.SnakeHeadY - 1;
+        foodpositionX = main.foodpositionX - 1;
+        foodpositionY = main.foodpositionY - 1;
+        wandDetectionGerade();          //(4)
+        wandDetectionSchreag();         //(4)
+        schwanzDetectionGerade();       //(4)
+        schwanzDetectionSchraeg();      //(4)
+        foodDetectionGerade();          //(4)
+        foodDetectionSchraeg();         //(4)
 
-        if (currentSnake.layerArray.get(0).NodeArray.size > 25) {
+
+        if (currentSnake.layerArray.get(0).NodeArray.size > 24) {
             directionGoingHead();           //(4) 29 Head Direction
             directionGoingTail();           //(4) 33 Tail Direction
+            //energy();
         }
     }
 
     public void wandDetectionGerade() {
-        currentSnake.layerArray.get(0).NodeArray.get(0).value = -0.015873f * SnakeHeadX + 1.01587301f;
-        if (currentSnake.layerArray.get(0).NodeArray.get(0).value > 0.8d && enableSehrNahLogging)
-            System.out.println("Sehr nah an der linken Wand: " + currentSnake.layerArray.get(0).NodeArray.get(12).value);
+        currentSnake.layerArray.get(0).NodeArray.get(0).value = (reihen - SnakeHeadX) / reihen;
+        //    System.out.println("Sehr nah an der linken Wand: " + currentSnake.layerArray.get(0).NodeArray.get(12).value);
 
-        currentSnake.layerArray.get(0).NodeArray.get(1).value = 0.01587301f * SnakeHeadX - 0.015873f;
-        if (currentSnake.layerArray.get(0).NodeArray.get(1).value > 0.8d && enableSehrNahLogging)
-            System.out.println("Sehr nah an der rechten Wand: " + currentSnake.layerArray.get(0).NodeArray.get(13).value);
+        currentSnake.layerArray.get(0).NodeArray.get(1).value = (SnakeHeadX) / reihen;
+        //    System.out.println("Sehr nah an der rechten Wand: " + currentSnake.layerArray.get(0).NodeArray.get(13).value);
 
-        currentSnake.layerArray.get(0).NodeArray.get(2).value = -0.0232558f * SnakeHeadY + 1.02325581f;
-        if (currentSnake.layerArray.get(0).NodeArray.get(2).value > 0.8d && enableSehrNahLogging)
-            System.out.println("Sehr nah an der Oberen Wand: " + currentSnake.layerArray.get(0).NodeArray.get(14).value);
+        currentSnake.layerArray.get(0).NodeArray.get(2).value = (spalten - SnakeHeadY) / spalten;
+        //    System.out.println("Sehr nah an der Oberen Wand: " + currentSnake.layerArray.get(0).NodeArray.get(14).value);
 
-        currentSnake.layerArray.get(0).NodeArray.get(3).value = 0.02325581f * SnakeHeadY - 0.0232558f;
-        if (currentSnake.layerArray.get(0).NodeArray.get(3).value > 0.8d && enableSehrNahLogging)
-            System.out.println("Sehr nah an der Unteren Wand: " + currentSnake.layerArray.get(0).NodeArray.get(15).value);
+        currentSnake.layerArray.get(0).NodeArray.get(3).value = (SnakeHeadY) / spalten;
+        //    System.out.println("Sehr nah an der Unteren Wand: " + currentSnake.layerArray.get(0).NodeArray.get(15).value);
     }
 
     public void wandDetectionSchreag() {
         //schräg
         x = SnakeHeadX;
         y = SnakeHeadY;
-        for (int i = 0; i < reihen; i++) {
+        boolean positionIsUp = dir == SnakeGame.Dir.up || dir == SnakeGame.Dir.down;
+        for (double i = 1; i < 99999; i++) {
             //System.out.println("Schraeg links Oben");
-            x--;
-            y--;
-            if (x == 0) {
-                currentSnake.layerArray.get(0).NodeArray.get(4).value = -0.015873f * SnakeHeadX + 1.01587301f;
-                i = reihen;
-            }
-            if (y == 0) {
-                currentSnake.layerArray.get(0).NodeArray.get(4).value = -0.0232558f * SnakeHeadY + 1.02325581f;
-                i = reihen;
+            if (positionIsUp)
+                x--;
+            else
+                y--;
+            positionIsUp = !positionIsUp;
+            if (x == 0 || y == 0) {
+                currentSnake.layerArray.get(0).NodeArray.get(4).value = (diagonalLength - i) / diagonalLength;
+                break;
             }
         }
         x = SnakeHeadX;
         y = SnakeHeadY;
-        for (int i = 0; i < reihen; i++) {
+        positionIsUp = dir == SnakeGame.Dir.up || dir == SnakeGame.Dir.down;
+        for (double i = 1; i < 99999; i++) {
             //System.out.println("Schraeg links Unten");
-            x--;
-            y++;
-            if (x == 0) {
-                currentSnake.layerArray.get(0).NodeArray.get(5).value = -0.015873f * SnakeHeadX + 1.01587301f;
-                i = reihen;
-            }
-            if (y == spalten) {
-                currentSnake.layerArray.get(0).NodeArray.get(5).value = 0.02325581f * SnakeHeadY - 0.0232558f;
-                i = reihen;
+            if (positionIsUp)
+                x--;
+            else
+                y++;
+            positionIsUp = !positionIsUp;
+            if (x == 0 || y == spalten) {
+                currentSnake.layerArray.get(0).NodeArray.get(5).value = (diagonalLength - i) / diagonalLength;
+                break;
             }
         }
         x = SnakeHeadX;
         y = SnakeHeadY;
-        for (int i = 0; i < reihen; i++) {
+        positionIsUp = dir == SnakeGame.Dir.up || dir == SnakeGame.Dir.down;
+        for (double i = 1; i < 99999; i++) {
             //System.out.println("Schraeg rechts Unten");
-            x++;
-            y++;
-            if (x == reihen) {
-                currentSnake.layerArray.get(0).NodeArray.get(6).value = 0.01587301f * SnakeHeadX - 0.015873f;
-                i = reihen;
-            }
-            if (y == spalten) {
-                currentSnake.layerArray.get(0).NodeArray.get(6).value = 0.02325581f * SnakeHeadY - 0.0232558f;
-                i = reihen;
+            if (positionIsUp)
+                x++;
+            else
+                y++;
+            positionIsUp = !positionIsUp;
+            if (x == reihen || y == spalten) {
+                currentSnake.layerArray.get(0).NodeArray.get(6).value = (diagonalLength - i) / diagonalLength;
+
+                break;
             }
         }
         x = SnakeHeadX;
         y = SnakeHeadY;
-        for (int i = 0; i < reihen; i++) {
+        positionIsUp = dir == SnakeGame.Dir.up || dir == SnakeGame.Dir.down;
+        for (double i = 1; i < 99999; i++) {
             //System.out.println("Schraeg rechts Oben");
-            x++;
-            y--;
-            if (x == reihen) {
-                currentSnake.layerArray.get(0).NodeArray.get(7).value = 0.01587301f * SnakeHeadX - 0.015873f;
-                i = reihen;
-            }
-            if (y == 0) {
-                currentSnake.layerArray.get(0).NodeArray.get(7).value = -0.0232558f * SnakeHeadY + 1.02325581f;
-                i = reihen;
+            if (positionIsUp)
+                x++;
+            else
+                y--;
+            positionIsUp = !positionIsUp;
+            if (x == reihen || y == 0) {
+                currentSnake.layerArray.get(0).NodeArray.get(7).value = (diagonalLength - i) / diagonalLength;
+                break;
             }
         }
     }
@@ -191,31 +197,33 @@ public class InputLayerDetection {
         double nearest3 = -99999;
         double nearest4 = -99999;
         for (int i = 0; i < snake.size(); i++) {
-            if (snake.get(i).x < SnakeHeadX && SnakeHeadY == snake.get(i).y) {
+            int snakeX = snake.get(i).x - 1;
+            int snakeY = snake.get(i).y - 1;
+            if (snakeX < SnakeHeadX && SnakeHeadY == snakeY) {
                 //System.out.println("Schwanz im Weg (Links)");
-                if (nearest1 > SnakeHeadX - snake.get(i).x) {
-                    currentSnake.layerArray.get(0).NodeArray.get(16).value = -0.01666666f * (SnakeHeadX - snake.get(i).x) + 1.01666666f;
+                if (nearest1 > (SnakeHeadX - snakeX) / reihen) {
+                    currentSnake.layerArray.get(0).NodeArray.get(16).value = (SnakeHeadX - snakeX) / reihen;
                     nearest1 = currentSnake.layerArray.get(0).NodeArray.get(16).value;
                 }
             }
-            if (snake.get(i).x > SnakeHeadX && SnakeHeadY == snake.get(i).y) {
+            if (snakeX > SnakeHeadX && SnakeHeadY == snakeY) {
                 //System.out.println("Schwanz im Weg (Rechts)");
-                if (nearest2 > snake.get(i).x - SnakeHeadX) {
-                    currentSnake.layerArray.get(0).NodeArray.get(17).value = -0.01666666f * (snake.get(i).x - SnakeHeadX) + 1.01666666f;
+                if (nearest2 > (snakeX - SnakeHeadX) / reihen) {
+                    currentSnake.layerArray.get(0).NodeArray.get(17).value = (snakeX - SnakeHeadX) / reihen;
                     nearest2 = currentSnake.layerArray.get(0).NodeArray.get(17).value;
                 }
             }
-            if (snake.get(i).y < SnakeHeadY && SnakeHeadX == snake.get(i).x) {
+            if (snakeY < SnakeHeadY && SnakeHeadX == snakeX) {
                 //System.out.println("Schwanz im Weg (Oben)");
-                if (nearest3 < snake.get(i).y - SnakeHeadY) {
-                    currentSnake.layerArray.get(0).NodeArray.get(18).value = 0.025f * (snake.get(i).y - SnakeHeadY) + 1.025f;
+                if (nearest3 < (snakeY - SnakeHeadY) / spalten) {
+                    currentSnake.layerArray.get(0).NodeArray.get(18).value = (snakeY - SnakeHeadY) / spalten;
                     nearest3 = currentSnake.layerArray.get(0).NodeArray.get(18).value;
                 }
             }
-            if (snake.get(i).y > SnakeHeadY && SnakeHeadX == snake.get(i).x) {
+            if (snakeY > SnakeHeadY && SnakeHeadX == snakeX) {
                 //System.out.println("Schwanz im Weg (Unten)");
-                if (nearest4 < SnakeHeadY - snake.get(i).y) {
-                    currentSnake.layerArray.get(0).NodeArray.get(19).value = 0.025f * (SnakeHeadY - snake.get(i).y) + 1.025f;
+                if (nearest4 < (SnakeHeadY - snakeY) / spalten) {
+                    currentSnake.layerArray.get(0).NodeArray.get(19).value = (SnakeHeadY - snakeY) / spalten;
                     nearest4 = currentSnake.layerArray.get(0).NodeArray.get(19).value;
                 }
             }
@@ -229,7 +237,7 @@ public class InputLayerDetection {
         for (int j = 0; j < snake.size(); j++) {
             x--;
             y--;
-            if (snake.get(j).x == x && snake.get(j).y == y) {
+            if (snake.get(j).x - 1 == x && snake.get(j).y - 1 == y) {
                 //System.out.println("Schwanz im Weg (Oben links)");
                 currentSnake.layerArray.get(0).NodeArray.get(20).value = 1;
             }
@@ -239,7 +247,7 @@ public class InputLayerDetection {
         for (int j = 0; j < snake.size(); j++) {
             x++;
             y--;
-            if (snake.get(j).x == x && snake.get(j).y == y) {
+            if (snake.get(j).x - 1 == x && snake.get(j).y - 1 == y) {
                 //System.out.println("Schwanz im Weg (Unten links)");
                 currentSnake.layerArray.get(0).NodeArray.get(21).value = 1;
             }
@@ -249,7 +257,7 @@ public class InputLayerDetection {
         for (int j = 0; j < snake.size(); j++) {
             x++;
             y--;
-            if (snake.get(j).x == x && snake.get(j).y == y) {
+            if (snake.get(j).x - 1 == x && snake.get(j).y - 1 == y) {
                 //System.out.println("Schwanz im Weg (unten Rechts)");
                 currentSnake.layerArray.get(0).NodeArray.get(22).value = 1;
             }
@@ -259,34 +267,29 @@ public class InputLayerDetection {
         for (int j = 0; j < snake.size(); j++) {
             x++;
             y--;
-            if (snake.get(j).x == x && snake.get(j).y == y) {
+            if (snake.get(j).x - 1 == x && snake.get(j).y - 1 == y) {
                 //System.out.println("Schwanz im Weg (Oben Rechts)");
                 currentSnake.layerArray.get(0).NodeArray.get(23).value = 1;
             }
         }
     }
 
-    public void length() {
-        double maxLength = (reihen - 2) * (spalten - 2) - startlength;
-        currentSnake.layerArray.get(0).NodeArray.get(24).value = snake.size() / maxLength;
-    }
-
     public void directionGoingHead() {
-        switch (Snake.dir) {
-            case up:
-                currentSnake.layerArray.get(0).NodeArray.get(25).value = 1;
-                break;
-            case down:
-                currentSnake.layerArray.get(0).NodeArray.get(26).value = 1;
-                break;
-            case right:
-                currentSnake.layerArray.get(0).NodeArray.get(27).value = 1;
-                break;
-            case left:
-                currentSnake.layerArray.get(0).NodeArray.get(28).value = 1;
-                break;
-
-        }
+        //switch (SnakeGame.dir) {
+        //    case up:
+        //        currentSnake.layerArray.get(0).NodeArray.get(24).value = 1;
+        //        break;
+        //    case down:
+        //        currentSnake.layerArray.get(0).NodeArray.get(25).value = 1;
+        //        break;
+        //    case right:
+        //        currentSnake.layerArray.get(0).NodeArray.get(26).value = 1;
+        //        break;
+        //    case left:
+        //        currentSnake.layerArray.get(0).NodeArray.get(27).value = 1;
+        //        break;
+        //
+        //}
     }
 
     public void directionGoingTail() {
@@ -297,19 +300,23 @@ public class InputLayerDetection {
 
         if (x == 0 && y == -1) {
             //Tail going up
-            currentSnake.layerArray.get(0).NodeArray.get(29).value = 1;
+            currentSnake.layerArray.get(0).NodeArray.get(28).value = 1;
         }
         if (x == 0 && y == 1) {
             //Tail going down
-            currentSnake.layerArray.get(0).NodeArray.get(30).value = 1;
+            currentSnake.layerArray.get(0).NodeArray.get(28).value = 1;
         }
         if (x == 1 && y == 0) {
             //Tail going right
-            currentSnake.layerArray.get(0).NodeArray.get(31).value = 1;
+            currentSnake.layerArray.get(0).NodeArray.get(30).value = 1;
         }
         if (x == -1 && y == 0) {
             //Tail going left
-            currentSnake.layerArray.get(0).NodeArray.get(32).value = 1;
+            currentSnake.layerArray.get(0).NodeArray.get(31).value = 1;
         }
+    }
+
+    public void energy() {
+        currentSnake.layerArray.get(0).NodeArray.get(32).value = (maxEnergy - energy) / (float) maxEnergy;
     }
 }

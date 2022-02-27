@@ -16,7 +16,7 @@ public class Node {
     public Array<Double> WeigthArray;
     public double value;
 
-    public Node(int NodeNumber, int LayerNumber, boolean populationGreaterZero, Snakes parent1, Snakes parent2) {
+    public Node(int NodeNumber, int LayerNumber, boolean populationGreaterZero, Snake parent1, Snake parent2) {
         if (LayerNumber + 1 < LayerMenge) {
             WeigthArray = null;
             WeigthArray = new Array<>();
@@ -52,7 +52,7 @@ public class Node {
         }
     }
 
-    public void singlePoint(int NodeNumber, int LayerNumber, Snakes parent1, Snakes parent2) {
+    public void singlePoint(int NodeNumber, int LayerNumber, Snake parent1, Snake parent2) {
         int WeigthNumber = 0;
         int i = r.nextInt(layerNodeValueArray.get(LayerNumber + 1));
 
@@ -68,5 +68,6 @@ public class Node {
             WeigthArray.add(weight);
             WeigthNumber++;
         }
+
     }
 }

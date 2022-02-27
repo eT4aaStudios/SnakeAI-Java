@@ -1,10 +1,10 @@
 package com.snake.ai;
 
 import static com.badlogic.gdx.Gdx.gl;
-import static com.snake.ai.Snake.gameOver;
-import static com.snake.ai.Snake.hiScore;
-import static com.snake.ai.Snake.population;
-import static com.snake.ai.Snake.snakeNr;
+import static com.snake.ai.SnakeGame.gameOver;
+import static com.snake.ai.SnakeGame.hiScore;
+import static com.snake.ai.SnakeGame.population;
+import static com.snake.ai.SnakeGame.snakeNr;
 import static com.snake.ai.main.POPULATIONSIZE;
 import static com.snake.ai.main.allSnakesArrays;
 import static com.snake.ai.main.averageFitnessArray;
@@ -52,8 +52,13 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.StreamUtils;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+
+import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -112,10 +117,11 @@ public class SavedSnakes implements Screen {
         saveCurrentSnake.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (snakeNr != 0)
+                if (snakeNr != 0) {
                     saveCurrentSnake(false);
-                else
+                } else {
                     System.out.println("You need to start the Game to Save a new Game");
+                }
             }
         });
         savedStage.addActor(saveCurrentSnake);
@@ -125,9 +131,37 @@ public class SavedSnakes implements Screen {
         loadSavedSnakeScrollPane();
     }
 
-    public void saveAsJson(Snakes snake) {
+    public static void saveAsJson(Snake snake) {
         Gson gson = new Gson();
-        String json = gson.toJson(snake);
+        try {
+            String json = gson.toJson(snake);
+            FileUtils.writeStringToFile(new File("SnakeGame" + (gameNr + 1) + ".txt"), json);
+
+            gameNr = getInteger("GameMenge");
+            prefs.putInteger("GameMenge", gameNr + 1);
+            prefs.putString("" + (gameNr + 1), json);
+            prefs.flush();
+
+            System.out.println("Saved SnakeGame");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Snake loadAJson(int number) {
+        Gson gson = new Gson();
+        try {
+            String json = FileUtils.readFileToString(new File("SnakeGame" + number + ".txt"));
+            try {
+                System.out.println("Loaded SnakeGame");
+                return gson.fromJson(json, Snake.class);
+            } catch (JsonSyntaxException e) {
+                return gson.fromJson(prefs.getString("" + number), Snake.class);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public void loadSavedSnakeScrollPane() {
@@ -177,8 +211,8 @@ public class SavedSnakes implements Screen {
                         loadBestArraySnake(finalI);
                     } else {
                         if (gameOver) {
-                            Snake snake = new Snake(main2);
-                            snake.startNewGame();
+                            SnakeGame snakeGame = new SnakeGame(main2);
+                            snakeGame.startNewGame();
                             System.out.print("\033[H\033[2J");
                             System.out.flush();
                             loadBestArraySnake(finalI);
@@ -235,6 +269,7 @@ public class SavedSnakes implements Screen {
         prefs.flush();
         if (!automaticSave)
             loadSavedSnakeScrollPane();
+        saveAsJson(currentSnake);
         freeze = false;
     }
 
@@ -370,8 +405,10 @@ public class SavedSnakes implements Screen {
         }
 
         snakeNr = 0;
-        Snake.gameOver = true;
+        SnakeGame.gameOver = true;
         freeze = false;
+        saveAsJson(currentSnake);
+
     }
 
     private void loadGraph(int gameNr) {
@@ -421,21 +458,20 @@ public class SavedSnakes implements Screen {
 
     private void loadBestSnakeEver(int gameNr) {
         loadBestSnakeEver = true;
-        currentSnake = null;
-        currentSnake = new Snakes();
+        currentSnake = new Snake();
         bestSnakeEver.bestSnakeEver = currentSnake;
         bestSnakeEver.bestSnakeEver.fitness = getInteger("gameNr " + gameNr + "bestSnakeEver.fitness");
 
         int dirX = getInteger("gameNr " + gameNr + "dirX");
         int dirY = getInteger("gameNr " + gameNr + "dirY");
         if ((dirX == 0) && (dirY == -1)) {
-            bestSnakeEver.startDir = Snake.Dir.down;
+            bestSnakeEver.startDir = SnakeGame.Dir.down;
         } else if ((dirX == 0) && (dirY == 1)) {
-            bestSnakeEver.startDir = Snake.Dir.up;
+            bestSnakeEver.startDir = SnakeGame.Dir.up;
         } else if ((dirX == -1) && (dirY == 0)) {
-            bestSnakeEver.startDir = Snake.Dir.right;
+            bestSnakeEver.startDir = SnakeGame.Dir.right;
         } else if ((dirX == 1) && (dirY == 0)) {
-            bestSnakeEver.startDir = Snake.Dir.left;
+            bestSnakeEver.startDir = SnakeGame.Dir.left;
         }
 
         bestSnakeEver.directionArray.clear();
@@ -443,13 +479,13 @@ public class SavedSnakes implements Screen {
             dirX = getInteger("gameNr " + gameNr + " richtung Nr. " + i + "dirX");
             dirY = getInteger("gameNr " + gameNr + " richtung Nr. " + i + "dirY");
             if ((dirX == 0) && (dirY == -1)) {
-                bestSnakeEver.directionArray.add(Snake.Dir.up);
+                bestSnakeEver.directionArray.add(SnakeGame.Dir.up);
             } else if ((dirX == 0) && (dirY == 1)) {
-                bestSnakeEver.directionArray.add(Snake.Dir.down);
+                bestSnakeEver.directionArray.add(SnakeGame.Dir.down);
             } else if ((dirX == -1) && (dirY == 0)) {
-                bestSnakeEver.directionArray.add(Snake.Dir.left);
+                bestSnakeEver.directionArray.add(SnakeGame.Dir.left);
             } else if ((dirX == 1) && (dirY == 0)) {
-                bestSnakeEver.directionArray.add(Snake.Dir.right);
+                bestSnakeEver.directionArray.add(SnakeGame.Dir.right);
             }
         }
 
@@ -472,7 +508,7 @@ public class SavedSnakes implements Screen {
         allSnakesArrays.add(allSnakes);
         for (int i = 0; i < bestSnakesArraySize; i++) {
             main.SnakeNr = i;
-            currentSnake = new Snakes();
+            currentSnake = new Snake();
             bestSnakesArray.add(currentSnake);
             allSnakes.allSnakesArray.add(currentSnake);
         }
@@ -496,11 +532,16 @@ public class SavedSnakes implements Screen {
     }
 
     public static double getDouble(String key) {
-        int defValue = 0;
-        if (key.toLowerCase().contains("gameNr 0".toLowerCase()))
-            return Double.parseDouble(properties.getProperty(key, Double.toString(defValue)));
-        else
-            return Double.parseDouble(prefs.getString(key));
+        try {
+            int defValue = 0;
+            if (key.toLowerCase().contains("gameNr 0".toLowerCase()))
+                return Double.parseDouble(properties.getProperty(key, Double.toString(defValue)));
+            else
+                return Double.parseDouble(prefs.getString(key));
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+        return Double.NaN;
     }
 
     public static boolean getBoolean(String key) {
@@ -557,20 +598,20 @@ public class SavedSnakes implements Screen {
 
     private void loadBestSnakeEver0() {
         loadBestSnakeEver = true;
-        currentSnake = new Snakes();
+        currentSnake = new Snake();
         bestSnakeEver.bestSnakeEver = currentSnake;
         bestSnakeEver.bestSnakeEver.fitness = getInteger("gameNr " + 0 + "bestSnakeEver.fitness");
 
         int dirX = getInteger("gameNr " + 0 + "dirX");
         int dirY = getInteger("gameNr " + 0 + "dirY");
         if ((dirX == 0) && (dirY == -1)) {
-            bestSnakeEver.startDir = Snake.Dir.down;
+            bestSnakeEver.startDir = SnakeGame.Dir.down;
         } else if ((dirX == 0) && (dirY == 1)) {
-            bestSnakeEver.startDir = Snake.Dir.up;
+            bestSnakeEver.startDir = SnakeGame.Dir.up;
         } else if ((dirX == -1) && (dirY == 0)) {
-            bestSnakeEver.startDir = Snake.Dir.right;
+            bestSnakeEver.startDir = SnakeGame.Dir.right;
         } else if ((dirX == 1) && (dirY == 0)) {
-            bestSnakeEver.startDir = Snake.Dir.left;
+            bestSnakeEver.startDir = SnakeGame.Dir.left;
         }
 
         bestSnakeEver.directionArray.clear();
@@ -578,13 +619,13 @@ public class SavedSnakes implements Screen {
             dirX = getInteger("gameNr " + 0 + " richtung Nr. " + i + "dirX");
             dirY = getInteger("gameNr " + 0 + " richtung Nr. " + i + "dirY");
             if ((dirX == 0) && (dirY == -1)) {
-                bestSnakeEver.directionArray.add(Snake.Dir.up);
+                bestSnakeEver.directionArray.add(SnakeGame.Dir.up);
             } else if ((dirX == 0) && (dirY == 1)) {
-                bestSnakeEver.directionArray.add(Snake.Dir.down);
+                bestSnakeEver.directionArray.add(SnakeGame.Dir.down);
             } else if ((dirX == -1) && (dirY == 0)) {
-                bestSnakeEver.directionArray.add(Snake.Dir.left);
+                bestSnakeEver.directionArray.add(SnakeGame.Dir.left);
             } else if ((dirX == 1) && (dirY == 0)) {
-                bestSnakeEver.directionArray.add(Snake.Dir.right);
+                bestSnakeEver.directionArray.add(SnakeGame.Dir.right);
             }
         }
 
@@ -607,7 +648,7 @@ public class SavedSnakes implements Screen {
         allSnakesArrays.add(allSnakes);
         for (int i = 0; i < bestSnakesArraySize; i++) {
             main.SnakeNr = i;
-            currentSnake = new Snakes();
+            currentSnake = new Snake();
             bestSnakesArray.add(currentSnake);
             allSnakes.allSnakesArray.add(currentSnake);
         }

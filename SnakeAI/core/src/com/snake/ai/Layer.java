@@ -9,7 +9,7 @@ public class Layer {
 
     Array<Node> NodeArray;
 
-    public Layer(int LayerNumber, boolean populationGreaterZero, Snakes parent1, Snakes parent2) {
+    public Layer(int LayerNumber, boolean populationGreaterZero, Snake parent1, Snake parent2) {
         NodeArray = null;
         NodeArray = new Array<>();
 
