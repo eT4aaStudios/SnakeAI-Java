@@ -1,40 +1,28 @@
 package com.snake.ai;
 
-import static com.snake.ai.SavedSnakes.prefs;
-import static com.snake.ai.main.POPULATIONSIZE;
-import static com.snake.ai.main.allSnakesArrays;
-import static com.snake.ai.main.averageFitnessArray;
+import static com.snake.ai.Settings.POPULATIONSIZE;
+import static com.snake.ai.Settings.bestSnakesArraySize;
+import static com.snake.ai.Settings.maxEnergy;
+import static com.snake.ai.Settings.reihen;
+import static com.snake.ai.Settings.spalten;
+import static com.snake.ai.Settings.startLength;
 import static com.snake.ai.main.averageSteps;
-import static com.snake.ai.main.bestSnakeEver;
-import static com.snake.ai.main.bestSnakesArray;
-import static com.snake.ai.main.bestSnakesArraySize;
+import static com.snake.ai.main.bestSnakes;
 import static com.snake.ai.main.currentSnake;
-import static com.snake.ai.main.enableNewPopulationLogging;
-import static com.snake.ai.main.enableOutputLayerLogging;
 import static com.snake.ai.main.evo;
 import static com.snake.ai.main.freeze;
 import static com.snake.ai.main.gameNr;
-import static com.snake.ai.main.hiscoreArray;
 import static com.snake.ai.main.loadFromSavedSnake;
 import static com.snake.ai.main.populationsSinceLastSave;
 import static com.snake.ai.main.r;
-import static com.snake.ai.main.reihen;
-import static com.snake.ai.main.reihenVis;
 import static com.snake.ai.main.replay;
 import static com.snake.ai.main.requestReplayStop;
-import static com.snake.ai.main.spalten;
-import static com.snake.ai.main.spaltenVis;
+import static com.snake.ai.main.snakeArray;
+import static com.snake.ai.main.snakeGameInstance;
 
 import com.badlogic.gdx.utils.Array;
 
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 
 public class SnakeGame implements Runnable {
     enum Dir {
@@ -49,38 +37,32 @@ public class SnakeGame implements Runnable {
     }
 
     static final int WALL = -1;
-
     static volatile boolean gameOver = true;
+    int[][] grid;
+    static Array<Point> snake;
+    static Array<Point> treats;
 
     Thread gameThread;
     boolean pauseThread = true;
     static short score;
-    static int hiScore;
-    static final int startlength = 3;
     static Dir dir, startDir;
-    static int maxEnergy = 400;
     static int energy;
-    static int timealaive;
+    static int timeAlive;
     public FitnessComparator fitnessComparator;
-
-    int[][] grid;
-    static List<Point> snake;
-    static Array<Point> treats;
-
-    static int Sleep_Time = 85;
-
-    public static int population;
     public static int snakeNr;
     public static int steps;
     long startTime;
     static long timePerPop;
     main main2;
 
+    static int sleepTime = 85;
+
     public SnakeGame(main main2) {
         initGrid();
         fitnessComparator = new FitnessComparator();
         this.main2 = main2;
         gameThread = new Thread(this);
+        gameThread.setPriority(Thread.MAX_PRIORITY);
         gameThread.start();
         gameThread.setName("SnakeAiCalculating");
         treats = new Array<>();
@@ -92,29 +74,28 @@ public class SnakeGame implements Runnable {
         treats.clear();
         addTreat();
 
-        bestSnakeEver.directionTmpArray.clear();
+        snakeGameInstance.directionTmpArray.clear();
 
         energy = maxEnergy;
 
-        if (score > hiScore) {
-            hiScore = score;
+        if (score > snakeGameInstance.hiScore) {
+            snakeGameInstance.hiScore = score;
         }
         score = 0;
-        timealaive = 0;
+        timeAlive = 0;
         steps = 0;
         if (!replay && snakeNr == POPULATIONSIZE) {
             newPopulation();
         }
 
         if (replay) {
-            currentSnake = bestSnakeEver.bestSnakeEver;
+            currentSnake = snakeGameInstance.bestSnake;
         } else {
             currentSnake = new Snake();
             snakeNr++;
         }
 
-        snake = null;
-        snake = new ArrayList<>();
+        snake = new Array<>();
 
         direction();
 
@@ -123,9 +104,10 @@ public class SnakeGame implements Runnable {
 
     public void direction() {
         if (replay) {
-            dir = bestSnakeEver.startDir;
+            dir = snakeGameInstance.startDir;
         } else {
-            switch (r.nextInt(4)) {
+            int i = r.nextInt(4);
+            switch (i) {
                 case 0:
                     dir = Dir.left;
                     break;
@@ -140,118 +122,84 @@ public class SnakeGame implements Runnable {
                     break;
             }
         }
+
         switch (dir) {
             case up:
                 NodeVis.highest = 0;
-                for (int x = 0; x < startlength; x++) {
-                    Point point = new Point(reihen / 2 + x, spalten / 2);
+                for (int x = 0; x < startLength; x++) {
+                    Point point = new Point(reihen / 2, spalten / 2 + x);
                     snake.add(point);
                 }
                 break;
             case down:
                 NodeVis.highest = 1;
-                for (int x = startlength; x > 0; x--) {
-                    Point point = new Point(reihen / 2 + x, spalten / 2);
+                for (int x = 0; x < startLength; x++) {
+                    Point point = new Point(reihen / 2, spalten / 2 - x);
                     snake.add(point);
                 }
                 break;
             case left:
                 NodeVis.highest = 2;
-                for (int x = 0; x < startlength; x++) {
-                    Point point = new Point(reihen / 2, spalten / 2 + x);
+                for (int x = 0; x < startLength; x++) {
+                    Point point = new Point(reihen / 2 + x, spalten / 2);
                     snake.add(point);
                 }
                 break;
             case right:
                 NodeVis.highest = 3;
-                for (int x = startlength; x > 0; x--) {
-                    Point point = new Point(reihen / 2, spalten / 2 + x);
+                for (int x = 0; x < startLength; x++) {
+                    Point point = new Point(reihen / 2 - x, spalten / 2);
                     snake.add(point);
                 }
                 break;
         }
         startDir = dir;
-        main.SnakeHeadX = snake.get(0).x;
-        main.SnakeHeadY = snake.get(0).y;
+        main.snakeHeadX = snake.get(0).x;
+        main.snakeHeadY = snake.get(0).y;
     }
 
     public void newPopulation() {
         timePerPop = System.currentTimeMillis() - startTime;
         startTime = System.currentTimeMillis();
-        //mutationPropability = 100f / (averageSteps / (float) POPULATIONSIZE);
+
+        //mutationProbability = 100f / (averageSteps / (float) POPULATIONSIZE);
         averageSteps = 0;
 
-        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                new FileOutputStream("snakeAiData.txt"), StandardCharsets.UTF_8))) {
-
-            writer.write("Population" + population + "\n");
-            writer.write("Highscore" + hiScore + "\n");
-            writer.write("Time" + prefs.getString("time") + "\n");
-            writer.write("TimePerPop" + timePerPop);
-        } catch (Exception ignored) {
-        }
-
         loadFromSavedSnake = false;
-        population++;
-        if (enableNewPopulationLogging) {
-            System.out.println("\n_______________________");
-            System.out.println("NEW POPULATION (Nr.: " + population + ")");
-            System.out.println("_______________________\n");
-        }
-
-
-        //Umsortierung
-        if (allSnakesArrays.size > 1) {
-            for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
-                allSnakesArrays.get(0).allSnakesArray.get(i).parent1Snake = null;
-                allSnakesArrays.get(0).allSnakesArray.get(i).parent2Snake = null;
-            }
-            allSnakesArrays.get(0).allSnakesArray.clear();
-
-
-            allSnakesArrays.get(0).allSnakesArray.addAll(allSnakesArrays.get(1).allSnakesArray);
-            for (int i = 0; i < allSnakesArrays.get(1).allSnakesArray.size; i++) {
-                allSnakesArrays.get(1).allSnakesArray.get(i).parent1Snake = null;
-                allSnakesArrays.get(1).allSnakesArray.get(i).parent2Snake = null;
-            }
-            allSnakesArrays.get(1).allSnakesArray.clear();
-        } else {
-            allSnakes allSnakes = new allSnakes();
-            allSnakesArrays.add(allSnakes);
-        }
-
-
-        allSnakesArrays.get(0).allSnakesArray.sort(fitnessComparator);
-
-        //Average Fitness
+        snakeGameInstance.population++;
+        //Add Data from current Population to the Graph
         int maxFitness = 0;
-        for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
-            maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
+        for (int i = 0; i < snakeArray.size; i++) {
+            maxFitness += snakeArray.get(i).fitness;
         }
-        if (enableNewPopulationLogging)
-            System.out.println("average Fitness: " + maxFitness / POPULATIONSIZE);
-        averageFitnessArray.add(maxFitness / POPULATIONSIZE);
+        snakeGameInstance.averageFitnessArray.add(maxFitness / POPULATIONSIZE);
 
         int maxHiscore = 0;
-        for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
-            if (maxHiscore <= allSnakesArrays.get(0).allSnakesArray.get(i).score) {
-                maxHiscore = allSnakesArrays.get(0).allSnakesArray.get(i).score;
+        for (int i = 0; i < snakeArray.size; i++) {
+            if (maxHiscore <= snakeArray.get(i).score) {
+                maxHiscore = snakeArray.get(i).score;
             }
         }
-        hiscoreArray.add(maxHiscore);
-        //mutationPropability = Math.pow(0.996, hiscoreArray.get(population) - 400);
+        snakeGameInstance.hiscoreArray.add(maxHiscore);
 
-        //Best Snake System.out
-        bestSnakesArray.clear();
-        for (int i = 0; i < bestSnakesArraySize; i++) {
-            bestSnakesArray.add(allSnakesArrays.get(0).allSnakesArray.get(i));
-            if (enableNewPopulationLogging)
-                System.out.println("Nr.:" + i + " SnakeGame Fitness: " + bestSnakesArray.get(i).fitness + " Score: " + bestSnakesArray.get(i).score);
+        //Add new Best Snakes and delete old bad Snakes from 500 Best Snakes
+        Array<Snake> tmpArray = new Array<>(bestSnakes);
+        tmpArray.addAll(snakeArray);
+        tmpArray.sort(fitnessComparator);
+        if (snakeGameInstance.population > 1)
+            tmpArray.removeRange(bestSnakes.size, tmpArray.size - 1);
+        else
+            tmpArray.removeRange(bestSnakesArraySize, tmpArray.size - 1);
+        bestSnakes = tmpArray;
+        for (int i = 0; i < bestSnakes.size; i++) {
+            bestSnakes.get(i).parent1Snake = null;
+            bestSnakes.get(i).parent2Snake = null;
         }
-        snakeNr = 0;
+        snakeArray.clear();
+
+
+        //Autosave
         if (gameNr != 0) {
-            if (populationsSinceLastSave % 100 == 0)
-                System.gc();
             if (populationsSinceLastSave == 499) {
                 /*TODO SavedSnakes savedSnakes = new SavedSnakes(main2);
                 savedSnakes.saveCurrentSnake(true);
@@ -265,6 +213,7 @@ public class SnakeGame implements Runnable {
             } else
                 populationsSinceLastSave++;
         }
+        snakeNr = 0;
     }
 
     void stop() {
@@ -272,10 +221,10 @@ public class SnakeGame implements Runnable {
     }
 
     void initGrid() {
-        grid = new int[spaltenVis][reihenVis];
-        for (int r = 0; r < spaltenVis; r++) {
-            for (int c = 0; c < reihenVis; c++) {
-                if (c == 0 || c == reihenVis - 1 || r == 0 || r == spaltenVis - 1)
+        grid = new int[spalten + 2][reihen + 2];
+        for (int r = 0; r < spalten + 2; r++) {
+            for (int c = 0; c < reihen + 2; c++) {
+                if (c == 0 || c == reihen + 2 - 1 || r == 0 || r == spalten + 2 - 1)
                     grid[r][c] = WALL;
             }
         }
@@ -284,9 +233,9 @@ public class SnakeGame implements Runnable {
     @Override
     public void run() {
         while (true) {
-            if (Sleep_Time > 0)
+            if (sleepTime > 0)
                 try {
-                    Thread.sleep(Sleep_Time);
+                    Thread.sleep(sleepTime);
                 } catch (InterruptedException ignored) {
 
                 }
@@ -300,44 +249,24 @@ public class SnakeGame implements Runnable {
                         growSnake();
                     }
                     moveSnake();
-
-                    main.SnakeHeadX = snake.get(0).x;
-                    main.SnakeHeadY = snake.get(0).y;
+                    main.snakeHeadX = snake.get(0).x;
+                    main.snakeHeadY = snake.get(0).y;
+                    main2.berechneLayer();
+                    doAction();
                 }
 
-                main2.berechneLayer();
-                doAction();
+
+
             }
         }
     }
 
     private void doAction() {
-        if (enableOutputLayerLogging) {
-            System.out.println("\nOutputLayer Values: ");
-            for (int i = 0; i < currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.size; i++) {
-                switch (i) {
-                    case 0:
-                        System.out.println("(U): " + currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(i).value);
-                        break;
-                    case 1:
-                        System.out.println("(D): " + currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(i).value);
-                        break;
-                    case 2:
-                        System.out.println("(L): " + currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(i).value);
-                        break;
-                    case 3:
-                        System.out.println("(R): " + currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(i).value);
-                        break;
-                }
-            }
-            System.out.println("\n");
-        }
-
         double highest = 0;
         int id = 0;
-        for (int i = 0; i < currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.size; i++) {
-            if (currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(i).value > highest) {
-                highest = currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(i).value;
+        for (int i = 0; i < currentSnake.layerArray.get(currentSnake.layerArray.size - 1).nodeArray.size; i++) {
+            if (currentSnake.layerArray.get(currentSnake.layerArray.size - 1).nodeArray.get(i).value > highest) {
+                highest = currentSnake.layerArray.get(currentSnake.layerArray.size - 1).nodeArray.get(i).value;
                 id = i;
             }
         }
@@ -373,15 +302,15 @@ public class SnakeGame implements Runnable {
                 break;
         }
         if (!replay)
-            bestSnakeEver.directionTmpArray.add(dir);
+            snakeGameInstance.directionTmpArray.add(dir);
         else if (!gameOver && !requestReplayStop)
-            dir = bestSnakeEver.directionArray.get(steps);
+            dir = snakeGameInstance.directionArray.get(steps);
         steps++;
     }
 
     boolean energyUsed() {
         energy -= 1;
-        timealaive++;
+        timeAlive++;
         return energy <= 0;
     }
 
@@ -418,18 +347,17 @@ public class SnakeGame implements Runnable {
         gameOver = true;
         stop();
         averageSteps += steps;
-        currentSnake.fitness = evo.FitnessFuntction(steps, score);
+        currentSnake.fitness = evo.fitnessFunction(steps, score);
 
-        allSnakesArrays.get(allSnakesArrays.size - 1).allSnakesArray.add(currentSnake);
+        snakeArray.add(currentSnake);
 
-        if (!replay && (currentSnake.fitness >= bestSnakeEver.bestSnakeEver.fitness)) {
-
-            bestSnakeEver.bestSnakeEver.layerArray = new Array<>(currentSnake.layerArray);
-            bestSnakeEver.bestSnakeEver.fitness = currentSnake.fitness;
-            bestSnakeEver.bestSnakeEver.score = currentSnake.score;
-            bestSnakeEver.bestSnakeTreats = new Array<>(treats);
-            bestSnakeEver.startDir = startDir;
-            bestSnakeEver.directionArray = new Array<>(bestSnakeEver.directionTmpArray);
+        if (!replay && (currentSnake.fitness >= snakeGameInstance.bestSnake.fitness)) {
+            snakeGameInstance.bestSnake.layerArray = new Array<>(currentSnake.layerArray);
+            snakeGameInstance.bestSnake.fitness = currentSnake.fitness;
+            snakeGameInstance.bestSnake.score = currentSnake.score;
+            snakeGameInstance.bestSnakeTreats = new Array<>(treats);
+            snakeGameInstance.startDir = startDir;
+            snakeGameInstance.directionArray = new Array<>(snakeGameInstance.directionTmpArray);
         }
 
         if (requestReplayStop) {
@@ -442,7 +370,7 @@ public class SnakeGame implements Runnable {
     }
 
     void moveSnake() {
-        for (int i = snake.size() - 1; i > 0; i--) {
+        for (int i = snake.size - 1; i > 0; i--) {
             Point p1 = snake.get(i - 1);
             Point p2 = snake.get(i);
             p2.x = p1.x;
@@ -455,7 +383,7 @@ public class SnakeGame implements Runnable {
     }
 
     void growSnake() {
-        Point tail = snake.get(snake.size() - 1);
+        Point tail = snake.get(snake.size - 1);
         int x = tail.x + dir.x;
         int y = tail.y + dir.y;
         snake.add(new Point(x, y));
@@ -463,7 +391,7 @@ public class SnakeGame implements Runnable {
 
     void addTreat() {
         if (replay) {
-            treats.add(bestSnakeEver.bestSnakeTreats.get(treats.size));
+            treats.add(snakeGameInstance.bestSnakeTreats.get(treats.size));
         } else {
             int x, y;
             here:
@@ -472,13 +400,13 @@ public class SnakeGame implements Runnable {
                 y = r.nextInt(spalten - 2) + 1;
                 if (grid[y][x] != 0)
                     continue;
-                main.foodpositionX = x;
-                main.foodpositionY = y;
+                main.foodPositionX = x;
+                main.foodPositionY = y;
                 Point p = new Point(x, y);
-                if (treats.contains(p, false))
+                if (treats.contains(p, false) || (snake != null && snake.contains(p,false)))
                     continue;
                 if (snake != null)
-                    for (int i = 0; i < snake.size(); i++) {
+                    for (int i = 0; i < snake.size; i++) {
                         if (snake.get(i).x == x && snake.get(i).y == y)
                             continue here;
                     }
