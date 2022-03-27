@@ -1,18 +1,20 @@
 package com.snake.ai;
 
 import static com.badlogic.gdx.Gdx.gl;
+import static com.snake.ai.SnakeGame.energy;
 import static com.snake.ai.main.batch;
 import static com.snake.ai.main.bestSnakes;
-import static com.snake.ai.main.buttonMax;
-import static com.snake.ai.main.buttonStart;
-import static com.snake.ai.main.currentSnake;
-import static com.snake.ai.main.fitnessDoubleToE;
 import static com.snake.ai.main.freeze;
 import static com.snake.ai.main.gson;
 import static com.snake.ai.main.h;
-import static com.snake.ai.main.savedSnakesScreenButton;
+import static com.snake.ai.main.loadingSavedGame;
+import static com.snake.ai.main.maxSpeedButton;
+import static com.snake.ai.main.settings;
+import static com.snake.ai.main.setupLayerNodeArray;
 import static com.snake.ai.main.shapeRenderer;
+import static com.snake.ai.main.showSavedInstancesButton;
 import static com.snake.ai.main.snakeGameInstance;
+import static com.snake.ai.main.startTheGameButton;
 import static com.snake.ai.main.w;
 
 import com.badlogic.gdx.Gdx;
@@ -38,7 +40,7 @@ import com.badlogic.gdx.utils.Array;
 
 import java.util.Properties;
 
-public class SavedSnakes implements Screen {
+public class SavedSnakes extends SnakeScreen implements Screen {
     public static Preferences prefs;
 
     Stage savedStage;
@@ -59,6 +61,8 @@ public class SavedSnakes implements Screen {
 
     public SavedSnakes(main main) {
         prefs = Gdx.app.getPreferences("SnakeAiVersion2");
+        this.main2 = main;
+
         //file = Gdx.files.internal("BestSnake.txt");
         //&properties = null;
         //&properties = new Properties();
@@ -72,7 +76,6 @@ public class SavedSnakes implements Screen {
         //} finally {
         //    StreamUtils.closeQuietly(in);
         //}
-        //this.main2 = main;
         //file = null;
     }
 
@@ -84,8 +87,8 @@ public class SavedSnakes implements Screen {
         prefs = Gdx.app.getPreferences("SnakeAiVersion2");
 
         saveButton = new TextButton("Save Current SnakeGame", skin);
-        saveButton.setSize(savedSnakesScreenButton.getWidth(), savedSnakesScreenButton.getHeight());
-        saveButton.setPosition(buttonMax.getX(), savedSnakesScreenButton.getY());
+        saveButton.setSize(showSavedInstancesButton.getWidth(), showSavedInstancesButton.getHeight());
+        saveButton.setPosition(maxSpeedButton.getX(), showSavedInstancesButton.getY());
         saveButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -94,24 +97,49 @@ public class SavedSnakes implements Screen {
             }
         });
         savedStage.addActor(saveButton);
-        savedStage.addActor(buttonStart);
-        savedStage.addActor(savedSnakesScreenButton);
+        savedStage.addActor(startTheGameButton);
+        savedStage.addActor(showSavedInstancesButton);
 
         loadSavedSnakeScrollPane();
+    }
+
+
+    @Override
+    public void render(float delta) {
+        Gdx.gl.glClearColor(0.2f, 0.2f, 0.8f, 1);
+        gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        savedStage.act(Gdx.graphics.getDeltaTime());
+
+        shapeRenderer.setColor(Color.BLACK);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.line(w / 2, h, w / 2, 0);
+        shapeRenderer.end();
+
+        drawGame();
+
+        savedStage.draw();
+        batch.begin();
+
+        batch.end();
     }
 
     public static void saveAsJson(SnakeGameInstance snakeGameInstance, Array<Snake> bestSnakes) {
         int activeGames = prefs.getInteger("ActiveGames") + 1;
         int totalNumberOfGames = prefs.getInteger("TotalNumberOfGames") + 1;
 
+            System.out.println(settings.reihen);
+
         String json1 = gson.toJson(snakeGameInstance);
         BestSnakes bestSnakesClass = new BestSnakes();
         bestSnakesClass.setBestSnakes(bestSnakes);
-        String json2 = gson.toJson(bestSnakesClass);
+        String json2 = gson.toJson(settings);
+        String json3 = gson.toJson(bestSnakesClass);
         //FileUtils.writeStringToFile(new File("SnakeGame:" + totalNumberOfGames + ".txt"), json);
 
         prefs.putString("(SnakeGameInstance) SnakeGame:" + totalNumberOfGames, json1);
-        prefs.putString("(BestSnakeArray) SnakeGame:" + totalNumberOfGames, json2);
+        prefs.putString("(Settings) SnakeGame:" + totalNumberOfGames, json2);
+        prefs.putString("(BestSnakeArray) SnakeGame:" + totalNumberOfGames, json3);
 
         prefs.putInteger("ActiveGames", activeGames);
         prefs.putInteger("TotalNumberOfGames", totalNumberOfGames);
@@ -142,7 +170,6 @@ public class SavedSnakes implements Screen {
 
         }
 
-        atlas = null;
         atlas = new TextureAtlas("scrollpane/textures.atlas");
         pixel10 = new BitmapFont(Gdx.files.internal("scrollpane/pixel.fnt"), atlas.findRegion("pixel"), false);
         skin2 = new Skin(atlas);
@@ -181,7 +208,7 @@ public class SavedSnakes implements Screen {
 
 
             loadButton = new TextButton("Load Game Nr.: " + i +
-                    "\nBest Fitness Ever: " + fitnessDoubleToE(snakeGameInstance.bestSnake.fitness) +
+                    //"\nBest Fitness Ever: " + fitnessDoubleToE(snakeGameInstance.bestSnake.fitness) +
                     "\nHighScore: " + snakeGameInstance.bestSnake.score +
                     "\nPopulation: " + snakeGameInstance.population, skin);
 
@@ -191,13 +218,22 @@ public class SavedSnakes implements Screen {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     freeze = true;
+                    loadingSavedGame = true;
                     System.out.print("\033[H\033[2J");
                     System.out.flush();
                     main.snakeGameInstance = snakeGameInstanceFinal;
-                    String dataFromPrefs = prefs.getString("(BestSnakeArray) SnakeGame:" + (finalCounter));
-                    bestSnakes = gson.fromJson(dataFromPrefs, BestSnakes.class).getBestSnakes();
-                    currentSnake = new Snake();
+                    String dataFromPrefs1 = prefs.getString("(Settings) SnakeGame:" + (finalCounter));
+                    String dataFromPrefs2 = prefs.getString("(BestSnakeArray) SnakeGame:" + (finalCounter));
+                    settings = gson.fromJson(dataFromPrefs1, Settings.class);
+                    settings.mutationMax = 0.025;
+                    settings.mutationProbability = 5;
+                    setupLayerNodeArray();
+                    bestSnakes.clear();
+                    bestSnakes = gson.fromJson(dataFromPrefs2, BestSnakes.class).getBestSnakes();
+                    //Make a new Snake
+                    energy = -1;
                     main.gameNr = finalI;
+                    loadingSavedGame = false;
                     freeze = false;
                 }
             });
@@ -214,7 +250,7 @@ public class SavedSnakes implements Screen {
                     loadSavedSnakeScrollPane();
                 }
             });
-            if (finalI > 0)
+            //if (finalI > 0)
                 g.addActor(deleteButton);
 
             weckerselectionContainer.add(g).padBottom(4).size(w / 2 / 3.2f, h / 5f);
@@ -234,23 +270,6 @@ public class SavedSnakes implements Screen {
         Gdx.input.setInputProcessor(savedStage);
     }
 
-    @Override
-    public void render(float delta) {
-        Gdx.gl.glClearColor(0.4f, 0.4f, 0.7f, 1);
-        gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        savedStage.act(Gdx.graphics.getDeltaTime());
-
-        shapeRenderer.setColor(Color.BLACK);
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.line(w / 2, h, w / 2, 0);
-        shapeRenderer.end();
-
-        savedStage.draw();
-        batch.begin();
-
-        batch.end();
-    }
 
     @Override
     public void resize(int width, int height) {

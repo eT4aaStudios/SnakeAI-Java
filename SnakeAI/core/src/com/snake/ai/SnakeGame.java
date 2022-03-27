@@ -1,22 +1,16 @@
 package com.snake.ai;
 
-import static com.snake.ai.Settings.POPULATIONSIZE;
-import static com.snake.ai.Settings.bestSnakesArraySize;
-import static com.snake.ai.Settings.maxEnergy;
-import static com.snake.ai.Settings.reihen;
-import static com.snake.ai.Settings.spalten;
-import static com.snake.ai.Settings.startLength;
 import static com.snake.ai.main.averageSteps;
 import static com.snake.ai.main.bestSnakes;
 import static com.snake.ai.main.currentSnake;
 import static com.snake.ai.main.evo;
 import static com.snake.ai.main.freeze;
 import static com.snake.ai.main.gameNr;
-import static com.snake.ai.main.loadFromSavedSnake;
 import static com.snake.ai.main.populationsSinceLastSave;
 import static com.snake.ai.main.r;
 import static com.snake.ai.main.replay;
 import static com.snake.ai.main.requestReplayStop;
+import static com.snake.ai.main.settings;
 import static com.snake.ai.main.snakeArray;
 import static com.snake.ai.main.snakeGameInstance;
 
@@ -76,7 +70,7 @@ public class SnakeGame implements Runnable {
 
         snakeGameInstance.directionTmpArray.clear();
 
-        energy = maxEnergy;
+        energy = settings.maxEnergy;
 
         if (score > snakeGameInstance.hiScore) {
             snakeGameInstance.hiScore = score;
@@ -84,7 +78,7 @@ public class SnakeGame implements Runnable {
         score = 0;
         timeAlive = 0;
         steps = 0;
-        if (!replay && snakeNr == POPULATIONSIZE) {
+        if (!replay && snakeNr == settings.POPULATIONSIZE) {
             newPopulation();
         }
 
@@ -125,30 +119,30 @@ public class SnakeGame implements Runnable {
 
         switch (dir) {
             case up:
-                NodeVis.highest = 0;
-                for (int x = 0; x < startLength; x++) {
-                    Point point = new Point(reihen / 2, spalten / 2 + x);
+                NeuralNetworkVisualization.highest = 0;
+                for (int x = 0; x < settings.startLength; x++) {
+                    Point point = new Point(settings.reihen / 2, settings.spalten / 2 + x);
                     snake.add(point);
                 }
                 break;
             case down:
-                NodeVis.highest = 1;
-                for (int x = 0; x < startLength; x++) {
-                    Point point = new Point(reihen / 2, spalten / 2 - x);
+                NeuralNetworkVisualization.highest = 1;
+                for (int x = 0; x < settings.startLength; x++) {
+                    Point point = new Point(settings.reihen / 2, settings.spalten / 2 - x);
                     snake.add(point);
                 }
                 break;
             case left:
-                NodeVis.highest = 2;
-                for (int x = 0; x < startLength; x++) {
-                    Point point = new Point(reihen / 2 + x, spalten / 2);
+                NeuralNetworkVisualization.highest = 2;
+                for (int x = 0; x < settings.startLength; x++) {
+                    Point point = new Point(settings.reihen / 2 + x, settings.spalten / 2);
                     snake.add(point);
                 }
                 break;
             case right:
-                NodeVis.highest = 3;
-                for (int x = 0; x < startLength; x++) {
-                    Point point = new Point(reihen / 2 - x, spalten / 2);
+                NeuralNetworkVisualization.highest = 3;
+                for (int x = 0; x < settings.startLength; x++) {
+                    Point point = new Point(settings.reihen / 2 - x, settings.spalten / 2);
                     snake.add(point);
                 }
                 break;
@@ -162,17 +156,16 @@ public class SnakeGame implements Runnable {
         timePerPop = System.currentTimeMillis() - startTime;
         startTime = System.currentTimeMillis();
 
-        //mutationProbability = 100f / (averageSteps / (float) POPULATIONSIZE);
+        //settings.mutationProbability = 100f / (averageSteps / (float) settings.POPULATIONSIZE);
         averageSteps = 0;
 
-        loadFromSavedSnake = false;
         snakeGameInstance.population++;
         //Add Data from current Population to the Graph
         int maxFitness = 0;
         for (int i = 0; i < snakeArray.size; i++) {
             maxFitness += snakeArray.get(i).fitness;
         }
-        snakeGameInstance.averageFitnessArray.add(maxFitness / POPULATIONSIZE);
+        snakeGameInstance.averageFitnessArray.add(maxFitness / settings.POPULATIONSIZE);
 
         int maxHiscore = 0;
         for (int i = 0; i < snakeArray.size; i++) {
@@ -189,12 +182,8 @@ public class SnakeGame implements Runnable {
         if (snakeGameInstance.population > 1)
             tmpArray.removeRange(bestSnakes.size, tmpArray.size - 1);
         else
-            tmpArray.removeRange(bestSnakesArraySize, tmpArray.size - 1);
+            tmpArray.removeRange(settings.bestSnakesArraySize, tmpArray.size - 1);
         bestSnakes = tmpArray;
-        for (int i = 0; i < bestSnakes.size; i++) {
-            bestSnakes.get(i).parent1Snake = null;
-            bestSnakes.get(i).parent2Snake = null;
-        }
         snakeArray.clear();
 
 
@@ -221,10 +210,10 @@ public class SnakeGame implements Runnable {
     }
 
     void initGrid() {
-        grid = new int[spalten + 2][reihen + 2];
-        for (int r = 0; r < spalten + 2; r++) {
-            for (int c = 0; c < reihen + 2; c++) {
-                if (c == 0 || c == reihen + 2 - 1 || r == 0 || r == spalten + 2 - 1)
+        grid = new int[settings.spalten + 2][settings.reihen + 2];
+        for (int r = 0; r < settings.spalten + 2; r++) {
+            for (int c = 0; c < settings.reihen + 2; c++) {
+                if (c == 0 || c == settings.reihen + 2 - 1 || r == 0 || r == settings.spalten + 2 - 1)
                     grid[r][c] = WALL;
             }
         }
@@ -245,7 +234,7 @@ public class SnakeGame implements Runnable {
                 } else {
                     if (eatsTreat()) {
                         score++;
-                        energy = maxEnergy;
+                        energy = settings.maxEnergy;
                         growSnake();
                     }
                     moveSnake();
@@ -275,30 +264,30 @@ public class SnakeGame implements Runnable {
             case 0:
                 if (dir != Dir.down) {
                     dir = Dir.up;
-                    NodeVis.highest = 0;
+                    NeuralNetworkVisualization.highest = 0;
                 } else
-                    NodeVis.highest = 1;
+                    NeuralNetworkVisualization.highest = 1;
                 break;
             case 1:
                 if (dir != Dir.up) {
                     dir = Dir.down;
-                    NodeVis.highest = 1;
+                    NeuralNetworkVisualization.highest = 1;
                 } else
-                    NodeVis.highest = 0;
+                    NeuralNetworkVisualization.highest = 0;
                 break;
             case 2:
                 if (dir != Dir.right) {
                     dir = Dir.left;
-                    NodeVis.highest = 2;
+                    NeuralNetworkVisualization.highest = 2;
                 } else
-                    NodeVis.highest = 3;
+                    NeuralNetworkVisualization.highest = 3;
                 break;
             case 3:
                 if (dir != Dir.left) {
                     dir = Dir.right;
-                    NodeVis.highest = 3;
+                    NeuralNetworkVisualization.highest = 3;
                 } else
-                    NodeVis.highest = 2;
+                    NeuralNetworkVisualization.highest = 2;
                 break;
         }
         if (!replay)
@@ -396,8 +385,8 @@ public class SnakeGame implements Runnable {
             int x, y;
             here:
             while (true) {
-                x = r.nextInt(reihen - 2) + 1;
-                y = r.nextInt(spalten - 2) + 1;
+                x = r.nextInt(settings.reihen - 2) + 1;
+                y = r.nextInt(settings.spalten - 2) + 1;
                 if (grid[y][x] != 0)
                     continue;
                 main.foodPositionX = x;

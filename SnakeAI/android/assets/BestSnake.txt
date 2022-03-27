@@ -37513,12 +37513,12 @@
 <entry key="gameNr 0 richtung Nr. 99dirY">0</entry>
 <entry key="gameNr 0 richtung Nr. 9dirX">0</entry>
 <entry key="gameNr 0 richtung Nr. 9dirY">1</entry>
-<entry key="gameNr 0FIRSTPOPULATIONSIZE">1000</entry>
-<entry key="gameNr 0Layer2Nodes">18</entry>
-<entry key="gameNr 0Layer3Nodes">18</entry>
-<entry key="gameNr 0Layer4Nodes">0</entry>
-<entry key="gameNr 0LayerMenge">4</entry>
-<entry key="gameNr 0POPULATIONSIZE">1000</entry>
+<entry key="gameNr 0FIRSTsettings.POPULATIONSIZE">1000</entry>
+<entry key="gameNr 0settings.layer2Nodes">18</entry>
+<entry key="gameNr 0settings.layer3Nodes">18</entry>
+<entry key="gameNr 0settings.layer4Nodes">0</entry>
+<entry key="gameNr 0layerMenge">4</entry>
+<entry key="gameNr 0settings.POPULATIONSIZE">1000</entry>
 <entry key="gameNr 0average Fitness">50281.0</entry>
 <entry key="gameNr 0averageFitnessArray">8652</entry>
 <entry key="gameNr 0bestSnakeEver.fitness">5743152</entry>
@@ -37715,7 +37715,7 @@
 <entry key="gameNr 0bestSnakeTreatsY 93">11</entry>
 <entry key="gameNr 0bestSnakeTreatsY 94">1</entry>
 <entry key="gameNr 0bestSnakeTreatsY 95">6</entry>
-<entry key="gameNr 0bestSnakesArraySize">5</entry>
+<entry key="gameNr 0settings.bestSnakesArraySize">5</entry>
 <entry key="gameNr 0bias">0.0</entry>
 <entry key="gameNr 0biasOutput">-0.4</entry>
 <entry key="gameNr 0dirX">0</entry>
@@ -37726,10 +37726,10 @@
 <entry key="gameNr 0enableSehrNahLogging">false</entry>
 <entry key="gameNr 0hiScore">95</entry>
 <entry key="gameNr 0hiscoreArray">8652</entry>
-<entry key="gameNr 0inputLayerNodes">25</entry>
-<entry key="gameNr 0mutationMax">1.0</entry>
+<entry key="gameNr 0settings.inputLayerNodes">25</entry>
+<entry key="gameNr 0settings.mutationMax">1.0</entry>
 <entry key="gameNr 0mutationMin">-1.0</entry>
 <entry key="gameNr 0mutationPropability">1.0</entry>
-<entry key="gameNr 0outputLayerNodes">4</entry>
+<entry key="gameNr 0settings.outputLayerNodes">4</entry>
 <entry key="gameNr 0population">8651</entry>
 </properties>

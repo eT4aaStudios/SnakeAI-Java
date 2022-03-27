@@ -1,9 +1,9 @@
 package com.snake.ai;
 
-import static com.snake.ai.Settings.layerMenge;
 import static com.snake.ai.main.evo;
 import static com.snake.ai.main.layerNodeValueArray;
 import static com.snake.ai.main.r;
+import static com.snake.ai.main.settings;
 import static com.snake.ai.main.snakeGameInstance;
 
 import com.badlogic.gdx.utils.Array;
@@ -14,7 +14,7 @@ public class Node {
     public double bias;
 
     public Node(int NodeNumber, int LayerNumber, Snake parent1, Snake parent2, int layerSinglePoint, int nodeSinglePoint, int weightSinglePoint) {
-        if (LayerNumber + 1 < layerMenge) {
+        if (LayerNumber + 1 < settings.layerMenge) {
             weightArray = new Array<>();
             if (snakeGameInstance.population > 0) {
                 singlePointBinaryCrossover(NodeNumber, LayerNumber,layerSinglePoint, nodeSinglePoint, weightSinglePoint, parent1, parent2);

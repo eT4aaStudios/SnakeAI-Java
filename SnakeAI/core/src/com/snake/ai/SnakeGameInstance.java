@@ -9,7 +9,6 @@ public class SnakeGameInstance {
     public Snake bestSnake;
     public Array<Dir> directionArray = new Array<>();
     public Array<Dir> directionTmpArray = new Array<>();
-    public Settings settings;
     public int population;
     public Array<Integer> averageFitnessArray = new Array<>();
     public Array<Integer> hiscoreArray = new Array<>();

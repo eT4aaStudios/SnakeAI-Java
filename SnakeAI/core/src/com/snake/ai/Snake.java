@@ -1,13 +1,11 @@
 package com.snake.ai;
 
-import static com.snake.ai.Settings.crossover;
-import static com.snake.ai.Settings.layerMenge;
 import static com.snake.ai.main.bestSnakes;
 import static com.snake.ai.main.fitnessDoubleToE;
 import static com.snake.ai.main.layerNodeValueArray;
-import static com.snake.ai.main.loadBestSnakeEver;
-import static com.snake.ai.main.loadFromSavedSnake;
+import static com.snake.ai.main.loadingSavedGame;
 import static com.snake.ai.main.r;
+import static com.snake.ai.main.settings;
 import static com.snake.ai.main.snakeGameInstance;
 
 import com.badlogic.gdx.utils.Array;
@@ -18,66 +16,76 @@ public class Snake {
     protected Array<Layer> layerArray;
     protected short score;
     protected double fitness;
-    protected Snake parent1Snake, parent2Snake;
 
     public String toString() {
         return "Score:" + score + "|Fitness:" + fitnessDoubleToE(fitness);
     }
 
     public Snake() {
-        if (snakeGameInstance.population > 0 && !loadFromSavedSnake && !loadBestSnakeEver) {
-            selectParents();
-        }
-        layerArray = new Array<>();
+        if (!loadingSavedGame) {
+            Snake parent1Snake = null, parent2Snake = null;
+            if (snakeGameInstance.population > 0) {
+                parent1Snake = selectParent1();
+                parent2Snake = selectParent2(parent1Snake);
+            }
+            layerArray = new Array<>();
 
-        int layerSinglePoint = r.nextInt(layerMenge - 1);
-        int nodeSinglePoint = r.nextInt(layerNodeValueArray.get(layerSinglePoint));
-        int weightSinglePoint = r.nextInt(layerNodeValueArray.get(layerSinglePoint + 1));
+            int layerSinglePoint = r.nextInt(settings.layerMenge - 1);
+            int nodeSinglePoint = r.nextInt(layerNodeValueArray.get(layerSinglePoint));
+            int weightSinglePoint = r.nextInt(layerNodeValueArray.get(layerSinglePoint + 1));
 
-        if(!crossover)
-            parent2Snake = parent1Snake;
+            if (!settings.crossover)
+                parent2Snake = parent1Snake;
 
-        for (int i = 0; i < layerMenge; i++) {
-            Layer layer = new Layer(i, parent1Snake, parent2Snake,layerSinglePoint,nodeSinglePoint,weightSinglePoint);
-            layerArray.add(layer);
+            for (int i = 0; i < settings.layerMenge; i++) {
+                Layer layer = new Layer(i, parent1Snake, parent2Snake, layerSinglePoint, nodeSinglePoint, weightSinglePoint);
+                layerArray.add(layer);
+            }
         }
     }
 
     //Roulette
-    public void selectParents() {
+    public Snake selectParent1() {
         //Parent 1
-        double maxFitness = 0d;
+        double maxFitness = 0;
         for (int i = 0; i < bestSnakes.size; i++) {
             maxFitness += bestSnakes.get(i).fitness;
         }
-        double choosenId = 0 + r.nextDouble() * (maxFitness - 0);
+
+        double choosenId = maxFitness * r.nextDouble();
 
         double zahlZumChecken = 0;
         for (int i = 0; i < bestSnakes.size; i++) {
             if (choosenId >= zahlZumChecken && choosenId <= zahlZumChecken + bestSnakes.get(i).fitness) {
-                parent1Snake = bestSnakes.get(i);
-                break;
+                return bestSnakes.get(i);
             } else {
                 zahlZumChecken += bestSnakes.get(i).fitness;
             }
         }
+        return null;
+    }
 
+    //Roulette
+    public Snake selectParent2(Snake parent1) {
         //Parent 2
-        maxFitness = 0;
-        for (int i = 0; i < bestSnakes.size; i++) {
-            maxFitness += bestSnakes.get(i).fitness;
+        double maxFitness = 0;
+        Array<Snake> tmpArray = new Array<>(bestSnakes);
+        tmpArray.removeValue(parent1, false);
+
+        for (int i = 0; i < tmpArray.size; i++) {
+            maxFitness += tmpArray.get(i).fitness;
         }
 
-        choosenId = 0 + r.nextDouble() * (maxFitness - 0);
+        double choosenId = maxFitness * r.nextDouble();
 
-        zahlZumChecken = 0;
-        for (int i = 0; i < bestSnakes.size; i++) {
-            if (choosenId >= zahlZumChecken && choosenId <= zahlZumChecken + bestSnakes.get(i).fitness) {
-                parent2Snake = bestSnakes.get(i);
-                i = bestSnakes.size;
+        double zahlZumChecken = 0;
+        for (int i = 0; i < tmpArray.size; i++) {
+            if (choosenId >= zahlZumChecken && choosenId <= zahlZumChecken + tmpArray.get(i).fitness) {
+                return tmpArray.get(i);
             } else {
-                zahlZumChecken += bestSnakes.get(i).fitness;
+                zahlZumChecken += tmpArray.get(i).fitness;
             }
         }
+        return null;
     }
 }
