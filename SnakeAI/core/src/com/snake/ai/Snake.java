@@ -1,459 +1,91 @@
 package com.snake.ai;
 
+import static com.snake.ai.main.bestSnakes;
+import static com.snake.ai.main.fitnessDoubleToE;
+import static com.snake.ai.main.layerNodeValueArray;
+import static com.snake.ai.main.loadingSavedGame;
+import static com.snake.ai.main.r;
+import static com.snake.ai.main.settings;
+import static com.snake.ai.main.snakeGameInstance;
+
 import com.badlogic.gdx.utils.Array;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Random;
 
-import static com.snake.ai.SavedSnakes.getFloat;
-import static com.snake.ai.SavedSnakes.getInteger;
-import static com.snake.ai.main.FIRSTPOPULATIONSIZE;
-import static com.snake.ai.main.POPULATIONSIZE;
-import static com.snake.ai.main.SnakeNr;
-import static com.snake.ai.main.allSnakesArrays;
-import static com.snake.ai.main.averageFitnessArray;
-import static com.snake.ai.main.bestSnakeEver;
-import static com.snake.ai.main.bestSnakesArray;
-import static com.snake.ai.main.bestSnakesArraySize;
-import static com.snake.ai.main.currentSnake;
-import static com.snake.ai.main.enableNewPopulationLogging;
-import static com.snake.ai.main.enableOutputLayerLogging;
-import static com.snake.ai.main.freeze;
-import static com.snake.ai.main.gameNr;
-import static com.snake.ai.main.hiscoreArray;
-import static com.snake.ai.main.layerNodeValueArray;
-import static com.snake.ai.main.loadBestSnakeEver;
-import static com.snake.ai.main.loadFromSavedSnake;
-import static com.snake.ai.main.populationsSinceLastSave;
-import static com.snake.ai.main.reihen;
-import static com.snake.ai.main.replay;
-import static com.snake.ai.main.requestReplayStop;
-import static com.snake.ai.main.spalten;
+public class Snake {
 
-public class Snake implements Runnable {
-    enum Dir {
-        up(0, -1), right(1, 0), down(0, 1), left(-1, 0);
+    protected Array<Layer> layerArray;
+    protected short score;
+    protected double fitness;
 
-        Dir(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        final int x, y;
+    public String toString() {
+        return "Score:" + score + "|Fitness:" + fitnessDoubleToE(fitness);
     }
-
-    static final Random rand = new Random();
-    static final int WALL = -1;
-
-    static volatile boolean gameOver = true;
-
-    Thread gameThread;
-    static int score;
-    static int hiScore;
-    static final int startlength = 3;
-    static Dir dir, startDir;
-    static int energy;
-    static int timealaive;
-    Evolution evo;
-
-    int[][] grid;
-    static List<Point> snake;
-    static Array<Point> treats;
-
-    static int Sleep_Time = 85;
-
-    public static int population;
-    public static int snakeNr;
-    public static int steps;
-    long startTime;
-    static long timePerPop;
 
     public Snake() {
-        initGrid();
-        evo = new Evolution();
-    }
-
-    void startNewGame() {
-        gameOver = false;
-
-        initGrid();
-        treats = new Array<>();
-        addTreat();
-
-        bestSnakeEver.directionTmpArray.clear();
-
-        energy = 150 + score * 2;
-
-        if (score > hiScore) {
-            hiScore = score;
-        }
-        score = 0;
-        timealaive = 0;
-        steps = 0;
-        if (!replay && ((snakeNr == POPULATIONSIZE && population > 0) || (snakeNr == FIRSTPOPULATIONSIZE && population == 0))) {
-            newPopulation();
-        }
-
-        if (!replay) {
-            currentSnake = new Snakes();
-            snakeNr++;
-        } else
-            currentSnake = bestSnakeEver.bestSnakeEver;
-
-
-        snake = new ArrayList<>();
-
-        direction();
-
-        if (gameThread == null)
-            (gameThread = new Thread(this)).start();
-    }
-
-    public void direction() {
-        if (replay) {
-            dir = bestSnakeEver.startDir;
-        } else {
-            Random r = new Random();
-            switch (r.nextInt(4)) {
-                case 0:
-                    dir = Dir.left;
-                    break;
-                case 1:
-                    dir = Dir.right;
-                    break;
-                case 2:
-                    dir = Dir.up;
-                    break;
-                case 3:
-                    dir = Dir.down;
-                    break;
+        if (!loadingSavedGame) {
+            Snake parent1Snake = null, parent2Snake = null;
+            if (snakeGameInstance.population > 0) {
+                parent1Snake = selectParent1();
+                parent2Snake = selectParent2(parent1Snake);
             }
-        }
-        switch (dir) {
-            case up:
-                NodeVis.highest = 0;
-                for (int x = 0; x < startlength; x++)
-                    snake.add(new Point(reihen / 2 + x, spalten / 2));
-                break;
-            case down:
-                NodeVis.highest = 1;
-                for (int x = startlength; x > 0; x--)
-                    snake.add(new Point(reihen / 2 + x, spalten / 2));
-                break;
-            case left:
-                NodeVis.highest = 2;
-                for (int x = 0; x < startlength; x++)
-                    snake.add(new Point(reihen / 2, spalten / 2 + x));
-                break;
-            case right:
-                NodeVis.highest = 3;
-                for (int x = startlength; x > 0; x--)
-                    snake.add(new Point(reihen / 2, spalten / 2 + x));
-                break;
-        }
-        startDir = dir;
-        main.SnakeHeadX = snake.get(0).x;
-        main.SnakeHeadY = snake.get(0).y;
-    }
+            layerArray = new Array<>();
 
-    public void newPopulation() {
-        loadFromSavedSnake = false;
-        population++;
-        if (enableNewPopulationLogging) {
-            System.out.println("\n_______________________");
-            System.out.println("NEW POPULATION (Nr.: " + population + ")");
-            System.out.println("_______________________\n");
-        }
+            int layerSinglePoint = r.nextInt(settings.layerMenge - 1);
+            int nodeSinglePoint = r.nextInt(layerNodeValueArray.get(layerSinglePoint));
+            int weightSinglePoint = r.nextInt(layerNodeValueArray.get(layerSinglePoint + 1));
 
-        timePerPop = System.currentTimeMillis() - startTime;
-        startTime = System.currentTimeMillis();
+            if (!settings.crossover)
+                parent2Snake = parent1Snake;
 
-        //Umsortierung
-        allSnakes allSnakes = new allSnakes();
-        if (allSnakesArrays.size > 1) {
-            allSnakesArrays.set(0, allSnakesArrays.get(1));
-            allSnakesArrays.set(1, allSnakes);
-        } else
-            allSnakesArrays.add(allSnakes);
-
-        allSnakesArrays.get(0).allSnakesArray.sort(new FitnessComparator());
-
-        //Average Fitness
-        int maxFitness = 0;
-        for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
-            maxFitness += allSnakesArrays.get(0).allSnakesArray.get(i).fitness;
-        }
-        if (population > 1) {
-            if (enableNewPopulationLogging)
-                System.out.println("average Fitness: " + maxFitness / POPULATIONSIZE);
-            averageFitnessArray.add(maxFitness / POPULATIONSIZE);
-        } else {
-            if (enableNewPopulationLogging)
-
-                System.out.println("average Fitness: " + maxFitness / FIRSTPOPULATIONSIZE);
-            averageFitnessArray.add(maxFitness / FIRSTPOPULATIONSIZE);
-        }
-
-        int maxHiscore = 0;
-        for (int i = 0; i < allSnakesArrays.get(0).allSnakesArray.size; i++) {
-            if (maxHiscore <= allSnakesArrays.get(0).allSnakesArray.get(i).score) {
-                maxHiscore = allSnakesArrays.get(0).allSnakesArray.get(i).score;
-            }
-        }
-        hiscoreArray.add(maxHiscore);
-
-
-        //Best Snakes System.out
-        bestSnakesArray.clear();
-        for (int i = 0; i < bestSnakesArraySize; i++) {
-            bestSnakesArray.add(allSnakesArrays.get(0).allSnakesArray.get(i));
-            if (enableNewPopulationLogging)
-
-                System.out.println("Nr.:" + i + " Snake Fitness: " + bestSnakesArray.get(i).fitness + " Score: " + bestSnakesArray.get(i).score);
-        }
-        snakeNr = 0;
-        if (gameNr != 0) {
-            if (populationsSinceLastSave == 499) {
-                SavedSnakes savedSnakes = new SavedSnakes();
-                savedSnakes.saveCurrentSnake(true);
-                if (gameNr > -1) {
-                    savedSnakes.delete(gameNr);
-                    gameNr = getInteger("GameMenge");
-                } else {
-                    gameNr = getInteger("GameMenge") + 1;
-                }
-                populationsSinceLastSave = 0;
-
-            } else
-                populationsSinceLastSave++;
-        }
-    }
-
-    void initGrid() {
-        grid = new int[spalten][reihen];
-        for (int r = 0; r < spalten; r++) {
-            for (int c = 0; c < reihen; c++) {
-                if (c == 0 || c == reihen - 1 || r == 0 || r == spalten - 1)
-                    grid[r][c] = WALL;
+            for (int i = 0; i < settings.layerMenge; i++) {
+                Layer layer = new Layer(i, parent1Snake, parent2Snake, layerSinglePoint, nodeSinglePoint, weightSinglePoint);
+                layerArray.add(layer);
             }
         }
     }
 
-    @Override
-    public void run() {
-        while (Thread.currentThread() == gameThread) {
-            if (Sleep_Time > 0)
-                try {
-                    Thread.sleep(Sleep_Time);
-                } catch (InterruptedException e) {
-                    return;
-                }
-            if (!freeze) {
-                if (energyUsed() || hitsWall() || hitsSnake()) {
-                    gameOver();
-                } else {
-                    if (eatsTreat()) {
-                        score++;
-                        energy = 150 + score * 2;
-                        growSnake();
-                    }
-                    moveSnake();
+    //Roulette
+    public Snake selectParent1() {
+        //Parent 1
+        double maxFitness = 0;
+        for (int i = 0; i < bestSnakes.size; i++) {
+            maxFitness += bestSnakes.get(i).fitness;
+        }
 
-                    main.SnakeHeadX = snake.get(0).x;
-                    main.SnakeHeadY = snake.get(0).y;
-                }
-                main main2 = new main();
-                main2.berechneLayer();
-                doAction();
-                Evolution evo = new Evolution();
-                currentSnake.fitness = evo.FitnessFuntction5(steps, score);
+        double choosenId = maxFitness * r.nextDouble();
+
+        double zahlZumChecken = 0;
+        for (int i = 0; i < bestSnakes.size; i++) {
+            if (choosenId >= zahlZumChecken && choosenId <= zahlZumChecken + bestSnakes.get(i).fitness) {
+                return bestSnakes.get(i);
+            } else {
+                zahlZumChecken += bestSnakes.get(i).fitness;
             }
         }
+        return null;
     }
 
-    private void doAction() {
-        if (enableOutputLayerLogging) {
-            System.out.println("\nOutputLayer Values: ");
-            for (int i = 0; i < currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.size; i++) {
-                switch (i) {
-                    case 0:
-                        System.out.println("(U): " + currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(i).value);
-                        break;
-                    case 1:
-                        System.out.println("(D): " + currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(i).value);
-                        break;
-                    case 2:
-                        System.out.println("(L): " + currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(i).value);
-                        break;
-                    case 3:
-                        System.out.println("(R): " + currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(i).value);
-                        break;
-                }
-            }
-            System.out.println("\n");
+    //Roulette
+    public Snake selectParent2(Snake parent1) {
+        //Parent 2
+        double maxFitness = 0;
+        Array<Snake> tmpArray = new Array<>(bestSnakes);
+        tmpArray.removeValue(parent1, false);
+
+        for (int i = 0; i < tmpArray.size; i++) {
+            maxFitness += tmpArray.get(i).fitness;
         }
 
-        float highest = 0;
-        int id = 0;
-        for (int i = 0; i < currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.size; i++) {
-            if (currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(i).value > highest) {
-                highest = currentSnake.layerArray.get(currentSnake.layerArray.size - 1).NodeArray.get(i).value;
-                id = i;
+        double choosenId = maxFitness * r.nextDouble();
+
+        double zahlZumChecken = 0;
+        for (int i = 0; i < tmpArray.size; i++) {
+            if (choosenId >= zahlZumChecken && choosenId <= zahlZumChecken + tmpArray.get(i).fitness) {
+                return tmpArray.get(i);
+            } else {
+                zahlZumChecken += tmpArray.get(i).fitness;
             }
         }
-
-        switch (id) {
-            case 0:
-                if (dir != Dir.down) {
-                    dir = Dir.up;
-                    NodeVis.highest = 0;
-                } else
-                    NodeVis.highest = 1;
-                break;
-            case 1:
-                if (dir != Dir.up) {
-                    dir = Dir.down;
-                    NodeVis.highest = 1;
-                } else
-                    NodeVis.highest = 0;
-                break;
-            case 2:
-                if (dir != Dir.right) {
-                    dir = Dir.left;
-                    NodeVis.highest = 2;
-                } else
-                    NodeVis.highest = 3;
-                break;
-            case 3:
-                if (dir != Dir.left) {
-                    dir = Dir.right;
-                    NodeVis.highest = 3;
-                } else
-                    NodeVis.highest = 2;
-                break;
-        }
-        if (!replay)
-            bestSnakeEver.directionTmpArray.add(dir);
-        else if (!gameOver && !requestReplayStop)
-            dir = bestSnakeEver.directionArray.get(steps);
-        steps++;
-    }
-
-    boolean energyUsed() {
-        energy -= 1;
-        timealaive++;
-        return energy <= 0;
-    }
-
-    boolean hitsWall() {
-        Point head = snake.get(0);
-        int nextCol = head.x + dir.x;
-        int nextRow = head.y + dir.y;
-        return grid[nextRow][nextCol] == WALL;
-    }
-
-    boolean hitsSnake() {
-        Point head = snake.get(0);
-        int nextCol = head.x + dir.x;
-        int nextRow = head.y + dir.y;
-        for (Point p : snake)
-            if (p.x == nextCol && p.y == nextRow)
-                return true;
-        return false;
-    }
-
-    boolean eatsTreat() {
-        Point head = snake.get(0);
-        int nextCol = head.x + dir.x;
-        int nextRow = head.y + dir.y;
-        if (treats.get(treats.size - 1).x == nextCol && treats.get(treats.size - 1).y == nextRow) {
-            addTreat();
-            return true;
-        }
-        return false;
-    }
-
-    public void gameOver() {
-        currentSnake.score = score;
-        gameOver = true;
-        Evolution startFitness = new Evolution();
-        currentSnake.fitness = startFitness.FitnessFuntction5(steps, score);
-
-        allSnakesArrays.get(allSnakesArrays.size - 1).allSnakesArray.add(currentSnake);
-        if (!replay && (currentSnake.fitness >= bestSnakeEver.bestSnakeEver.fitness)) {
-            bestSnakeEver.bestSnakeEver = null;
-            bestSnakeEver.bestSnakeTreats = null;
-            bestSnakeEver.startDir = null;
-            bestSnakeEver.directionArray = null;
-
-            bestSnakeEver.bestSnakeEver = currentSnake;
-            bestSnakeEver.bestSnakeTreats = new Array<>(treats);
-            bestSnakeEver.startDir = startDir;
-            bestSnakeEver.directionArray = new Array<>(bestSnakeEver.directionTmpArray);
-        }
-
-        if (requestReplayStop) {
-            requestReplayStop = false;
-            replay = false;
-        }
-        // Muss unten sein
-        startNewGame();
-    }
-
-    void moveSnake() {
-        for (int i = snake.size() - 1; i > 0; i--) {
-            Point p1 = snake.get(i - 1);
-            Point p2 = snake.get(i);
-            p2.x = p1.x;
-            p2.y = p1.y;
-        }
-        Point head = snake.get(0);
-
-        head.x += dir.x;
-        head.y += dir.y;
-    }
-
-    void growSnake() {
-        Point tail = snake.get(snake.size() - 1);
-        int x = tail.x + dir.x;
-        int y = tail.y + dir.y;
-        snake.add(new Point(x, y));
-    }
-
-    void addTreat() {
-        if (replay) {
-            treats.add(bestSnakeEver.bestSnakeTreats.get(treats.size));
-        } else {
-            int x, y;
-            here:
-            while (true) {
-                x = rand.nextInt(reihen - 2) + 1;
-                y = rand.nextInt(spalten - 2) + 1;
-                if (grid[y][x] != 0)
-                    continue;
-                main.foodpositionX = x;
-                main.foodpositionY = y;
-                Point p = new Point(x, y);
-                if (treats.contains(p, false))
-                    continue;
-                if (snake != null)
-                    for (int i = 0; i < snake.size(); i++) {
-                        if (snake.get(i).x == x && snake.get(i).y == y)
-                            continue here;
-                    }
-                treats.add(p);
-                break;
-            }
-        }
-    }
-}
-
-class FitnessComparator implements Comparator<Snakes> {
-    @SuppressWarnings("NewApi")
-    @Override
-    public int compare(Snakes snakes, Snakes t1) {
-        return Integer.compare(t1.fitness, snakes.fitness);
+        return null;
     }
 }

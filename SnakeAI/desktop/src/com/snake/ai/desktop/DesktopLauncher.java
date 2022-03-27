@@ -1,24 +1,24 @@
 package com.snake.ai.desktop;
 
 import com.badlogic.gdx.Files;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.snake.ai.main;
 
 public class DesktopLauncher {
-	public static void main (String[] arg) {
-		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
-		cfg.title = "Snake Ai by eT4aa";
+    public static void main(String[] arg) {
+        Lwjgl3ApplicationConfiguration cfg = new Lwjgl3ApplicationConfiguration();
 
-		//cfg.height = 750;
-		//cfg.width = 800;
-
-		cfg.height = 540;
+        cfg.setTitle("SnakeGame Ai by eT4aa");
+        cfg.setIdleFPS(1);
+        cfg.setWindowIcon("ic_launcher.png");
+        cfg.useVsync(true);
+        cfg.setWindowSizeLimits(1080, 540, 9999, 9999);
+		/*cfg.height = 540;
 		cfg.width = 1080;
 		cfg.x = cfg.width / 2;
-		cfg.y = cfg.height / 2;
-		cfg.vSyncEnabled = true;
-		cfg.addIcon("ic_launcher.png", Files.FileType.Internal);
-		new LwjglApplication(new main(), cfg);
-	}
+		cfg.y = cfg.height / 2;*/
+        new Lwjgl3Application(new main(), cfg);
+    }
 }
