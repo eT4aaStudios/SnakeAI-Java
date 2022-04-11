@@ -10,7 +10,7 @@ import static com.snake.ai.main.fitnessDoubleToE;
 import static com.snake.ai.main.font;
 import static com.snake.ai.main.freeze;
 import static com.snake.ai.main.gameNr;
-import static com.snake.ai.main.graphmode1;
+import static com.snake.ai.main.graphMode1;
 import static com.snake.ai.main.h;
 import static com.snake.ai.main.helpButton;
 import static com.snake.ai.main.layout;
@@ -25,6 +25,8 @@ import static com.snake.ai.main.showSettingsButton;
 import static com.snake.ai.main.slowerButton;
 import static com.snake.ai.main.snakeGameInstance;
 import static com.snake.ai.main.startTheGameButton;
+import static com.snake.ai.main.statisticsFont;
+import static com.snake.ai.main.statisticsLayout;
 import static com.snake.ai.main.switchGraphButton;
 import static com.snake.ai.main.w;
 
@@ -113,10 +115,12 @@ public class SnakeScreen implements Screen {
 
     public void drawGraph() {
         Array<Integer> tmpArray;
-        if (!graphmode1) {
-            tmpArray = snakeGameInstance.hiscoreArray;
-        } else {
+        if (graphMode1) {
             tmpArray = snakeGameInstance.averageFitnessArray;
+            statisticsLayout.setText(statisticsFont, "Average fitness of population");
+        } else {
+            tmpArray = snakeGameInstance.hiscoreArray;
+            statisticsLayout.setText(statisticsFont, "Highscore of best snake out of population");
         }
 
 
@@ -160,7 +164,7 @@ public class SnakeScreen implements Screen {
                     font.setUseIntegerPositions(false);
                     font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
 
-                    if (!graphmode1)
+                    if (!graphMode1)
                         font.draw(batch, "" + i, w / 80, ((h / 1.08f - h / 1.75f) / tmpArray.get(highest)) * i + h / 1.75f);
                     else
                         font.draw(batch, "" + fitnessDoubleToE(i), w / 80, ((h / 1.08f - h / 1.75f) / tmpArray.get(highest)) * i + h / 1.75f);
@@ -174,6 +178,7 @@ public class SnakeScreen implements Screen {
                     }
                 }
             }
+            statisticsFont.draw(batch, statisticsLayout, ((w / 100) * 2 + w / 3.9f) / 2 - statisticsLayout.width / 2, h / 2f - w / 100 + (w / 100) * 2 + h / 2.23f);
             batch.end();
 
             for (int i = 0; i < tmpArray.size - 1; i++) {
@@ -184,7 +189,6 @@ public class SnakeScreen implements Screen {
                         , ((h / 1.08f - h / 1.82f) / tmpArray.get(highest)) * tmpArray.get(i + 1) + h / 1.82f);
             }
         }
-
         shapeRenderer.end();
     }
 
@@ -205,7 +209,10 @@ public class SnakeScreen implements Screen {
         batch.begin();
         font.draw(batch, "Settings", w / 3.35f, h / 1.07f);
         font.draw(batch, "______________________", w / 3.35f, h / 1.08f);
-        font.draw(batch, "Game Nr: " + gameNr, w / 3.35f, h / 1.13f);
+        if (gameNr == -1)
+            font.draw(batch, "Game Nr: " + gameNr+ " (Not Saved)", w / 3.35f, h / 1.13f);
+        else
+            font.draw(batch, "Game Nr: " + gameNr, w / 3.35f, h / 1.13f);
         font.draw(batch, "SnakeGame Nr: " + snakeNr, w / 3.35f, h / 1.18f);
         font.draw(batch, "Score: " + score, w / 3.35f, h / 1.23f);
         font.draw(batch, "Population: " + snakeGameInstance.population, w / 3.35f, h / 1.28f);

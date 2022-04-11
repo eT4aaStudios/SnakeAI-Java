@@ -1,10 +1,13 @@
 package com.snake.ai;
+import static com.snake.ai.NeuralNetworkVisualization.snakeVisionFieldArray;
+import static com.snake.ai.NeuralNetworkVisualization.time;
 import static com.snake.ai.SnakeGame.dir;
 import static com.snake.ai.SnakeGame.energy;
 import static com.snake.ai.SnakeGame.snake;
 import static com.snake.ai.main.currentSnake;
 import static com.snake.ai.main.foodPositionX;
 import static com.snake.ai.main.foodPositionY;
+import static com.snake.ai.main.layerNodeValueArray;
 import static com.snake.ai.main.settings;
 import static com.snake.ai.main.snakeHeadX;
 import static com.snake.ai.main.snakeHeadY;
@@ -14,8 +17,13 @@ import com.badlogic.gdx.utils.Array;
 public class InputLayerDetection {
 
     private int x, y;
+    private Array<Point> tmpArray = new Array<>();
 
     public void start() {
+        tmpArray.clear();
+        for(int i = 0;i < layerNodeValueArray.get(0);i++) {
+            tmpArray.add(null);
+        }
         wandDetectionGerade();
         //wandDetectionSchreag();
         schwanzDetectionGerade();
@@ -29,6 +37,9 @@ public class InputLayerDetection {
             directionGoingTail();           //(4) 33 Tail Direction
             //energy();
         }
+
+        snakeVisionFieldArray = new Array<>(tmpArray);
+        time = 10000000;
     }
 
     public void wandDetectionGerade() {
@@ -52,6 +63,10 @@ public class InputLayerDetection {
         currentSnake.layerArray.get(0).nodeArray.get(2).value = 1 / (double) (snakeHeadY - 1 + 1);
         currentSnake.layerArray.get(0).nodeArray.get(3).value = 1 / (double) (settings.spalten - snakeHeadY + 1);
 
+        tmpArray.set(0,new Point(0,settings.spalten - snakeHeadY + 1,currentSnake.layerArray.get(0).nodeArray.get(0).value));
+        tmpArray.set(1,new Point(settings.reihen + 1,settings.spalten - snakeHeadY + 1,currentSnake.layerArray.get(0).nodeArray.get(1).value));
+        tmpArray.set(2,new Point(snakeHeadX - 1 + 1,settings.spalten + 1,currentSnake.layerArray.get(0).nodeArray.get(2).value));
+        tmpArray.set(3,new Point(snakeHeadX - 1 + 1,0,currentSnake.layerArray.get(0).nodeArray.get(3).value));
     }
 
     public void wandDetectionSchreag() {/*
@@ -124,24 +139,28 @@ public class InputLayerDetection {
         for (int x = snakeHeadX; x < settings.reihen; x++) {
             if (x == foodPositionX && snakeHeadY == foodPositionY) {
                 currentSnake.layerArray.get(0).nodeArray.get(8).value = 1;
+                tmpArray.set(8,new Point(0,0,currentSnake.layerArray.get(0).nodeArray.get(8).value));
                 //System.out.println("Food ist auf der rechten Seite");
             }
         }
         for (int x = snakeHeadX; x > 0; x--) {
             if (x == foodPositionX && snakeHeadY == foodPositionY) {
                 currentSnake.layerArray.get(0).nodeArray.get(9).value = 1;
+                tmpArray.set(9,new Point(0,0,currentSnake.layerArray.get(0).nodeArray.get(9).value));
                 //System.out.println("Food ist auf der linken Seite");
             }
         }
         for (int y = snakeHeadY; y < settings.spalten; y++) {
             if (y == foodPositionY && snakeHeadX == foodPositionX) {
                 currentSnake.layerArray.get(0).nodeArray.get(10).value = 1;
+                tmpArray.set(10,new Point(0,0,currentSnake.layerArray.get(0).nodeArray.get(10).value));
                 //System.out.println("Food ist auf der Unteren Seite");
             }
         }
         for (int y = snakeHeadY; y > 0; y--) {
             if (y == foodPositionY && snakeHeadX == foodPositionX) {
                 currentSnake.layerArray.get(0).nodeArray.get(11).value = 1;
+                tmpArray.set(11,new Point(0,0,currentSnake.layerArray.get(0).nodeArray.get(11).value));
                 //System.out.println("Food ist auf der Oberen Seite");
             }
         }
@@ -157,6 +176,7 @@ public class InputLayerDetection {
             if (x == foodPositionX && y == foodPositionY) {
                 //System.out.println("Schraeg links Oben");
                 currentSnake.layerArray.get(0).nodeArray.get(12).value = 1;
+                tmpArray.set(12,new Point(0,0,currentSnake.layerArray.get(0).nodeArray.get(12).value));
             }
         }
         x = snakeHeadX;
@@ -167,6 +187,7 @@ public class InputLayerDetection {
             if (x == foodPositionX && y == foodPositionY) {
                 //System.out.println("Schraeg links Unten");
                 currentSnake.layerArray.get(0).nodeArray.get(13).value = 1;
+                tmpArray.set(13,new Point(0,0,currentSnake.layerArray.get(0).nodeArray.get(13).value));
             }
         }
         x = snakeHeadX;
@@ -177,6 +198,7 @@ public class InputLayerDetection {
             if (x == foodPositionX && y == foodPositionY) {
                 //System.out.println("Schraeg rechts Unten");
                 currentSnake.layerArray.get(0).nodeArray.get(14).value = 1;
+                tmpArray.set(14,new Point(0,0,currentSnake.layerArray.get(0).nodeArray.get(14).value));
             }
         }
         x = snakeHeadX;
@@ -187,6 +209,7 @@ public class InputLayerDetection {
             if (x == foodPositionX && y == foodPositionY) {
                 //System.out.println("Schraeg rechts Oben");
                 currentSnake.layerArray.get(0).nodeArray.get(15).value = 1;
+                tmpArray.set(15,new Point(0,0,currentSnake.layerArray.get(0).nodeArray.get(15).value));
             }
         }
     }
@@ -228,6 +251,7 @@ public class InputLayerDetection {
         for (int i = snakeHeadX - 1; i > 0; i--) {
             if (dir != SnakeGame.Dir.right && snake.contains(new Point(i, snakeHeadY), false)) {
                 currentSnake.layerArray.get(0).nodeArray.get(16).value = 1 / ((settings.reihen - 2) - (snakeHeadX - i - 1) + 1d);
+                tmpArray.set(16,new Point(i,snakeHeadY,currentSnake.layerArray.get(0).nodeArray.get(16).value));
                 break;
             }
         }
@@ -235,6 +259,7 @@ public class InputLayerDetection {
         for (int i = snakeHeadX + 1; i <= settings.reihen; i++) {
             if (dir != SnakeGame.Dir.left && snake.contains(new Point(i, snakeHeadY), false)) {
                 currentSnake.layerArray.get(0).nodeArray.get(17).value = 1 / ((settings.reihen - 2d) - (i - snakeHeadX - 1) + 1d);
+                tmpArray.set(17,new Point(i,snakeHeadY,currentSnake.layerArray.get(0).nodeArray.get(17).value));
                 break;
             }
         }
@@ -242,6 +267,7 @@ public class InputLayerDetection {
         for (int i = snakeHeadY - 1; i > 0; i--) {
             if (dir != SnakeGame.Dir.down && snake.contains(new Point(snakeHeadX, i), false)) {
                 currentSnake.layerArray.get(0).nodeArray.get(18).value = 1 / ((settings.spalten - 2d) - (snakeHeadY - i - 1) + 1d);
+                tmpArray.set(18,new Point(snakeHeadX, i,currentSnake.layerArray.get(0).nodeArray.get(18).value));
                 break;
             }
         }
@@ -249,6 +275,7 @@ public class InputLayerDetection {
         for (int i = snakeHeadY + 1; i <= settings.spalten; i++) {
             if (dir != SnakeGame.Dir.up && snake.contains(new Point(snakeHeadX, i), false)) {
                 currentSnake.layerArray.get(0).nodeArray.get(19).value = 1 / ((settings.spalten - 2d) - (i - snakeHeadY - 1) + 1d);
+                tmpArray.set(19,new Point(snakeHeadX, i,currentSnake.layerArray.get(0).nodeArray.get(19).value));
                 break;
             }
         }

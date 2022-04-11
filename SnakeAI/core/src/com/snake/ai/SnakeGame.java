@@ -1,11 +1,13 @@
 package com.snake.ai;
 
+import static com.snake.ai.SavedSnakes.saveAsJson;
 import static com.snake.ai.main.averageSteps;
 import static com.snake.ai.main.bestSnakes;
 import static com.snake.ai.main.currentSnake;
 import static com.snake.ai.main.evo;
 import static com.snake.ai.main.freeze;
 import static com.snake.ai.main.gameNr;
+import static com.snake.ai.main.isThisAndroid;
 import static com.snake.ai.main.populationsSinceLastSave;
 import static com.snake.ai.main.r;
 import static com.snake.ai.main.replay;
@@ -31,13 +33,12 @@ public class SnakeGame implements Runnable {
     }
 
     static final int WALL = -1;
-    static volatile boolean gameOver = true;
+    static boolean gameOver = true;
     int[][] grid;
     static Array<Point> snake;
     static Array<Point> treats;
 
-    Thread gameThread;
-    boolean pauseThread = true;
+    public static Thread gameThread;
     static short score;
     static Dir dir, startDir;
     static int energy;
@@ -45,9 +46,10 @@ public class SnakeGame implements Runnable {
     public FitnessComparator fitnessComparator;
     public static int snakeNr;
     public static int steps;
-    long startTime;
+    long startTime = System.currentTimeMillis();
     static long timePerPop;
     main main2;
+    AndroidConnection androidConnection;
 
     static int sleepTime = 85;
 
@@ -55,16 +57,11 @@ public class SnakeGame implements Runnable {
         initGrid();
         fitnessComparator = new FitnessComparator();
         this.main2 = main2;
-        gameThread = new Thread(this);
-        gameThread.setPriority(Thread.MAX_PRIORITY);
-        gameThread.start();
-        gameThread.setName("SnakeAiCalculating");
         treats = new Array<>();
     }
 
     void startNewGame() {
         gameOver = false;
-        stop();
         treats.clear();
         addTreat();
 
@@ -78,7 +75,7 @@ public class SnakeGame implements Runnable {
         score = 0;
         timeAlive = 0;
         steps = 0;
-        if (!replay && snakeNr == settings.POPULATIONSIZE) {
+        if (!replay && snakeNr >= settings.POPULATIONSIZE) {
             newPopulation();
         }
 
@@ -93,7 +90,9 @@ public class SnakeGame implements Runnable {
 
         direction();
 
-        pauseThread = true;
+        NeuralNetworkVisualization.animationCounter = 0;
+        NeuralNetworkVisualization.offset = 0;
+        NeuralNetworkVisualization.time = 0;
     }
 
     public void direction() {
@@ -160,6 +159,8 @@ public class SnakeGame implements Runnable {
         averageSteps = 0;
 
         snakeGameInstance.population++;
+        if (isThisAndroid())
+            androidConnection.updateNotification(snakeGameInstance.population);
         //Add Data from current Population to the Graph
         int maxFitness = 0;
         for (int i = 0; i < snakeArray.size; i++) {
@@ -189,24 +190,13 @@ public class SnakeGame implements Runnable {
 
         //Autosave
         if (gameNr != 0) {
-            if (populationsSinceLastSave == 499) {
-                /*TODO SavedSnakes savedSnakes = new SavedSnakes(main2);
-                savedSnakes.saveCurrentSnake(true);
-                if (gameNr > -1) {
-                    savedSnakes.delete(gameNr);
-                    gameNr = getInteger("GameMenge");
-                } else {
-                    gameNr = getInteger("GameMenge") + 1;
-                }
-                populationsSinceLastSave = 0;*/
+            if (populationsSinceLastSave >= settings.autoSaveAt - 1) {
+                saveAsJson(snakeGameInstance, bestSnakes);
+                populationsSinceLastSave = 0;
             } else
                 populationsSinceLastSave++;
         }
         snakeNr = 0;
-    }
-
-    void stop() {
-        pauseThread = true;
     }
 
     void initGrid() {
@@ -219,33 +209,36 @@ public class SnakeGame implements Runnable {
         }
     }
 
+    long time = 0;
+
     @Override
     public void run() {
         while (true) {
-            if (sleepTime > 0)
-                try {
-                    Thread.sleep(sleepTime);
-                } catch (InterruptedException ignored) {
+            if (!Thread.currentThread().isInterrupted()) {
+                if (sleepTime > 0)
+                    try {
+                        Thread.sleep(sleepTime);
+                    } catch (InterruptedException ignored) {
 
-                }
-            if (!freeze && currentSnake != null) {
-                if (energyUsed() || hitsWall() || hitsSnake()) {
-                    gameOver();
-                } else {
-                    if (eatsTreat()) {
-                        score++;
-                        energy = settings.maxEnergy;
-                        growSnake();
                     }
-                    moveSnake();
-                    main.snakeHeadX = snake.get(0).x;
-                    main.snakeHeadY = snake.get(0).y;
-                    main2.berechneLayer();
-                    doAction();
+                if (!freeze && currentSnake != null) {
+                    if (energyUsed() || hitsWall() || hitsSnake()) {
+                        gameOver();
+                    } else {
+                        if (eatsTreat()) {
+                            score++;
+                            energy = settings.maxEnergy;
+                            growSnake();
+                        }
+                        moveSnake();
+                        main.snakeHeadX = snake.get(0).x;
+                        main.snakeHeadY = snake.get(0).y;
+                        main2.berechneLayer();
+                        doAction();
+                    }
+
+
                 }
-
-
-
             }
         }
     }
@@ -314,9 +307,11 @@ public class SnakeGame implements Runnable {
         Point head = snake.get(0);
         int nextCol = head.x + dir.x;
         int nextRow = head.y + dir.y;
-        for (Point p : snake)
+        for (int i = 0; i < snake.size; i++) {
+            Point p = snake.get(i);
             if (p.x == nextCol && p.y == nextRow)
                 return true;
+        }
         return false;
     }
 
@@ -334,7 +329,6 @@ public class SnakeGame implements Runnable {
     public void gameOver() {
         currentSnake.score = score;
         gameOver = true;
-        stop();
         averageSteps += steps;
         currentSnake.fitness = evo.fitnessFunction(steps, score);
 
@@ -392,7 +386,7 @@ public class SnakeGame implements Runnable {
                 main.foodPositionX = x;
                 main.foodPositionY = y;
                 Point p = new Point(x, y);
-                if (treats.contains(p, false) || (snake != null && snake.contains(p,false)))
+                if (treats.contains(p, false) || (snake != null && snake.contains(p, false)))
                     continue;
                 if (snake != null)
                     for (int i = 0; i < snake.size; i++) {

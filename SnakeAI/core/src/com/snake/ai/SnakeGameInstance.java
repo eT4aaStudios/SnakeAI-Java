@@ -13,6 +13,7 @@ public class SnakeGameInstance {
     public Array<Integer> averageFitnessArray = new Array<>();
     public Array<Integer> hiscoreArray = new Array<>();
     public int hiScore;
+    public int gameNr = -1;
 
 
     public SnakeGameInstance() {

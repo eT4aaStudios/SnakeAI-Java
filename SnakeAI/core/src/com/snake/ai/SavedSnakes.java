@@ -2,17 +2,27 @@ package com.snake.ai;
 
 import static com.badlogic.gdx.Gdx.gl;
 import static com.snake.ai.SnakeGame.energy;
+import static com.snake.ai.SnakeGame.gameThread;
+import static com.snake.ai.SnakeGame.snake;
+import static com.snake.ai.main.androidConnection;
 import static com.snake.ai.main.batch;
 import static com.snake.ai.main.bestSnakes;
+import static com.snake.ai.main.currentSnake;
+import static com.snake.ai.main.fieldArray;
 import static com.snake.ai.main.freeze;
+import static com.snake.ai.main.gameNr;
 import static com.snake.ai.main.gson;
 import static com.snake.ai.main.h;
+import static com.snake.ai.main.isThisAndroid;
+import static com.snake.ai.main.layerNodeValueArray;
 import static com.snake.ai.main.loadingSavedGame;
 import static com.snake.ai.main.maxSpeedButton;
 import static com.snake.ai.main.settings;
 import static com.snake.ai.main.setupLayerNodeArray;
 import static com.snake.ai.main.shapeRenderer;
 import static com.snake.ai.main.showSavedInstancesButton;
+import static com.snake.ai.main.snakeArray;
+import static com.snake.ai.main.snakeGame;
 import static com.snake.ai.main.snakeGameInstance;
 import static com.snake.ai.main.startTheGameButton;
 import static com.snake.ai.main.w;
@@ -29,7 +39,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -37,6 +46,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
+import com.kotcrab.vis.ui.widget.VisTextButton;
 
 import java.util.Properties;
 
@@ -49,10 +59,11 @@ public class SavedSnakes extends SnakeScreen implements Screen {
     private static Table weckerselectionContainer;
     public static ScrollPane weckerscrollPane;
     private static TextButton.TextButtonStyle buttonSelected;
-    private static Button loadButton, deleteButton, saveButton;
+    private static VisTextButton loadButton, deleteButton, saveButton;
     public static Skin skin2;
     public static TextureAtlas atlas;
     public static BitmapFont pixel10;
+    public static Array<Integer> activeGamesArray = new Array<>();
 
     Skin skin;
     FileHandle file;
@@ -85,10 +96,10 @@ public class SavedSnakes extends SnakeScreen implements Screen {
         savedStage = new Stage();
         Gdx.input.setInputProcessor(savedStage);
         prefs = Gdx.app.getPreferences("SnakeAiVersion2");
-
-        saveButton = new TextButton("Save Current SnakeGame", skin);
+        saveButton = new VisTextButton("Save");
         saveButton.setSize(showSavedInstancesButton.getWidth(), showSavedInstancesButton.getHeight());
         saveButton.setPosition(maxSpeedButton.getX(), showSavedInstancesButton.getY());
+        saveButton.getLabel().setFontScale(w / 1100);
         saveButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -96,6 +107,7 @@ public class SavedSnakes extends SnakeScreen implements Screen {
                 loadSavedSnakeScrollPane();
             }
         });
+
         savedStage.addActor(saveButton);
         savedStage.addActor(startTheGameButton);
         savedStage.addActor(showSavedInstancesButton);
@@ -124,11 +136,20 @@ public class SavedSnakes extends SnakeScreen implements Screen {
         batch.end();
     }
 
-    public static void saveAsJson(SnakeGameInstance snakeGameInstance, Array<Snake> bestSnakes) {
-        int activeGames = prefs.getInteger("ActiveGames") + 1;
-        int totalNumberOfGames = prefs.getInteger("TotalNumberOfGames") + 1;
 
-            System.out.println(settings.reihen);
+    public static void saveAsJson(SnakeGameInstance snakeGameInstance, Array<Snake> bestSnakes) {
+        int activeGames;
+        int totalNumberOfGames;
+        if (activeGamesArray.contains(snakeGameInstance.gameNr, false)) {
+            activeGames = prefs.getInteger("ActiveGames");
+            totalNumberOfGames = prefs.getInteger("TotalNumberOfGames");
+        } else {
+            activeGames = prefs.getInteger("ActiveGames") + 1;
+            totalNumberOfGames = prefs.getInteger("TotalNumberOfGames") + 1;
+            activeGamesArray.add(activeGames);
+        }
+        snakeGameInstance.gameNr = totalNumberOfGames;
+        main.gameNr = activeGames - 1;
 
         String json1 = gson.toJson(snakeGameInstance);
         BestSnakes bestSnakesClass = new BestSnakes();
@@ -144,6 +165,11 @@ public class SavedSnakes extends SnakeScreen implements Screen {
         prefs.putInteger("ActiveGames", activeGames);
         prefs.putInteger("TotalNumberOfGames", totalNumberOfGames);
         prefs.flush();
+
+        if (isThisAndroid())
+            androidConnection.toast("Saved!");
+        else
+            System.out.println("Saved!");
     }
 
     public static SnakeGameInstance loadAJson(int id) {
@@ -151,13 +177,16 @@ public class SavedSnakes extends SnakeScreen implements Screen {
         return gson.fromJson(dataFromPrefs, SnakeGameInstance.class);
     }
 
-    public void deleteAJson(int id) {
-        freeze = true;
+    public void deleteAJson(int id, int finalI) {
         prefs.remove("(SnakeGameInstance) SnakeGame:" + id);
         prefs.remove("(BestSnakeArray) SnakeGame:" + id);
         prefs.putInteger("ActiveGames", prefs.getInteger("ActiveGames") - 1);
         prefs.flush();
-        freeze = false;
+        activeGamesArray.removeIndex(finalI);
+        if (isThisAndroid())
+            androidConnection.toast("Deleted!");
+        else
+            System.out.println("Deleted!");
     }
 
     public void loadSavedSnakeScrollPane() {
@@ -195,8 +224,8 @@ public class SavedSnakes extends SnakeScreen implements Screen {
 
 
             SnakeGameInstance snakeGameInstance = null;
-            for(int j = counter;j < totalNumberOfGames + 1;j++) {
-                if (prefs.contains("(SnakeGameInstance) SnakeGame:"+j)) {
+            for (int j = counter; j < totalNumberOfGames + 1; j++) {
+                if (prefs.contains("(SnakeGameInstance) SnakeGame:" + j)) {
                     snakeGameInstance = loadAJson(j);
                     counter = j + 1;
                     break;
@@ -205,15 +234,16 @@ public class SavedSnakes extends SnakeScreen implements Screen {
 
             final SnakeGameInstance snakeGameInstanceFinal = snakeGameInstance;
             int finalCounter = counter - 1;
+            activeGamesArray.add(finalCounter);
 
-
-            loadButton = new TextButton("Load Game Nr.: " + i +
+            loadButton = new VisTextButton("Load Game Nr.: " + i +
                     //"\nBest Fitness Ever: " + fitnessDoubleToE(snakeGameInstance.bestSnake.fitness) +
                     "\nHighScore: " + snakeGameInstance.bestSnake.score +
-                    "\nPopulation: " + snakeGameInstance.population, skin);
+                    "\nPopulation: " + snakeGameInstance.population);
 
             loadButton.setSize(w / 2 / 2f, h / 5);
             loadButton.setPosition(w / 2 / -6f, 0);
+            loadButton.getLabel().setFontScale(w / 1100);
             loadButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -222,11 +252,10 @@ public class SavedSnakes extends SnakeScreen implements Screen {
                     System.out.print("\033[H\033[2J");
                     System.out.flush();
                     main.snakeGameInstance = snakeGameInstanceFinal;
+                    main.snakeGameInstance.gameNr = finalCounter;
                     String dataFromPrefs1 = prefs.getString("(Settings) SnakeGame:" + (finalCounter));
                     String dataFromPrefs2 = prefs.getString("(BestSnakeArray) SnakeGame:" + (finalCounter));
                     settings = gson.fromJson(dataFromPrefs1, Settings.class);
-                    settings.mutationMax = 0.025;
-                    settings.mutationProbability = 5;
                     setupLayerNodeArray();
                     bestSnakes.clear();
                     bestSnakes = gson.fromJson(dataFromPrefs2, BestSnakes.class).getBestSnakes();
@@ -235,27 +264,86 @@ public class SavedSnakes extends SnakeScreen implements Screen {
                     main.gameNr = finalI;
                     loadingSavedGame = false;
                     freeze = false;
+                    if (isThisAndroid())
+                        androidConnection.toast("Loaded!");
                 }
             });
             g.addActor(loadButton);
 
-            deleteButton = new TextButton("Delete", skin);
+            deleteButton = new VisTextButton("Delete");
             deleteButton.setSize(w / 2 / 6.5f, h / 5);
             deleteButton.setPosition(w / 2 / 2.7f, 0);
+            deleteButton.getLabel().setFontScale(w / 1100);
             deleteButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     System.out.println("Deleted Game Nr.: " + (finalCounter));
-                    deleteAJson(finalCounter);
+                    deleteAJson(finalCounter,finalI);
                     loadSavedSnakeScrollPane();
                 }
             });
             //if (finalI > 0)
-                g.addActor(deleteButton);
+            g.addActor(deleteButton);
 
             weckerselectionContainer.add(g).padBottom(4).size(w / 2 / 3.2f, h / 5f);
             weckerselectionContainer.row();
         }
+        Group g = new Group();
+        VisTextButton newGameButton = new VisTextButton("New Instance");
+        newGameButton.setSize(w / 2 / 2f, h / 5);
+        newGameButton.setPosition(w / 2 / -6f, 0);
+        newGameButton.getLabel().setFontScale(w / 1100);
+        newGameButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                freeze = true;
+                settings = new Settings();
+                setupLayerNodeArray();
+                snakeGameInstance = new SnakeGameInstance();
+                snakeGame = new SnakeGame(main2);
+                gameThread.stop();
+
+                if (isThisAndroid()) {
+                    snakeGame.androidConnection = androidConnection;
+                    if (!androidConnection.isMyServiceRunning())
+                        androidConnection.startService();
+                } else {
+                    gameThread = new Thread(snakeGame);
+                    gameThread.setPriority(Thread.MAX_PRIORITY);
+                    gameThread.start();
+                    gameThread.setName("SnakeAiCalculating");
+                }
+
+                for (int i = 0; i < layerNodeValueArray.size; i++) {
+                    if (layerNodeValueArray.get(i) == 0) {
+                        layerNodeValueArray.removeIndex(i);
+                    }
+                }
+
+                snakeArray = new Array<>();
+                fieldArray = new Array<>();
+
+                currentSnake = new Snake();
+                bestSnakes = new Array<>();
+                snakeGameInstance.bestSnake = new Snake();
+                gameNr = -1;
+
+                snake = new Array<>();
+                snakeGame.startNewGame();
+
+                if (isThisAndroid()) {
+                    androidConnection.toast("New Instance created!");
+                    androidConnection.toast("Edit the settings\nand start calculating!");
+                } else {
+                    System.out.println("New Instance created!");
+                    System.out.println("Edit the settings and start calculating!");
+                }
+            }
+        });
+        g.addActor(newGameButton);
+        weckerselectionContainer.add(g).padBottom(4).size(w / 2 / 3.2f, h / 5f);
+        weckerselectionContainer.row();
+
         weckerselectionContainer.pack();
         weckerselectionContainer.setTransform(false);
         weckerselectionContainer.setOrigin(weckerselectionContainer.getWidth() / 1f, weckerselectionContainer.getHeight() / 40);

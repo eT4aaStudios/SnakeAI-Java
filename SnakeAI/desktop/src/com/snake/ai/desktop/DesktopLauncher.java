@@ -1,7 +1,5 @@
 package com.snake.ai.desktop;
 
-import com.badlogic.gdx.Files;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.snake.ai.main;
@@ -19,6 +17,6 @@ public class DesktopLauncher {
 		cfg.width = 1080;
 		cfg.x = cfg.width / 2;
 		cfg.y = cfg.height / 2;*/
-        new Lwjgl3Application(new main(), cfg);
+        new Lwjgl3Application(new main(null), cfg);
     }
 }

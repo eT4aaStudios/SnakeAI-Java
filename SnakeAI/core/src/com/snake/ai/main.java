@@ -2,8 +2,11 @@ package com.snake.ai;
 
 import static com.snake.ai.SettingsScreen.resetTextFieldText;
 import static com.snake.ai.SnakeGame.gameOver;
+import static com.snake.ai.SnakeGame.gameThread;
 import static com.snake.ai.SnakeGame.sleepTime;
+import static com.snake.ai.SnakeGame.snake;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -17,11 +20,12 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.google.gson.Gson;
+import com.kotcrab.vis.ui.VisUI;
+import com.kotcrab.vis.ui.widget.VisTextButton;
 
 import java.text.DecimalFormat;
 import java.util.Random;
@@ -33,21 +37,21 @@ public class main extends Game {
     Stage stage;
     static Button startTheGameButton;
     static Button switchGraphButton;
-    static TextButton slowerButton;
-    static TextButton fasterButton;
-    static TextButton maxSpeedButton;
-    static TextButton showNeuralNetworkButton;
-    static TextButton showSavedInstancesButton;
-    static TextButton replayBestSnakeButton;
-    static TextButton showSettingsButton;
-    static TextButton helpButton;
-    static TextButton scoreboardButton;
+    static VisTextButton slowerButton;
+    static VisTextButton fasterButton;
+    static VisTextButton maxSpeedButton;
+    static VisTextButton showNeuralNetworkButton;
+    static VisTextButton showSavedInstancesButton;
+    static VisTextButton replayBestSnakeButton;
+    static VisTextButton showSettingsButton;
+    static VisTextButton helpButton;
+    static VisTextButton scoreboardButton;
     static Skin skin;
     public static float w;
     public static float h;
     public static int foodPositionX, foodPositionY;
     public static int snakeHeadX, snakeHeadY;
-    Array<Integer> fieldArray;
+    public static Array<Integer> fieldArray;
     public static boolean freeze = true;
     public static Snake currentSnake;
     public static Array<Integer> layerNodeValueArray;
@@ -55,7 +59,7 @@ public class main extends Game {
     static ShapeRenderer shapeRenderer;
     public static BitmapFont font;
     public static GlyphLayout layout = new GlyphLayout();
-    public static boolean graphmode1;
+    public static boolean graphMode1;
     public static int populationsSinceLastSave;
     public static Random r = ThreadLocalRandom.current();
     public static Evolution evo;
@@ -67,18 +71,45 @@ public class main extends Game {
     public static Array<Snake> bestSnakes = new Array<>();
     public static Gson gson = new Gson();
     public static SnakeGameInstance snakeGameInstance = new SnakeGameInstance();
-    SnakeGame snakeGame;
+    public static SnakeGame snakeGame;
     NeuralNetworkVisualization NeuralNetworkVisualization;
     SavedSnakes SavedSnakes;
     SettingsScreen settingsScreen;
     SnakeScreen snakeScreen;
-    public static Settings settings = new Settings();
+    public static Settings settings;
     public static boolean loadingSavedGame;
+    public static AndroidConnection androidConnection;
+    public static BitmapFont statisticsFont;
+    public static GlyphLayout statisticsLayout;
+
+    public main(AndroidConnection androidConnection) {
+        this.androidConnection = androidConnection;
+    }
 
     @Override
     public void create() {
+        w = Gdx.graphics.getWidth();
+        h = Gdx.graphics.getHeight();
+        if (VisUI.isLoaded()) {
+            VisUI.dispose();
+        }
+        VisUI.load();
+        VisUI.getSkin().getFont("default-font").getData().setScale(w / 1170);
+
+        settings = new Settings();
         setupLayerNodeArray();
         snakeGame = new SnakeGame(this);
+        if (isThisAndroid()) {
+            snakeGame.androidConnection = androidConnection;
+            if (!androidConnection.isMyServiceRunning())
+                androidConnection.startService();
+        } else {
+            gameThread = new Thread(main.snakeGame);
+            gameThread.setPriority(Thread.MAX_PRIORITY);
+            gameThread.start();
+            gameThread.setName("SnakeAiCalculating");
+        }
+
         for (int i = 0; i < layerNodeValueArray.size; i++) {
             if (layerNodeValueArray.get(i) == 0) {
                 layerNodeValueArray.removeIndex(i);
@@ -92,16 +123,18 @@ public class main extends Game {
                 settings.inputLayerNodes + settings.layer2Nodes + settings.layer3Nodes + settings.layer4Nodes) * (settings.mutationProbability / 100));
 
         snakeArray = new Array<>();
-        w = Gdx.graphics.getWidth();
-        h = Gdx.graphics.getHeight();
         fieldArray = new Array<>();
         batch = new SpriteBatch();
         skin = new Skin(Gdx.files.internal("uiskin.json"));
+        skin.getFont("default-font").getData().setScale(w / 1100);
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
         shapeRenderer = new ShapeRenderer();
         font = new BitmapFont();
         font.getData().setScale(w / 1100);
+        statisticsFont = new BitmapFont();
+        statisticsFont.getData().setScale(w / 1200);
+        statisticsLayout = new GlyphLayout(statisticsFont, "");
         evo = new Evolution();
 
         startTheGameButton = new Button(new TextureRegionDrawable(new TextureRegion(new Texture("transparent2.png"))));
@@ -118,6 +151,13 @@ public class main extends Game {
                         sleepTime = 40;
                     freeze = !freeze;
                 }
+                if (isThisAndroid() && !androidConnection.isMyServiceRunning()) {
+                    System.out.println("hello noz running");
+                    System.out.println("Hello1 " + snake.size);
+                    androidConnection.startService();
+                    System.out.println("Hello2 " + snake.size);
+                    snakeGame.startNewGame();
+                }
             }
         });
         switchGraphButton = new Button(new TextureRegionDrawable(new TextureRegion(new Texture("transparent2.png"))));
@@ -126,40 +166,43 @@ public class main extends Game {
         switchGraphButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                graphmode1 = !graphmode1;
+                graphMode1 = !graphMode1;
             }
         });
-        slowerButton = new TextButton("Slower", skin);
+        slowerButton = new VisTextButton("Slower");
         slowerButton.setSize(w / 12, h / 8);
-        slowerButton.setPosition(getButtonXPosition(0),getButtonYPosition(2));
+        slowerButton.setPosition(getButtonXPosition(0), getButtonYPosition(2));
+        slowerButton.getLabel().setFontScale(w / 1100);
         slowerButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                sleepTime += 40;
+                sleepTime += 80;
             }
         });
-        fasterButton = new TextButton("Faster", skin);
+        fasterButton = new VisTextButton("Faster");
         fasterButton.setSize(slowerButton.getWidth(), slowerButton.getHeight());
-        fasterButton.setPosition(getButtonXPosition(1),getButtonYPosition(2));
+        fasterButton.setPosition(getButtonXPosition(1), getButtonYPosition(2));
+        fasterButton.getLabel().setFontScale(w / 1100);
         fasterButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (sleepTime > 30)
-                    sleepTime -= 30;
+                if (sleepTime > 60)
+                    sleepTime -= 50;
             }
         });
-        maxSpeedButton = new TextButton("Max Velocity", skin);
+        maxSpeedButton = new VisTextButton("Max Velocity");
         maxSpeedButton.setSize(slowerButton.getWidth(), slowerButton.getHeight());
-        maxSpeedButton.setPosition(getButtonXPosition(2),getButtonYPosition(2));
+        maxSpeedButton.setPosition(getButtonXPosition(2), getButtonYPosition(2));
+        maxSpeedButton.getLabel().setFontScale(w / 1100);
         maxSpeedButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 sleepTime = 0;
             }
         });
-        replayBestSnakeButton = new TextButton("Replay Best\nSnake", skin);
+        replayBestSnakeButton = new VisTextButton("Replay Best\nSnake");
         replayBestSnakeButton.setSize(slowerButton.getWidth(), slowerButton.getHeight());
-        replayBestSnakeButton.setPosition(getButtonXPosition(0),getButtonYPosition(1));
+        replayBestSnakeButton.setPosition(getButtonXPosition(0), getButtonYPosition(1));
         replayBestSnakeButton.getLabel().setFontScale(w / 1100);
         replayBestSnakeButton.addListener(new ClickListener() {
             @Override
@@ -176,9 +219,9 @@ public class main extends Game {
 
             }
         });
-        showNeuralNetworkButton = new TextButton("Show Neural\nNetwork", skin);
+        showNeuralNetworkButton = new VisTextButton("Neural\nNetwork");
         showNeuralNetworkButton.setSize(slowerButton.getWidth(), h / 8);
-        showNeuralNetworkButton.setPosition(getButtonXPosition(0),getButtonYPosition(0));
+        showNeuralNetworkButton.setPosition(getButtonXPosition(0), getButtonYPosition(0));
         showNeuralNetworkButton.getLabel().setFontScale(replayBestSnakeButton.getLabel().getFontScaleX());
         showNeuralNetworkButton.addListener(new ClickListener() {
             @Override
@@ -190,9 +233,9 @@ public class main extends Game {
                 }
             }
         });
-        showSavedInstancesButton = new TextButton("Show Saved\nInstances", skin);
+        showSavedInstancesButton = new VisTextButton("Saved\nInstances");
         showSavedInstancesButton.setSize(slowerButton.getWidth(), h / 8);
-        showSavedInstancesButton.setPosition(getButtonXPosition(1),getButtonYPosition(0));
+        showSavedInstancesButton.setPosition(getButtonXPosition(1), getButtonYPosition(0));
         showSavedInstancesButton.getLabel().setFontScale(replayBestSnakeButton.getLabel().getFontScaleX());
         showSavedInstancesButton.addListener(new ClickListener() {
             @Override
@@ -204,14 +247,13 @@ public class main extends Game {
                 }
             }
         });
-        showSettingsButton = new TextButton("Edit Settings", skin);
+        showSettingsButton = new VisTextButton("Edit Settings");
         showSettingsButton.setSize(slowerButton.getWidth(), slowerButton.getHeight());
-        showSettingsButton.setPosition(getButtonXPosition(2),getButtonYPosition(0));
+        showSettingsButton.setPosition(getButtonXPosition(2), getButtonYPosition(0));
         showSettingsButton.getLabel().setFontScale(w / 1100);
         showSettingsButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                freeze = true;
                 if (main.this.getScreen() != settingsScreen) {
                     main.this.setScreen(settingsScreen);
                 } else {
@@ -220,9 +262,9 @@ public class main extends Game {
                 }
             }
         });
-        helpButton = new TextButton("Help", skin);
+        helpButton = new VisTextButton("Help");
         helpButton.setSize(slowerButton.getWidth(), slowerButton.getHeight());
-        helpButton.setPosition(getButtonXPosition(2),getButtonYPosition(1));
+        helpButton.setPosition(getButtonXPosition(2), getButtonYPosition(1));
         helpButton.getLabel().setFontScale(w / 1100);
         helpButton.addListener(new ClickListener() {
             @Override
@@ -230,9 +272,9 @@ public class main extends Game {
 
             }
         });
-        scoreboardButton = new TextButton("Scoreboard", skin);
+        scoreboardButton = new VisTextButton("Scoreboard\nComing Soon");
         scoreboardButton.setSize(slowerButton.getWidth(), slowerButton.getHeight());
-        scoreboardButton.setPosition(getButtonXPosition(1),getButtonYPosition(1));
+        scoreboardButton.setPosition(getButtonXPosition(1), getButtonYPosition(1));
         scoreboardButton.getLabel().setFontScale(w / 1100);
         scoreboardButton.addListener(new ClickListener() {
             @Override
@@ -254,18 +296,29 @@ public class main extends Game {
         stage.addActor(helpButton);
 
         currentSnake = new Snake();
-        for (int i = 0; i < settings.bestSnakesArraySize; i++) {
-            bestSnakes.add(currentSnake);
-        }
+        //for (int i = 0; i < settings.bestSnakesArraySize; i++) {
+        //    bestSnakes.add(currentSnake);
+        //}
         snakeGameInstance.bestSnake = new Snake();
 
         NeuralNetworkVisualization = new NeuralNetworkVisualization();
         SavedSnakes = new SavedSnakes(this);
-        settingsScreen = new SettingsScreen();
+        try {
+            settingsScreen = new SettingsScreen();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         snakeScreen = new SnakeScreen();
         newDetection = new InputLayerDetection();
 
+        if (isThisAndroid() && androidConnection.isMyServiceRunning()) {
+            snakeGame.gameOver();
+            freeze = false;
+        }
+
+
         this.setScreen(snakeScreen);
+
     }
 
     public static float getButtonXPosition(int numberOfButtonX) {
@@ -382,5 +435,9 @@ public class main extends Game {
         else
             df = new DecimalFormat("##0");
         return df.format(fitness);
+    }
+
+    public static boolean isThisAndroid() {
+        return Gdx.app.getType() == Application.ApplicationType.Android;
     }
 }

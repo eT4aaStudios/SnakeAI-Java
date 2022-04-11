@@ -2,12 +2,19 @@ package com.snake.ai;
 
 public class Point {
     int x, y;
+    double value;
 
 
 
     public Point(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    public Point(int x, int y,double value) {
+        this.x = x;
+        this.y = y;
+        this.value = value;
     }
 
     public String toString() {
