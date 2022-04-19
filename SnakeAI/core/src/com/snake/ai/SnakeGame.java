@@ -5,9 +5,12 @@ import static com.snake.ai.main.averageSteps;
 import static com.snake.ai.main.bestSnakes;
 import static com.snake.ai.main.currentSnake;
 import static com.snake.ai.main.evo;
+import static com.snake.ai.main.foodPositionX;
+import static com.snake.ai.main.foodPositionY;
 import static com.snake.ai.main.freeze;
 import static com.snake.ai.main.gameNr;
 import static com.snake.ai.main.isThisAndroid;
+import static com.snake.ai.main.log;
 import static com.snake.ai.main.populationsSinceLastSave;
 import static com.snake.ai.main.r;
 import static com.snake.ai.main.replay;
@@ -15,6 +18,7 @@ import static com.snake.ai.main.requestReplayStop;
 import static com.snake.ai.main.settings;
 import static com.snake.ai.main.snakeArray;
 import static com.snake.ai.main.snakeGameInstance;
+import static com.snake.ai.main.snakeHeadX;
 
 import com.badlogic.gdx.utils.Array;
 
@@ -69,9 +73,7 @@ public class SnakeGame implements Runnable {
 
         energy = settings.maxEnergy;
 
-        if (score > snakeGameInstance.hiScore) {
-            snakeGameInstance.hiScore = score;
-        }
+
         score = 0;
         timeAlive = 0;
         steps = 0;
@@ -90,9 +92,9 @@ public class SnakeGame implements Runnable {
 
         direction();
 
-        NeuralNetworkVisualization.animationCounter = 0;
-        NeuralNetworkVisualization.offset = 0;
-        NeuralNetworkVisualization.time = 0;
+        //NeuralNetworkVisualization.animationCounter = 0;
+        //NeuralNetworkVisualization.offset = 0;
+        //NeuralNetworkVisualization.time = 0;
     }
 
     public void direction() {
@@ -147,7 +149,7 @@ public class SnakeGame implements Runnable {
                 break;
         }
         startDir = dir;
-        main.snakeHeadX = snake.get(0).x;
+        snakeHeadX = snake.get(0).x;
         main.snakeHeadY = snake.get(0).y;
     }
 
@@ -209,19 +211,19 @@ public class SnakeGame implements Runnable {
         }
     }
 
-    long time = 0;
-
     @Override
     public void run() {
         while (true) {
             if (!Thread.currentThread().isInterrupted()) {
-                if (sleepTime > 0)
+                if (sleepTime > 0) {
                     try {
                         Thread.sleep(sleepTime);
-                    } catch (InterruptedException ignored) {
-
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-                if (!freeze && currentSnake != null) {
+                }
+
+                if (!freeze) {
                     if (energyUsed() || hitsWall() || hitsSnake()) {
                         gameOver();
                     } else {
@@ -231,13 +233,18 @@ public class SnakeGame implements Runnable {
                             growSnake();
                         }
                         moveSnake();
-                        main.snakeHeadX = snake.get(0).x;
+                        snakeHeadX = snake.get(0).x;
                         main.snakeHeadY = snake.get(0).y;
+                        if (score == (settings.reihen * settings.spalten - settings.startLength)) {
+                            freeze = true;
+                            log("Done! Max Score reached!");
+                            gameOver();
+                            //saveAsJson(snakeGameInstance, bestSnakes);
+                            continue;
+                        }
                         main2.berechneLayer();
                         doAction();
                     }
-
-
                 }
             }
         }
@@ -320,6 +327,8 @@ public class SnakeGame implements Runnable {
         int nextCol = head.x + dir.x;
         int nextRow = head.y + dir.y;
         if (treats.get(treats.size - 1).x == nextCol && treats.get(treats.size - 1).y == nextRow) {
+            if (score + 1 == (settings.reihen * settings.spalten - settings.startLength))
+                return true;
             addTreat();
             return true;
         }
@@ -330,7 +339,10 @@ public class SnakeGame implements Runnable {
         currentSnake.score = score;
         gameOver = true;
         averageSteps += steps;
-        currentSnake.fitness = evo.fitnessFunction(steps, score);
+        currentSnake.fitness = evo.fitnessFunction(settings.fitnessFunction, steps, score);
+        if (score > snakeGameInstance.hiScore) {
+            snakeGameInstance.hiScore = score;
+        }
 
         snakeArray.add(currentSnake);
 
@@ -347,9 +359,11 @@ public class SnakeGame implements Runnable {
             requestReplayStop = false;
             replay = false;
         }
+        NeuralNetworkVisualization.snakeVisionFieldArray.clear();
 
         // Muss unten sein
-        startNewGame();
+        if (score != (settings.reihen * settings.spalten - settings.startLength))
+            startNewGame();
     }
 
     void moveSnake() {
@@ -379,20 +393,16 @@ public class SnakeGame implements Runnable {
             int x, y;
             here:
             while (true) {
-                x = r.nextInt(settings.reihen - 2) + 1;
-                y = r.nextInt(settings.spalten - 2) + 1;
-                if (grid[y][x] != 0)
-                    continue;
-                main.foodPositionX = x;
-                main.foodPositionY = y;
+                x = r.nextInt(settings.reihen) + 1;
+                y = r.nextInt(settings.spalten) + 1;
                 Point p = new Point(x, y);
-                if (treats.contains(p, false) || (snake != null && snake.contains(p, false)))
+
+                if ((snake != null && snake.contains(p, false)) || (x == foodPositionX && y == foodPositionY)) {
                     continue;
-                if (snake != null)
-                    for (int i = 0; i < snake.size; i++) {
-                        if (snake.get(i).x == x && snake.get(i).y == y)
-                            continue here;
-                    }
+                }
+
+                foodPositionX = x;
+                foodPositionY = y;
                 treats.add(p);
                 break;
             }

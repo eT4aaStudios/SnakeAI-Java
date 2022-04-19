@@ -265,7 +265,7 @@ public class SnakeScreen implements Screen {
                     , ((settings.spalten + 2) - 1 - SnakeGame.treats.get(SnakeGame.treats.size - 1).y) * h / (settings.spalten + 2)
                     , w / 2 / (settings.reihen + 2)
                     , h / (settings.spalten + 2));
-        } catch (Exception ignored) {
+        } catch (Exception e) {
 
         }
         //Schlange
@@ -286,12 +286,12 @@ public class SnakeScreen implements Screen {
                                     , w / 2 / (settings.reihen + 2)
                                     , h / (settings.spalten + 2));
                         }
-                    } catch (Exception ignored) {
+                    } catch (Exception e) {
 
                     }
                 }
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
 
         }
         shapeRenderer.end();

@@ -10,6 +10,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -112,5 +113,13 @@ public class AndroidLauncher extends AndroidApplication implements AndroidConnec
 				Toast.makeText(AndroidLauncher.this,text,Toast.LENGTH_SHORT).show();
 			}
 		});
+	}
+
+	@Override
+	public void email() {
+		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("mailto:"+"et4aa.studios@gmail.com"));
+		intent.putExtra(Intent.EXTRA_SUBJECT, "Need some Help");
+		intent.putExtra(Intent.EXTRA_TEXT, "Hello eT4aa,\nI need some Help...");
+		startActivity(intent);
 	}
 }

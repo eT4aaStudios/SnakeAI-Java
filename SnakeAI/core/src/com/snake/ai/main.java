@@ -94,7 +94,7 @@ public class main extends Game {
             VisUI.dispose();
         }
         VisUI.load();
-        VisUI.getSkin().getFont("default-font").getData().setScale(w / 1170);
+        VisUI.getSkin().getFont("default-font").getData().setScale(w / 1100);
 
         settings = new Settings();
         setupLayerNodeArray();
@@ -176,7 +176,7 @@ public class main extends Game {
         slowerButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                sleepTime += 80;
+                sleepTime += 60;
             }
         });
         fasterButton = new VisTextButton("Faster");
@@ -186,8 +186,10 @@ public class main extends Game {
         fasterButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (sleepTime > 60)
-                    sleepTime -= 50;
+                if (sleepTime > 30)
+                    sleepTime -= 30;
+                else
+                    sleepTime = 1;
             }
         });
         maxSpeedButton = new VisTextButton("Max Velocity");
@@ -209,10 +211,10 @@ public class main extends Game {
             public void clicked(InputEvent event, float x, float y) {
                 if (replay) {
                     requestReplayStop = true;
-                    replayBestSnakeButton.setText(" Replay Best SnakeGame\n(Active: false)");
+                    replayBestSnakeButton.setText("Replay Best\nSnake\n(Active: false)");
                 } else {
                     replay = true;
-                    replayBestSnakeButton.setText(" Replay Best SnakeGame\n(Active: true)");
+                    replayBestSnakeButton.setText("Replay Best\nSnake\n(Active: true)");
                 }
                 gameOver = true;
                 currentSnake = snakeGameInstance.bestSnake;
@@ -269,17 +271,18 @@ public class main extends Game {
         helpButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-
+                if (isThisAndroid())
+                    androidConnection.email();
             }
         });
-        scoreboardButton = new VisTextButton("Scoreboard\nComing Soon");
+        scoreboardButton = new VisTextButton("Scoreboard");
         scoreboardButton.setSize(slowerButton.getWidth(), slowerButton.getHeight());
         scoreboardButton.setPosition(getButtonXPosition(1), getButtonYPosition(1));
         scoreboardButton.getLabel().setFontScale(w / 1100);
         scoreboardButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-
+                log("Coming Soon!");
             }
         });
 
@@ -318,7 +321,6 @@ public class main extends Game {
 
 
         this.setScreen(snakeScreen);
-
     }
 
     public static float getButtonXPosition(int numberOfButtonX) {
@@ -333,6 +335,8 @@ public class main extends Game {
     public void render() {
         Gdx.gl.glClearColor(0.2f, 0.8f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        //System.out.println(Arrays.toString(gameThread.getStackTrace()));
 
         super.render();
     }
@@ -437,7 +441,101 @@ public class main extends Game {
         return df.format(fitness);
     }
 
+    public static void log(String text) {
+        if (isThisAndroid())
+            androidConnection.toast(text);
+        else
+            System.out.println(text);
+    }
+
     public static boolean isThisAndroid() {
         return Gdx.app.getType() == Application.ApplicationType.Android;
+    }
+
+    public static double eval(final String str) {
+        return new Object() {
+            int pos = -1, ch;
+
+            void nextChar() {
+                ch = (++pos < str.length()) ? str.charAt(pos) : -1;
+            }
+
+            boolean eat(int charToEat) {
+                while (ch == ' ') nextChar();
+                if (ch == charToEat) {
+                    nextChar();
+                    return true;
+                }
+                return false;
+            }
+
+            double parse() {
+                nextChar();
+                double x = parseExpression();
+                if (pos < str.length()) throw new RuntimeException("Unexpected: " + (char) ch);
+                return x;
+            }
+
+            // Grammar:
+            // expression = term | expression `+` term | expression `-` term
+            // term = factor | term `*` factor | term `/` factor
+            // factor = `+` factor | `-` factor | `(` expression `)` | number
+            //        | functionName `(` expression `)` | functionName factor
+            //        | factor `^` factor
+
+            double parseExpression() {
+                double x = parseTerm();
+                for (; ; ) {
+                    if (eat('+')) x += parseTerm(); // addition
+                    else if (eat('-')) x -= parseTerm(); // subtraction
+                    else return x;
+                }
+            }
+
+            double parseTerm() {
+                double x = parseFactor();
+                for (; ; ) {
+                    if (eat('*')) x *= parseFactor(); // multiplication
+                    else if (eat('/')) x /= parseFactor(); // division
+                    else return x;
+                }
+            }
+
+            double parseFactor() {
+                if (eat('+')) return +parseFactor(); // unary plus
+                if (eat('-')) return -parseFactor(); // unary minus
+
+                double x;
+                int startPos = this.pos;
+                if (eat('(')) { // parentheses
+                    x = parseExpression();
+                    if (!eat(')')) throw new RuntimeException("Missing ')'");
+                } else if ((ch >= '0' && ch <= '9') || ch == '.') { // numbers
+                    while ((ch >= '0' && ch <= '9') || ch == '.') nextChar();
+                    x = Double.parseDouble(str.substring(startPos, this.pos));
+                } else if (ch >= 'a' && ch <= 'z') { // functions
+                    while (ch >= 'a' && ch <= 'z') nextChar();
+                    String func = str.substring(startPos, this.pos);
+                    if (eat('(')) {
+                        x = parseExpression();
+                        if (!eat(')'))
+                            throw new RuntimeException("Missing ')' after argument to " + func);
+                    } else {
+                        x = parseFactor();
+                    }
+                    if (func.equals("sqrt")) x = Math.sqrt(x);
+                    else if (func.equals("sin")) x = Math.sin(Math.toRadians(x));
+                    else if (func.equals("cos")) x = Math.cos(Math.toRadians(x));
+                    else if (func.equals("tan")) x = Math.tan(Math.toRadians(x));
+                    else throw new RuntimeException("Unknown function: " + func);
+                } else {
+                    throw new RuntimeException("Unexpected: " + (char) ch);
+                }
+
+                if (eat('^')) x = Math.pow(x, parseFactor()); // exponentiation
+
+                return x;
+            }
+        }.parse();
     }
 }

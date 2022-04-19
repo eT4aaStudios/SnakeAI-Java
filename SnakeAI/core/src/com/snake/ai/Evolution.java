@@ -1,12 +1,15 @@
 package com.snake.ai;
 
+import static com.snake.ai.main.eval;
 import static com.snake.ai.main.r;
 import static com.snake.ai.main.settings;
 
 public class Evolution {
 
-    public double fitnessFunction(int steps, int score) {
-        return steps + (Math.pow(2d, score) + Math.pow(score, 2.1d) * 500d) - (Math.pow(score, 1.2d) * Math.pow((0.25d * steps), 1.3d));
+    public double fitnessFunction(String formula, int steps, int score) {
+        formula = formula.replace("Score",""+score);
+        formula = formula.replace("Steps",""+steps);
+        return eval(formula);
     }
 
     public double fitnessFunction2(int steps, int score) {

@@ -6,10 +6,11 @@ import com.badlogic.gdx.Gdx;
 public class Settings {
 
     //Neuronales Netzwerk Eigenschaften
-    public int autoSaveAt = 50;
-    public int bestSnakesArraySize = 500;
+    public String fitnessFunction = "Steps + (2 ^ Score + Score ^ 2.1 * 500) - (Score ^ 1.2 * (0.25 * Steps) ^ 1.3)";
+    public int autoSaveAt = 100;
+    public int bestSnakesArraySize = 1000;
     public boolean crossover = false;
-    public double mutationProbability = 5;//%
+    public double mutationProbability = 10;//%
     public double mutationMax = 0.2;
     //Neuronales Netzwerk Aussehen
     public int inputLayerNodes = 24;
@@ -27,7 +28,7 @@ public class Settings {
 
     public Settings() {
         if (Gdx.app.getType() != Application.ApplicationType.Android) {
-            autoSaveAt = 500;
+            autoSaveAt = 1000;
         }
     }
 }

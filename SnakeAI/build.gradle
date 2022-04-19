@@ -107,6 +107,5 @@ project(":core") {
         implementation 'com.google.code.gson:gson:2.9.0'
         implementation 'commons-io:commons-io:2.10.0'
         implementation "com.kotcrab.vis:vis-ui:$visuiVersion"
-
     }
 }

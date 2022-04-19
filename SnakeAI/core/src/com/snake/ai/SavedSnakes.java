@@ -16,6 +16,7 @@ import static com.snake.ai.main.h;
 import static com.snake.ai.main.isThisAndroid;
 import static com.snake.ai.main.layerNodeValueArray;
 import static com.snake.ai.main.loadingSavedGame;
+import static com.snake.ai.main.log;
 import static com.snake.ai.main.maxSpeedButton;
 import static com.snake.ai.main.settings;
 import static com.snake.ai.main.setupLayerNodeArray;
@@ -46,8 +47,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.StreamUtils;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 
+import java.io.BufferedInputStream;
+import java.io.InputStream;
 import java.util.Properties;
 
 public class SavedSnakes extends SnakeScreen implements Screen {
@@ -74,20 +78,33 @@ public class SavedSnakes extends SnakeScreen implements Screen {
         prefs = Gdx.app.getPreferences("SnakeAiVersion2");
         this.main2 = main;
 
-        //file = Gdx.files.internal("BestSnake.txt");
-        //&properties = null;
-        //&properties = new Properties();
+        file = Gdx.files.internal("bestSnake.txt");
+        properties = new Properties();
 
-        //InputStream in = null;
-        //try {
-        //    in = new BufferedInputStream(file.read());
-        //    properties.loadFromXML(in);
-        //} catch (Throwable t) {
-        //    t.printStackTrace();
-        //} finally {
-        //    StreamUtils.closeQuietly(in);
-        //}
-        //file = null;
+        InputStream in = null;
+        try {
+            System.out.println(file.read());
+            in = new BufferedInputStream(file.read());
+            properties.loadFromXML(in);
+            System.out.println(prefs.contains("ActiveGames"));
+            if(!prefs.contains("ActiveGames")) {
+                prefs.clear();
+                prefs.flush();
+                prefs.putString("(SnakeGameInstance) SnakeGame:" + 1, properties.getProperty("(SnakeGameInstance) SnakeGame:" + 1));
+                prefs.putString("(Settings) SnakeGame:" + 1, properties.getProperty("(Settings) SnakeGame:" + 1));
+                prefs.putString("(BestSnakeArray) SnakeGame:" + 1, properties.getProperty("(BestSnakeArray) SnakeGame:" + 1));
+                System.out.println("Writing from File");
+
+                prefs.putInteger("ActiveGames",1);
+                prefs.putInteger("TotalNumberOfGames", 1);
+                prefs.flush();
+            }
+        } catch (Throwable t) {
+            t.printStackTrace();
+        } finally {
+            StreamUtils.closeQuietly(in);
+        }
+        file = null;
     }
 
     @Override
@@ -141,12 +158,12 @@ public class SavedSnakes extends SnakeScreen implements Screen {
         int activeGames;
         int totalNumberOfGames;
         if (activeGamesArray.contains(snakeGameInstance.gameNr, false)) {
-            activeGames = prefs.getInteger("ActiveGames");
+            activeGames = prefs.getInteger("ActiveGames", 1);
             totalNumberOfGames = prefs.getInteger("TotalNumberOfGames");
         } else {
-            activeGames = prefs.getInteger("ActiveGames") + 1;
+            activeGames = prefs.getInteger("ActiveGames", 1) + 1;
             totalNumberOfGames = prefs.getInteger("TotalNumberOfGames") + 1;
-            activeGamesArray.add(activeGames);
+            activeGamesArray.add(activeGames - 1);
         }
         snakeGameInstance.gameNr = totalNumberOfGames;
         main.gameNr = activeGames - 1;
@@ -166,10 +183,7 @@ public class SavedSnakes extends SnakeScreen implements Screen {
         prefs.putInteger("TotalNumberOfGames", totalNumberOfGames);
         prefs.flush();
 
-        if (isThisAndroid())
-            androidConnection.toast("Saved!");
-        else
-            System.out.println("Saved!");
+        log("Saved!");
     }
 
     public static SnakeGameInstance loadAJson(int id) {
@@ -180,13 +194,12 @@ public class SavedSnakes extends SnakeScreen implements Screen {
     public void deleteAJson(int id, int finalI) {
         prefs.remove("(SnakeGameInstance) SnakeGame:" + id);
         prefs.remove("(BestSnakeArray) SnakeGame:" + id);
-        prefs.putInteger("ActiveGames", prefs.getInteger("ActiveGames") - 1);
+        prefs.remove("(Settings) SnakeGame:" + id);
+
+        prefs.putInteger("ActiveGames", prefs.getInteger("ActiveGames", 1) - 1);
         prefs.flush();
         activeGamesArray.removeIndex(finalI);
-        if (isThisAndroid())
-            androidConnection.toast("Deleted!");
-        else
-            System.out.println("Deleted!");
+        log("Deleted!");
     }
 
     public void loadSavedSnakeScrollPane() {
@@ -195,7 +208,7 @@ public class SavedSnakes extends SnakeScreen implements Screen {
             weckerscrollPane.clear();
             weckerscrollPane.setScrollY(position);
             weckerscrollPane.updateVisualScroll();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
 
         }
 
@@ -214,7 +227,7 @@ public class SavedSnakes extends SnakeScreen implements Screen {
 
         weckerselectionContainer = new Table();
 
-        int activeGames = prefs.getInteger("ActiveGames");
+        int activeGames = prefs.getInteger("ActiveGames", 1);
         int totalNumberOfGames = prefs.getInteger("TotalNumberOfGames");
 
         int counter = 0;
@@ -237,7 +250,6 @@ public class SavedSnakes extends SnakeScreen implements Screen {
             activeGamesArray.add(finalCounter);
 
             loadButton = new VisTextButton("Load Game Nr.: " + i +
-                    //"\nBest Fitness Ever: " + fitnessDoubleToE(snakeGameInstance.bestSnake.fitness) +
                     "\nHighScore: " + snakeGameInstance.bestSnake.score +
                     "\nPopulation: " + snakeGameInstance.population);
 
@@ -264,8 +276,7 @@ public class SavedSnakes extends SnakeScreen implements Screen {
                     main.gameNr = finalI;
                     loadingSavedGame = false;
                     freeze = false;
-                    if (isThisAndroid())
-                        androidConnection.toast("Loaded!");
+                    log("Loaded!");
                 }
             });
             g.addActor(loadButton);
@@ -278,12 +289,12 @@ public class SavedSnakes extends SnakeScreen implements Screen {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     System.out.println("Deleted Game Nr.: " + (finalCounter));
-                    deleteAJson(finalCounter,finalI);
+                    deleteAJson(finalCounter, finalI);
                     loadSavedSnakeScrollPane();
                 }
             });
-            //if (finalI > 0)
-            g.addActor(deleteButton);
+            if (finalI > 0)
+                g.addActor(deleteButton);
 
             weckerselectionContainer.add(g).padBottom(4).size(w / 2 / 3.2f, h / 5f);
             weckerselectionContainer.row();
@@ -331,13 +342,9 @@ public class SavedSnakes extends SnakeScreen implements Screen {
                 snake = new Array<>();
                 snakeGame.startNewGame();
 
-                if (isThisAndroid()) {
-                    androidConnection.toast("New Instance created!");
-                    androidConnection.toast("Edit the settings\nand start calculating!");
-                } else {
-                    System.out.println("New Instance created!");
-                    System.out.println("Edit the settings and start calculating!");
-                }
+                log("New Instance created!");
+                log("Edit the settings\nand start calculating!");
+
             }
         });
         g.addActor(newGameButton);

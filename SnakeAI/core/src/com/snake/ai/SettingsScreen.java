@@ -59,6 +59,7 @@ public class SettingsScreen implements Screen {
         });
         settingsStage.addActor(saveButton);
 
+        labelArray.add(createLabel(true, "Fitness Function"));
         labelArray.add(createLabel(true, "Autosave"));
         labelArray.add(createLabel(true, "Best Snakes Array Size"));
         labelArray.add(createLabel(true, "Crossover"));
@@ -76,6 +77,7 @@ public class SettingsScreen implements Screen {
         labelArray.add(createLabel(true, "Max Energy"));
         labelArray.add(createLabel(true, "Start Length"));
 
+        labelArray2.add(createLabel(false, "This formula is used to give a Fitness Score after Snakes death\nGiven Variables:\nScore Steps\nAllowed Operations:\n() + - * / ^ sqrt() sin() cos() tan()"));
         labelArray2.add(createLabel(false, "How much generations until the next autosave will be performed"));
         labelArray2.add(createLabel(false, "From this array new offspring will be created"));
         labelArray2.add(createLabel(false, "When enabled 2 chromosomes of 2 snakes will be used instead of 1"));
@@ -93,6 +95,7 @@ public class SettingsScreen implements Screen {
         labelArray2.add(createLabel(false, "How many steps does one snake have before it dies"));
         labelArray2.add(createLabel(false, "How long is the snake at the beginning"));
 
+        textFieldArray.add(createNewTextField("" + settings.fitnessFunction));
         textFieldArray.add(createNewTextField("" + settings.autoSaveAt));
         textFieldArray.add(createNewTextField("" + settings.bestSnakesArraySize));
         textFieldArray.add(createNewTextField("" + settings.crossover));
@@ -224,40 +227,44 @@ public class SettingsScreen implements Screen {
     }
 
     private void saveSettings() {
-        settings.autoSaveAt = Integer.parseInt(textFieldArray.get(0).getText());
-        settings.bestSnakesArraySize = Integer.parseInt(textFieldArray.get(1).getText());
-        settings.crossover = Boolean.parseBoolean(textFieldArray.get(2).getText());
-        settings.mutationProbability = Double.parseDouble(textFieldArray.get(3).getText());
-        settings.mutationMax = Double.parseDouble(textFieldArray.get(4).getText());
-        settings.inputLayerNodes = Integer.parseInt(textFieldArray.get(5).getText());
-        settings.layer2Nodes = Integer.parseInt(textFieldArray.get(6).getText());
-        settings.layer3Nodes = Integer.parseInt(textFieldArray.get(7).getText());
-        settings.layer4Nodes = Integer.parseInt(textFieldArray.get(8).getText());
-        settings.outputLayerNodes = Integer.parseInt(textFieldArray.get(9).getText());
-        settings.layerMenge = Integer.parseInt(textFieldArray.get(10).getText());
-        settings.POPULATIONSIZE = Integer.parseInt(textFieldArray.get(11).getText());
-        settings.reihen = Integer.parseInt(textFieldArray.get(12).getText());
-        settings.spalten = Integer.parseInt(textFieldArray.get(13).getText());
-        settings.maxEnergy = Integer.parseInt(textFieldArray.get(14).getText());
-        settings.startLength = Integer.parseInt(textFieldArray.get(15).getText());
+        settings.fitnessFunction = textFieldArray.get(0).getText();
+        settings.autoSaveAt = Integer.parseInt(textFieldArray.get(1).getText());
+        settings.bestSnakesArraySize = Integer.parseInt(textFieldArray.get(2).getText());
+        settings.crossover = Boolean.parseBoolean(textFieldArray.get(3).getText());
+        settings.mutationProbability = Double.parseDouble(textFieldArray.get(4).getText());
+        settings.mutationMax = Double.parseDouble(textFieldArray.get(5).getText());
+        settings.inputLayerNodes = Integer.parseInt(textFieldArray.get(6).getText());
+        settings.layer2Nodes = Integer.parseInt(textFieldArray.get(7).getText());
+        settings.layer3Nodes = Integer.parseInt(textFieldArray.get(8).getText());
+        settings.layer4Nodes = Integer.parseInt(textFieldArray.get(9).getText());
+        settings.outputLayerNodes = Integer.parseInt(textFieldArray.get(10).getText());
+        settings.layerMenge = Integer.parseInt(textFieldArray.get(11).getText());
+        settings.POPULATIONSIZE = Integer.parseInt(textFieldArray.get(12).getText());
+        settings.reihen = Integer.parseInt(textFieldArray.get(13).getText());
+        settings.spalten = Integer.parseInt(textFieldArray.get(14).getText());
+        settings.maxEnergy = Integer.parseInt(textFieldArray.get(15).getText());
+        settings.startLength = Integer.parseInt(textFieldArray.get(16).getText());
     }
 
     public static void resetTextFieldText() {
-        textFieldArray.get(0).setText("" + settings.autoSaveAt);
-        textFieldArray.get(1).setText("" + settings.bestSnakesArraySize);
-        textFieldArray.get(2).setText("" + settings.crossover);
-        textFieldArray.get(3).setText("" + settings.mutationProbability);
-        textFieldArray.get(4).setText("" + settings.mutationMax);
-        textFieldArray.get(5).setText("" + settings.inputLayerNodes);
-        textFieldArray.get(6).setText("" + settings.layer2Nodes);
-        textFieldArray.get(7).setText("" + settings.layer3Nodes);
-        textFieldArray.get(8).setText("" + settings.layer4Nodes);
-        textFieldArray.get(9).setText("" + settings.outputLayerNodes);
-        textFieldArray.get(10).setText("" + settings.layerMenge);
-        textFieldArray.get(11).setText("" + settings.POPULATIONSIZE);
-        textFieldArray.get(12).setText("" + settings.reihen);
-        textFieldArray.get(13).setText("" + settings.spalten);
-        textFieldArray.get(14).setText("" + settings.maxEnergy);
-        textFieldArray.get(15).setText("" + settings.startLength);
+        textFieldArray.get(0).setText("" + settings.fitnessFunction);
+        textFieldArray.get(1).setText("" + settings.autoSaveAt);
+        textFieldArray.get(2).setText("" + settings.bestSnakesArraySize);
+        textFieldArray.get(3).setText("" + settings.crossover);
+        textFieldArray.get(4).setText("" + settings.mutationProbability);
+        textFieldArray.get(5).setText("" + settings.mutationMax);
+        textFieldArray.get(6).setText("" + settings.inputLayerNodes);
+        textFieldArray.get(7).setText("" + settings.layer2Nodes);
+        textFieldArray.get(8).setText("" + settings.layer3Nodes);
+        textFieldArray.get(9).setText("" + settings.layer4Nodes);
+        textFieldArray.get(10).setText("" + settings.outputLayerNodes);
+        textFieldArray.get(11).setText("" + settings.layerMenge);
+        textFieldArray.get(12).setText("" + settings.POPULATIONSIZE);
+        textFieldArray.get(13).setText("" + settings.reihen);
+        textFieldArray.get(14).setText("" + settings.spalten);
+        textFieldArray.get(15).setText("" + settings.maxEnergy);
+        textFieldArray.get(16).setText("" + settings.startLength);
     }
+
+
 }

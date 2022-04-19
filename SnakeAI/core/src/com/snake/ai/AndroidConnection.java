@@ -10,4 +10,6 @@ public interface AndroidConnection {
     boolean isMyServiceRunning();
 
     void toast(String text);
+
+    void email();
 }
