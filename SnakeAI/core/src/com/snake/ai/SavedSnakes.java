@@ -11,13 +11,14 @@ import static com.snake.ai.main.currentSnake;
 import static com.snake.ai.main.fieldArray;
 import static com.snake.ai.main.freeze;
 import static com.snake.ai.main.gameNr;
+import static com.snake.ai.main.getButtonXPosition;
+import static com.snake.ai.main.getButtonYPosition;
 import static com.snake.ai.main.gson;
 import static com.snake.ai.main.h;
 import static com.snake.ai.main.isThisAndroid;
 import static com.snake.ai.main.layerNodeValueArray;
 import static com.snake.ai.main.loadingSavedGame;
 import static com.snake.ai.main.log;
-import static com.snake.ai.main.maxSpeedButton;
 import static com.snake.ai.main.settings;
 import static com.snake.ai.main.setupLayerNodeArray;
 import static com.snake.ai.main.shapeRenderer;
@@ -63,7 +64,7 @@ public class SavedSnakes extends SnakeScreen implements Screen {
     private static Table weckerselectionContainer;
     public static ScrollPane weckerscrollPane;
     private static TextButton.TextButtonStyle buttonSelected;
-    private static VisTextButton loadButton, deleteButton, saveButton;
+    private static VisTextButton loadButton, deleteButton, saveOverwriteButton,saveCopyButton;
     public static Skin skin2;
     public static TextureAtlas atlas;
     public static BitmapFont pixel10;
@@ -83,10 +84,8 @@ public class SavedSnakes extends SnakeScreen implements Screen {
 
         InputStream in = null;
         try {
-            System.out.println(file.read());
             in = new BufferedInputStream(file.read());
             properties.loadFromXML(in);
-            System.out.println(prefs.contains("ActiveGames"));
             if(!prefs.contains("ActiveGames")) {
                 prefs.clear();
                 prefs.flush();
@@ -113,19 +112,31 @@ public class SavedSnakes extends SnakeScreen implements Screen {
         savedStage = new Stage();
         Gdx.input.setInputProcessor(savedStage);
         prefs = Gdx.app.getPreferences("SnakeAiVersion2");
-        saveButton = new VisTextButton("Save");
-        saveButton.setSize(showSavedInstancesButton.getWidth(), showSavedInstancesButton.getHeight());
-        saveButton.setPosition(maxSpeedButton.getX(), showSavedInstancesButton.getY());
-        saveButton.getLabel().setFontScale(w / 1100);
-        saveButton.addListener(new ClickListener() {
+        saveOverwriteButton = new VisTextButton("Save &\nOverwrite");
+        saveOverwriteButton.setSize(showSavedInstancesButton.getWidth(), showSavedInstancesButton.getHeight());
+        saveOverwriteButton.setPosition(getButtonXPosition(2), getButtonYPosition(0));
+        saveOverwriteButton.getLabel().setFontScale(w / 1100);
+        saveOverwriteButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 saveAsJson(snakeGameInstance, bestSnakes);
                 loadSavedSnakeScrollPane();
             }
         });
+        saveCopyButton = new VisTextButton("Save &\nMake new");
+        saveCopyButton.setSize(showSavedInstancesButton.getWidth(), showSavedInstancesButton.getHeight());
+        saveCopyButton.setPosition(getButtonXPosition(3), getButtonYPosition(0));
+        saveCopyButton.getLabel().setFontScale(w / 1100);
+        saveCopyButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                saveAsJson(snakeGameInstance, bestSnakes,true);
+                loadSavedSnakeScrollPane();
+            }
+        });
 
-        savedStage.addActor(saveButton);
+        savedStage.addActor(saveOverwriteButton);
+        savedStage.addActor(saveCopyButton);
         savedStage.addActor(startTheGameButton);
         savedStage.addActor(showSavedInstancesButton);
 
@@ -153,11 +164,14 @@ public class SavedSnakes extends SnakeScreen implements Screen {
         batch.end();
     }
 
-
     public static void saveAsJson(SnakeGameInstance snakeGameInstance, Array<Snake> bestSnakes) {
+        saveAsJson(snakeGameInstance,bestSnakes,false);
+    }
+
+    public static void saveAsJson(SnakeGameInstance snakeGameInstance, Array<Snake> bestSnakes,boolean makeNew) {
         int activeGames;
         int totalNumberOfGames;
-        if (activeGamesArray.contains(snakeGameInstance.gameNr, false)) {
+        if (!makeNew && activeGamesArray.contains(snakeGameInstance.gameNr, false)) {
             activeGames = prefs.getInteger("ActiveGames", 1);
             totalNumberOfGames = prefs.getInteger("TotalNumberOfGames");
         } else {
@@ -274,6 +288,7 @@ public class SavedSnakes extends SnakeScreen implements Screen {
                     //Make a new Snake
                     energy = -1;
                     main.gameNr = finalI;
+                    snakeGame.initGrid();
                     loadingSavedGame = false;
                     freeze = false;
                     log("Loaded!");

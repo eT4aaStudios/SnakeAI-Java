@@ -185,7 +185,11 @@ public class SnakeGame implements Runnable {
         if (snakeGameInstance.population > 1)
             tmpArray.removeRange(bestSnakes.size, tmpArray.size - 1);
         else
-            tmpArray.removeRange(settings.bestSnakesArraySize, tmpArray.size - 1);
+            try {
+                tmpArray.removeRange(settings.bestSnakesArraySize, tmpArray.size - 1);
+            } catch (Exception ignored) {
+
+            }
         bestSnakes = tmpArray;
         snakeArray.clear();
 
@@ -223,29 +227,33 @@ public class SnakeGame implements Runnable {
                     }
                 }
 
-                if (!freeze) {
-                    if (energyUsed() || hitsWall() || hitsSnake()) {
-                        gameOver();
-                    } else {
-                        if (eatsTreat()) {
-                            score++;
-                            energy = settings.maxEnergy;
-                            growSnake();
-                        }
-                        moveSnake();
-                        snakeHeadX = snake.get(0).x;
-                        main.snakeHeadY = snake.get(0).y;
-                        if (score == (settings.reihen * settings.spalten - settings.startLength)) {
-                            freeze = true;
-                            log("Done! Max Score reached!");
-                            gameOver();
-                            //saveAsJson(snakeGameInstance, bestSnakes);
-                            continue;
-                        }
-                        main2.berechneLayer();
-                        doAction();
-                    }
+                logic();
+            }
+        }
+    }
+
+    public void logic() {
+        if (!freeze) {
+            if (energyUsed() || hitsWall() || hitsSnake()) {
+                gameOver();
+            } else {
+                if (eatsTreat()) {
+                    score++;
+                    energy = settings.maxEnergy;
+                    growSnake();
                 }
+                moveSnake();
+                snakeHeadX = snake.get(0).x;
+                main.snakeHeadY = snake.get(0).y;
+                if (score == (settings.reihen * settings.spalten - settings.startLength)) {
+                    freeze = true;
+                    log("Done! Max Score reached!");
+                    gameOver();
+                    //saveAsJson(snakeGameInstance, bestSnakes);
+                    return;
+                }
+                main2.berechneLayer();
+                doAction();
             }
         }
     }

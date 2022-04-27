@@ -50,6 +50,7 @@ public class SettingsScreen implements Screen {
             public void clicked(InputEvent event, float x, float y) {
                 freeze = true;
                 saveSettings();
+                snakeGame.initGrid();
                 currentSnake = new Snake();
                 snakeGame.startNewGame();
                 for (int i = 0; i < textFieldArray.size; i++) {
@@ -113,10 +114,6 @@ public class SettingsScreen implements Screen {
         textFieldArray.add(createNewTextField("" + settings.maxEnergy));
         textFieldArray.add(createNewTextField("" + settings.startLength));
 
-        for (int i = 0; i < textFieldArray.size; i++) {
-            settingsStage.addActor(textFieldArray.get(i));
-        }
-
         TextureAtlas atlas = new TextureAtlas("scrollpane/textures.atlas");
         BitmapFont pixel10 = new BitmapFont(Gdx.files.internal("scrollpane/pixel.fnt"), atlas.findRegion("pixel"), false);
         Skin skin2 = new Skin(atlas);
@@ -162,7 +159,7 @@ public class SettingsScreen implements Screen {
 
     private VisTextField createNewTextField(String startValue, boolean disabled) {
         VisTextField textField = new VisTextField(startValue);
-        textField.setSize(w / 3.5f, h / 15);
+        textField.setSize(w / 2.5f, h / 15);
         textField.setPosition((w / 2 - textField.getWidth()) / 2, 0);
         textField.setAlignment(Align.center);
         textField.setDisabled(disabled);

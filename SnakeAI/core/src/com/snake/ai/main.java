@@ -2,9 +2,7 @@ package com.snake.ai;
 
 import static com.snake.ai.SettingsScreen.resetTextFieldText;
 import static com.snake.ai.SnakeGame.gameOver;
-import static com.snake.ai.SnakeGame.gameThread;
 import static com.snake.ai.SnakeGame.sleepTime;
-import static com.snake.ai.SnakeGame.snake;
 
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Game;
@@ -29,7 +27,6 @@ import com.kotcrab.vis.ui.widget.VisTextButton;
 
 import java.text.DecimalFormat;
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class main extends Game {
 
@@ -61,7 +58,7 @@ public class main extends Game {
     public static GlyphLayout layout = new GlyphLayout();
     public static boolean graphMode1;
     public static int populationsSinceLastSave;
-    public static Random r = ThreadLocalRandom.current();
+    public static Random r = new Random();
     public static Evolution evo;
     InputLayerDetection newDetection;
     public static int averageSteps;
@@ -103,11 +100,13 @@ public class main extends Game {
             snakeGame.androidConnection = androidConnection;
             if (!androidConnection.isMyServiceRunning())
                 androidConnection.startService();
-        } else {
-            gameThread = new Thread(main.snakeGame);
-            gameThread.setPriority(Thread.MAX_PRIORITY);
-            gameThread.start();
-            gameThread.setName("SnakeAiCalculating");
+        } else if(isThisHtml()){
+            //TODO HTML STUFF
+        }else {
+            //TODO gameThread = new Thread(main.snakeGame);
+            //TODO gameThread.setPriority(Thread.MAX_PRIORITY);
+            //TODO gameThread.start();
+            //TODO gameThread.setName("SnakeAiCalculating");
         }
 
         for (int i = 0; i < layerNodeValueArray.size; i++) {
@@ -152,10 +151,7 @@ public class main extends Game {
                     freeze = !freeze;
                 }
                 if (isThisAndroid() && !androidConnection.isMyServiceRunning()) {
-                    System.out.println("hello noz running");
-                    System.out.println("Hello1 " + snake.size);
                     androidConnection.startService();
-                    System.out.println("Hello2 " + snake.size);
                     snakeGame.startNewGame();
                 }
             }
@@ -299,9 +295,6 @@ public class main extends Game {
         stage.addActor(helpButton);
 
         currentSnake = new Snake();
-        //for (int i = 0; i < settings.bestSnakesArraySize; i++) {
-        //    bestSnakes.add(currentSnake);
-        //}
         snakeGameInstance.bestSnake = new Snake();
 
         NeuralNetworkVisualization = new NeuralNetworkVisualization();
@@ -317,6 +310,10 @@ public class main extends Game {
         if (isThisAndroid() && androidConnection.isMyServiceRunning()) {
             snakeGame.gameOver();
             freeze = false;
+        }
+
+        if(isThisHtml()) {
+            snakeGame.logic();
         }
 
 
@@ -335,8 +332,6 @@ public class main extends Game {
     public void render() {
         Gdx.gl.glClearColor(0.2f, 0.8f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        //System.out.println(Arrays.toString(gameThread.getStackTrace()));
 
         super.render();
     }
@@ -450,6 +445,10 @@ public class main extends Game {
 
     public static boolean isThisAndroid() {
         return Gdx.app.getType() == Application.ApplicationType.Android;
+    }
+
+    public static boolean isThisHtml() {
+        return Gdx.app.getType() == Application.ApplicationType.WebGL;
     }
 
     public static double eval(final String str) {

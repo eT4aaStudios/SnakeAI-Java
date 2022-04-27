@@ -1,17 +1,16 @@
 package com.snake.ai;
 
-import org.robovm.apple.foundation.NSAutoreleasePool;
-import org.robovm.apple.uikit.UIApplication;
-
 import com.badlogic.gdx.backends.iosrobovm.IOSApplication;
 import com.badlogic.gdx.backends.iosrobovm.IOSApplicationConfiguration;
-import com.snake.ai.main;
+
+import org.robovm.apple.foundation.NSAutoreleasePool;
+import org.robovm.apple.uikit.UIApplication;
 
 public class IOSLauncher extends IOSApplication.Delegate {
     @Override
     protected IOSApplication createApplication() {
         IOSApplicationConfiguration config = new IOSApplicationConfiguration();
-        return new IOSApplication(new main(), config);
+        return new IOSApplication(new main(null), config);
     }
 
     public static void main(String[] argv) {

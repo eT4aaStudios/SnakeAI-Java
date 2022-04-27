@@ -27,6 +27,7 @@ allprojects {
         ashleyVersion = '1.7.0'
         aiVersion = '1.8.0'
         visuiVersion = '1.5.0'
+        gsonVersion = '2.9.0'
     }
 
     repositories {
@@ -93,7 +94,7 @@ project(":html") {
         api "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion"
         api "com.badlogicgames.gdx:gdx:$gdxVersion:sources"
         api "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion:sources"
-
+        implementation "com.kotcrab.vis:vis-ui:$visuiVersion:sources"
     }
 }
 
@@ -104,8 +105,8 @@ project(":core") {
     dependencies {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-backend-robovm:$gdxVersion"
-        implementation 'com.google.code.gson:gson:2.9.0'
-        implementation 'commons-io:commons-io:2.10.0'
+        implementation "commons-io:commons-io:2.10.0"
         implementation "com.kotcrab.vis:vis-ui:$visuiVersion"
+        //TODO implementation "com.google.code.gson:gson:$gsonVersion"
     }
 }
