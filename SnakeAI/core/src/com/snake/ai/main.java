@@ -2,6 +2,7 @@ package com.snake.ai;
 
 import static com.snake.ai.SettingsScreen.resetTextFieldText;
 import static com.snake.ai.SnakeGame.gameOver;
+import static com.snake.ai.SnakeGame.gameThread;
 import static com.snake.ai.SnakeGame.sleepTime;
 
 import com.badlogic.gdx.Application;
@@ -100,13 +101,11 @@ public class main extends Game {
             snakeGame.androidConnection = androidConnection;
             if (!androidConnection.isMyServiceRunning())
                 androidConnection.startService();
-        } else if(isThisHtml()){
-            //TODO HTML STUFF
-        }else {
-            //TODO gameThread = new Thread(main.snakeGame);
-            //TODO gameThread.setPriority(Thread.MAX_PRIORITY);
-            //TODO gameThread.start();
-            //TODO gameThread.setName("SnakeAiCalculating");
+        } else {
+            gameThread = new Thread(main.snakeGame);
+            gameThread.setPriority(Thread.MAX_PRIORITY);
+            gameThread.start();
+            gameThread.setName("SnakeAiCalculating");
         }
 
         for (int i = 0; i < layerNodeValueArray.size; i++) {
