@@ -1,8 +1,7 @@
-package com.snake.ai;
+/*package com.snake.ai;
 
 import static com.badlogic.gdx.Gdx.gl;
 import static com.snake.ai.SnakeGame.energy;
-import static com.snake.ai.SnakeGame.gameThread;
 import static com.snake.ai.SnakeGame.snake;
 import static com.snake.ai.main.androidConnection;
 import static com.snake.ai.main.batch;
@@ -13,7 +12,6 @@ import static com.snake.ai.main.freeze;
 import static com.snake.ai.main.gameNr;
 import static com.snake.ai.main.getButtonXPosition;
 import static com.snake.ai.main.getButtonYPosition;
-import static com.snake.ai.main.gson;
 import static com.snake.ai.main.h;
 import static com.snake.ai.main.isThisAndroid;
 import static com.snake.ai.main.layerNodeValueArray;
@@ -182,16 +180,16 @@ public class SavedSnakes extends SnakeScreen implements Screen {
         snakeGameInstance.gameNr = totalNumberOfGames;
         main.gameNr = activeGames - 1;
 
-        String json1 = gson.toJson(snakeGameInstance);
+        //String json1 = gson.toJson(snakeGameInstance);
         BestSnakes bestSnakesClass = new BestSnakes();
         bestSnakesClass.setBestSnakes(bestSnakes);
-        String json2 = gson.toJson(settings);
-        String json3 = gson.toJson(bestSnakesClass);
+        //String json2 = gson.toJson(settings);
+        //String json3 = gson.toJson(bestSnakesClass);
         //FileUtils.writeStringToFile(new File("SnakeGame:" + totalNumberOfGames + ".txt"), json);
 
-        prefs.putString("(SnakeGameInstance) SnakeGame:" + totalNumberOfGames, json1);
-        prefs.putString("(Settings) SnakeGame:" + totalNumberOfGames, json2);
-        prefs.putString("(BestSnakeArray) SnakeGame:" + totalNumberOfGames, json3);
+        //prefs.putString("(SnakeGameInstance) SnakeGame:" + totalNumberOfGames, json1);
+        //prefs.putString("(Settings) SnakeGame:" + totalNumberOfGames, json2);
+        //prefs.putString("(BestSnakeArray) SnakeGame:" + totalNumberOfGames, json3);
 
         prefs.putInteger("ActiveGames", activeGames);
         prefs.putInteger("TotalNumberOfGames", totalNumberOfGames);
@@ -200,10 +198,10 @@ public class SavedSnakes extends SnakeScreen implements Screen {
         log("Saved!");
     }
 
-    public static SnakeGameInstance loadAJson(int id) {
-        String dataFromPrefs = prefs.getString("(SnakeGameInstance) SnakeGame:" + id);
-        return gson.fromJson(dataFromPrefs, SnakeGameInstance.class);
-    }
+    //public static SnakeGameInstance loadAJson(int id) {
+    //    String dataFromPrefs = prefs.getString("(SnakeGameInstance) SnakeGame:" + id);
+    //    return gson.fromJson(dataFromPrefs, SnakeGameInstance.class);
+    //}
 
     public void deleteAJson(int id, int finalI) {
         prefs.remove("(SnakeGameInstance) SnakeGame:" + id);
@@ -253,7 +251,7 @@ public class SavedSnakes extends SnakeScreen implements Screen {
             SnakeGameInstance snakeGameInstance = null;
             for (int j = counter; j < totalNumberOfGames + 1; j++) {
                 if (prefs.contains("(SnakeGameInstance) SnakeGame:" + j)) {
-                    snakeGameInstance = loadAJson(j);
+                    //snakeGameInstance = loadAJson(j);
                     counter = j + 1;
                     break;
                 }
@@ -281,10 +279,10 @@ public class SavedSnakes extends SnakeScreen implements Screen {
                     main.snakeGameInstance.gameNr = finalCounter;
                     String dataFromPrefs1 = prefs.getString("(Settings) SnakeGame:" + (finalCounter));
                     String dataFromPrefs2 = prefs.getString("(BestSnakeArray) SnakeGame:" + (finalCounter));
-                    settings = gson.fromJson(dataFromPrefs1, Settings.class);
+                    //settings = gson.fromJson(dataFromPrefs1, Settings.class);
                     setupLayerNodeArray();
                     bestSnakes.clear();
-                    bestSnakes = gson.fromJson(dataFromPrefs2, BestSnakes.class).getBestSnakes();
+                    //bestSnakes = gson.fromJson(dataFromPrefs2, BestSnakes.class).getBestSnakes();
                     //Make a new Snake
                     energy = -1;
                     main.gameNr = finalI;
@@ -327,17 +325,17 @@ public class SavedSnakes extends SnakeScreen implements Screen {
                 setupLayerNodeArray();
                 snakeGameInstance = new SnakeGameInstance();
                 snakeGame = new SnakeGame(main2);
-                gameThread.stop();
+                //gameThread.stop();
 
                 if (isThisAndroid()) {
                     snakeGame.androidConnection = androidConnection;
                     if (!androidConnection.isMyServiceRunning())
                         androidConnection.startService();
                 } else {
-                    gameThread = new Thread(snakeGame);
-                    gameThread.setPriority(Thread.MAX_PRIORITY);
-                    gameThread.start();
-                    gameThread.setName("SnakeAiCalculating");
+                    //gameThread = new Thread(snakeGame);
+                    //gameThread.setPriority(Thread.MAX_PRIORITY);
+                    //gameThread.start();
+                    //gameThread.setName("SnakeAiCalculating");
                 }
 
                 for (int i = 0; i < layerNodeValueArray.size; i++) {
@@ -417,4 +415,4 @@ class BestSnakes {
     public void setBestSnakes(Array<Snake> bestSnakes) {
         this.bestSnakes = bestSnakes;
     }
-}
+}*/

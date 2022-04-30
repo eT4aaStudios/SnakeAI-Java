@@ -21,11 +21,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
-import com.google.gson.Gson;
 import com.kotcrab.vis.ui.VisUI;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 
-import java.text.DecimalFormat;
 import java.util.Random;
 
 public class main extends Game {
@@ -66,11 +64,11 @@ public class main extends Game {
     public static int SnakeNr;
     public static boolean replay, requestReplayStop;
     public static Array<Snake> bestSnakes = new Array<>();
-    public static Gson gson = new Gson();
+    //public static Gson gson = new Gson();
     public static SnakeGameInstance snakeGameInstance = new SnakeGameInstance();
     public static SnakeGame snakeGame;
     NeuralNetworkVisualization NeuralNetworkVisualization;
-    SavedSnakes SavedSnakes;
+    //SavedSnakes SavedSnakes;
     SettingsScreen settingsScreen;
     SnakeScreen snakeScreen;
     public static Settings settings;
@@ -101,7 +99,7 @@ public class main extends Game {
             if (!androidConnection.isMyServiceRunning())
                 androidConnection.startService();
         } else if(isThisHtml()){
-            //TODO HTML STUFF
+            snakeGame.run();
         }else {
             //TODO gameThread = new Thread(main.snakeGame);
             //TODO gameThread.setPriority(Thread.MAX_PRIORITY);
@@ -146,8 +144,10 @@ public class main extends Game {
                     snakeGame.startNewGame();
                     freeze = false;
                 } else {
-                    if (sleepTime == 0)
+                    if (sleepTime == 0) {
                         sleepTime = 40;
+                        snakeGame.run();
+                    }
                     freeze = !freeze;
                 }
                 if (isThisAndroid() && !androidConnection.isMyServiceRunning()) {
@@ -173,6 +173,7 @@ public class main extends Game {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 sleepTime += 60;
+                snakeGame.run();
             }
         });
         fasterButton = new VisTextButton("Faster");
@@ -186,6 +187,7 @@ public class main extends Game {
                     sleepTime -= 30;
                 else
                     sleepTime = 1;
+                snakeGame.run();
             }
         });
         maxSpeedButton = new VisTextButton("Max Velocity");
@@ -196,6 +198,7 @@ public class main extends Game {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 sleepTime = 0;
+                snakeGame.run();
             }
         });
         replayBestSnakeButton = new VisTextButton("Replay Best\nSnake");
@@ -238,11 +241,11 @@ public class main extends Game {
         showSavedInstancesButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (main.this.getScreen() != SavedSnakes) {
-                    main.this.setScreen(SavedSnakes);
-                } else {
-                    main.this.setScreen(snakeScreen);
-                }
+                //if (main.this.getScreen() != SavedSnakes) {
+                //    main.this.setScreen(SavedSnakes);
+                //} else {
+                //    main.this.setScreen(snakeScreen);
+                //}
             }
         });
         showSettingsButton = new VisTextButton("Edit Settings");
@@ -298,7 +301,7 @@ public class main extends Game {
         snakeGameInstance.bestSnake = new Snake();
 
         NeuralNetworkVisualization = new NeuralNetworkVisualization();
-        SavedSnakes = new SavedSnakes(this);
+        //SavedSnakes = new SavedSnakes(this);
         try {
             settingsScreen = new SettingsScreen();
         } catch (Exception e) {
@@ -427,13 +430,17 @@ public class main extends Game {
         //}
     }
 
+    //public static String fitnessDoubleToE(double fitness) {
+    //    DecimalFormat df;
+    //    if (fitness >= 1000)
+    //        df = new DecimalFormat("##0.E0");
+    //    else
+    //        df = new DecimalFormat("##0");
+    //    return df.format(fitness);
+    //}
+
     public static String fitnessDoubleToE(double fitness) {
-        DecimalFormat df;
-        if (fitness >= 1000)
-            df = new DecimalFormat("##0.E0");
-        else
-            df = new DecimalFormat("##0");
-        return df.format(fitness);
+        return String.valueOf(fitness);
     }
 
     public static void log(String text) {

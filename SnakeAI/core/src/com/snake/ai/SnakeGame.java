@@ -1,6 +1,5 @@
 package com.snake.ai;
 
-import static com.snake.ai.SavedSnakes.saveAsJson;
 import static com.snake.ai.main.averageSteps;
 import static com.snake.ai.main.bestSnakes;
 import static com.snake.ai.main.currentSnake;
@@ -21,10 +20,11 @@ import static com.snake.ai.main.snakeGameInstance;
 import static com.snake.ai.main.snakeHeadX;
 
 import com.badlogic.gdx.utils.Array;
+import com.google.gwt.core.client.Scheduler;
 
 import java.util.Comparator;
 
-public class SnakeGame implements Runnable {
+public class SnakeGame /*implements Runnable*/ {
     enum Dir {
         up(0, -1), right(1, 0), down(0, 1), left(-1, 0);
 
@@ -62,6 +62,8 @@ public class SnakeGame implements Runnable {
         fitnessComparator = new FitnessComparator();
         this.main2 = main2;
         treats = new Array<>();
+
+
     }
 
     void startNewGame() {
@@ -197,7 +199,7 @@ public class SnakeGame implements Runnable {
         //Autosave
         if (gameNr != 0) {
             if (populationsSinceLastSave >= settings.autoSaveAt - 1) {
-                saveAsJson(snakeGameInstance, bestSnakes);
+                //saveAsJson(snakeGameInstance, bestSnakes);
                 populationsSinceLastSave = 0;
             } else
                 populationsSinceLastSave++;
@@ -215,21 +217,19 @@ public class SnakeGame implements Runnable {
         }
     }
 
-    @Override
     public void run() {
-        while (true) {
-            if (!Thread.currentThread().isInterrupted()) {
-                if (sleepTime > 0) {
-                    try {
-                        Thread.sleep(sleepTime);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
+        Scheduler.RepeatingCommand cmd = new Scheduler.RepeatingCommand() {
+            final float sleepTimeFromScheduler = sleepTime;
+
+            public boolean execute() {
+                //if (!Thread.currentThread().isInterrupted()) {
 
                 logic();
+                return sleepTime == sleepTimeFromScheduler;
             }
-        }
+        };
+
+        Scheduler.get().scheduleFixedPeriod(cmd, sleepTime);
     }
 
     public void logic() {

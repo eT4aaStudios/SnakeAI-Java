@@ -107,6 +107,7 @@ project(":core") {
         api "com.badlogicgames.gdx:gdx-backend-robovm:$gdxVersion"
         implementation "commons-io:commons-io:2.10.0"
         implementation "com.kotcrab.vis:vis-ui:$visuiVersion"
+        implementation "com.google.gwt:gwt-user:2.8.2"
         //TODO implementation "com.google.code.gson:gson:$gsonVersion"
     }
 }
