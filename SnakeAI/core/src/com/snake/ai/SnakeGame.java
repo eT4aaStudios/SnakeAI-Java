@@ -24,7 +24,7 @@ import com.google.gwt.core.client.Scheduler;
 
 import java.util.Comparator;
 
-public class SnakeGame /*implements Runnable*/ {
+public class SnakeGame {
     enum Dir {
         up(0, -1), right(1, 0), down(0, 1), left(-1, 0);
 

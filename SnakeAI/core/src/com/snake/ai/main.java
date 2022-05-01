@@ -100,11 +100,6 @@ public class main extends Game {
                 androidConnection.startService();
         } else if(isThisHtml()){
             snakeGame.run();
-        }else {
-            //TODO gameThread = new Thread(main.snakeGame);
-            //TODO gameThread.setPriority(Thread.MAX_PRIORITY);
-            //TODO gameThread.start();
-            //TODO gameThread.setName("SnakeAiCalculating");
         }
 
         for (int i = 0; i < layerNodeValueArray.size; i++) {
@@ -318,7 +313,6 @@ public class main extends Game {
         if(isThisHtml()) {
             snakeGame.logic();
         }
-
 
         this.setScreen(snakeScreen);
     }

@@ -200,7 +200,7 @@ public class SettingsScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-
+        settingsStage.getViewport().update(width,height);
     }
 
     @Override

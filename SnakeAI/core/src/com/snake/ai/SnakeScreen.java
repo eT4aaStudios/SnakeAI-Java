@@ -89,7 +89,7 @@ public class SnakeScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-
+        snakeStage.getViewport().update(width,height);
     }
 
     @Override
